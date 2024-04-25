@@ -1,15 +1,4 @@
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import wordnet
-from nltk.tokenize import sent_tokenize
-import re
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('omw-1.4')
+import library
 
 def remove_stop_words(text):
     stop_words = set(stopwords.words('english'))
@@ -87,5 +76,3 @@ def preprocess(text):
       words[word] += 1
   return words
 
-txt = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean."
-print(preprocess(txt))
