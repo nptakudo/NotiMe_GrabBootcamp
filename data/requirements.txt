@@ -1,0 +1,4 @@
+polars
+lxml_html_clean
+typing_extensions
+Scrapy
