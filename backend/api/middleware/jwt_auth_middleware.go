@@ -3,7 +3,8 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"notime/api/models"
+	"notime/api"
+	"notime/api/messages"
 	"notime/api/tokenutils"
 	"strings"
 )
@@ -18,19 +19,25 @@ func JwtAuthMiddleware(secret string) gin.HandlerFunc {
 			if authorized {
 				userID, err := tokenutils.ExtractIDFromToken(authToken, secret)
 				if err != nil {
-					c.JSON(http.StatusUnauthorized, models.SimpleResponse{Message: err.Error()})
+					c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: err.Error()})
 					c.Abort()
 					return
 				}
-				c.Set("user-id", userID)
+				userIDUint32, err := tokenutils.HexToUint32(userID)
+				if err != nil {
+					c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: err.Error()})
+					c.Abort()
+					return
+				}
+				c.Set(api.UserIDKey, userIDUint32)
 				c.Next()
 				return
 			}
-			c.JSON(http.StatusUnauthorized, models.SimpleResponse{Message: err.Error()})
+			c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: err.Error()})
 			c.Abort()
 			return
 		}
-		c.JSON(http.StatusUnauthorized, models.SimpleResponse{Message: "Not authorized"})
+		c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: "Not authorized"})
 		c.Abort()
 	}
 }
