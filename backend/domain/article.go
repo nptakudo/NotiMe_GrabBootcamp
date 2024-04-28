@@ -11,8 +11,7 @@ type Article struct {
 
 type ArticleRepository interface {
 	GetByID(id uint32) (*Article, error)
-	GetByPublisher(publisherId uint32) ([]*Article, error)
-	GetLatest() ([]*Article, error)
-	GetLatestByPublisher(publisherId uint32) ([]*Article, error)
-	GetRelated(articleId uint32) ([]*Article, error)
+	GetByPublisher(publisherId uint32, count int) ([]*Article, error)
+	GetLatest(count int) ([]*Article, error)
+	Search(query string, count int) ([]*Article, error)
 }

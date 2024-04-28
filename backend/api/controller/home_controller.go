@@ -11,14 +11,14 @@ type HomeController struct {
 	HomeUsecase messages.HomeUsecase
 }
 
-func (controller *HomeController) GetSubscribedArticlesByDate(ctx *gin.Context) {
+func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) {
 	var request messages.ArticlesRequest
 	if err := ctx.ShouldBind(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 	userID := ctx.GetInt64(api.UserIDKey)
-	articles, err := controller.HomeUsecase.GetSubscribedArticlesByDate(request.Count, uint32(userID))
+	articles, err := controller.HomeUsecase.GetLatestSubscribedArticles(request.Count, uint32(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -27,7 +27,7 @@ func (controller *HomeController) GetSubscribedArticlesByDate(ctx *gin.Context) 
 	ctx.JSON(http.StatusOK, messages.ArticlesResponse{Articles: articles})
 }
 
-func (controller *HomeController) GetSubscribedArticlesByPublisher(ctx *gin.Context) {
+func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gin.Context) {
 	var request messages.ArticlesRequest
 	if err := ctx.ShouldBind(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
@@ -35,7 +35,7 @@ func (controller *HomeController) GetSubscribedArticlesByPublisher(ctx *gin.Cont
 	}
 
 	userID := ctx.GetInt64(api.UserIDKey)
-	articles, err := controller.HomeUsecase.GetSubscribedArticlesByPublisher(request.Count, uint32(userID))
+	articles, err := controller.HomeUsecase.GetLatestSubscribedArticlesByPublisher(request.Count, uint32(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -86,13 +86,13 @@ func (controller *HomeController) Bookmark(ctx *gin.Context) {
 	}
 
 	userID := ctx.GetInt64(api.UserIDKey)
-	article, err := controller.HomeUsecase.Bookmark(request.ArticleID, request.BookmarkListId, uint32(userID))
+	err := controller.HomeUsecase.Bookmark(request.ArticleID, request.BookmarkListId, uint32(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleRelatedResponse{Article: article})
+	ctx.JSON(http.StatusOK, nil)
 }
 
 func (controller *HomeController) Unbookmark(ctx *gin.Context) {
@@ -103,13 +103,13 @@ func (controller *HomeController) Unbookmark(ctx *gin.Context) {
 	}
 
 	userID := ctx.GetInt64(api.UserIDKey)
-	article, err := controller.HomeUsecase.Unbookmark(request.ArticleID, request.BookmarkListId, uint32(userID))
+	err := controller.HomeUsecase.Unbookmark(request.ArticleID, request.BookmarkListId, uint32(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleRelatedResponse{Article: article})
+	ctx.JSON(http.StatusOK, nil)
 }
 
 func (controller *HomeController) Subscribe(ctx *gin.Context) {
@@ -120,13 +120,13 @@ func (controller *HomeController) Subscribe(ctx *gin.Context) {
 	}
 
 	userID := ctx.GetInt64(api.UserIDKey)
-	publisher, err := controller.HomeUsecase.Subscribe(request.PublisherID, uint32(userID))
+	err := controller.HomeUsecase.Subscribe(request.PublisherID, uint32(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.PublisherRelatedResponse{Publisher: publisher})
+	ctx.JSON(http.StatusOK, nil)
 }
 
 func (controller *HomeController) Unsubscribe(ctx *gin.Context) {
@@ -137,11 +137,11 @@ func (controller *HomeController) Unsubscribe(ctx *gin.Context) {
 	}
 
 	userID := ctx.GetInt64(api.UserIDKey)
-	publisher, err := controller.HomeUsecase.Unsubscribe(request.PublisherID, uint32(userID))
+	err := controller.HomeUsecase.Unsubscribe(request.PublisherID, uint32(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.PublisherRelatedResponse{Publisher: publisher})
+	ctx.JSON(http.StatusOK, nil)
 }

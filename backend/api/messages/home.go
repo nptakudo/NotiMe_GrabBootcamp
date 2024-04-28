@@ -31,14 +31,14 @@ type PublisherRelatedResponse struct {
 }
 
 type HomeUsecase interface {
-	GetSubscribedPublishers(count int, userId uint32) ([]*Publisher, error)
-	GetSubscribedArticlesByDate(count int, userId uint32) ([]*Article, error)
-	GetSubscribedArticlesByPublisher(countEachPublisher int, userId uint32) ([]*Article, error)
+	GetSubscribedPublishers(userId uint32) ([]*Publisher, error)
+	GetLatestSubscribedArticles(count int, userId uint32) ([]*Article, error)
+	GetLatestSubscribedArticlesByPublisher(countEachPublisher int, userId uint32) ([]*Article, error)
 	GetExploreArticles(count int, userId uint32) ([]*Article, error)
 	Search(query string, count int, userId uint32) ([]*Article, error)
 
-	Bookmark(articleId uint32, bookmarkListId uint32, userId uint32) (*Article, error)
-	Unbookmark(articleId uint32, bookmarkListId uint32, userId uint32) (*Article, error)
-	Subscribe(publisherId uint32, userId uint32) (*Publisher, error)
-	Unsubscribe(publisherId uint32, userId uint32) (*Publisher, error)
+	Bookmark(articleId uint32, bookmarkListId uint32, userId uint32) error
+	Unbookmark(articleId uint32, bookmarkListId uint32, userId uint32) error
+	Subscribe(publisherId uint32, userId uint32) error
+	Unsubscribe(publisherId uint32, userId uint32) error
 }

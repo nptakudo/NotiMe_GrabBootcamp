@@ -15,9 +15,10 @@ type BookmarkList struct {
 }
 
 type BookmarkListRepository interface {
-	GetByID(id uint32) (*BookmarkList, error)
+	GetByID(id uint32, userId uint32) (*BookmarkList, error)
 	GetByUser(userId uint32) ([]*BookmarkList, error)
 	IsBookmarked(articleId uint32, userId uint32) (bool, error)
+	IsInBookmarkList(articleId uint32, bookmarkListId uint32) (bool, error)
 	AddToBookmarkList(articleId uint32, bookmarkListId uint32) error
 	RemoveFromBookmarkList(articleId uint32, bookmarkListId uint32) error
 	ChangePrivilege(bookmarkListId uint32, privilege int) error
