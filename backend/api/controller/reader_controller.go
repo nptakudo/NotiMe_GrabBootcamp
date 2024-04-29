@@ -12,12 +12,12 @@ type ReaderController struct {
 }
 
 type ReaderUsecase interface {
-	GetArticleById(id uint32, userId uint32) (*messages.Article, error)
+	GetArticleById(id uint32, userId uint32) (*messages.ArticleResponse, error)
 	Bookmark(bookmarkListId uint32, articleId uint32, userId uint32) error
 	Unbookmark(bookmarkListId uint32, articleId uint32, userId uint32) error
 	Subscribe(publisherId uint32, userId uint32) error
 	Unsubscribe(publisherId uint32, userId uint32) error
-	GetRelatedArticles(articleId uint32, userId uint32, count int) ([]*messages.Article, error)
+	GetRelatedArticles(articleId uint32, userId uint32, count int) (*messages.RelatedArticlesResponse, error)
 }
 
 func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
@@ -33,7 +33,7 @@ func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleResponse{Article: article})
+	ctx.JSON(http.StatusOK, article)
 }
 
 func (controller *ReaderController) Bookmark(ctx *gin.Context) {
@@ -113,5 +113,5 @@ func (controller *ReaderController) GetRelatedArticles(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.RelatedArticlesResponse{Articles: articles})
+	ctx.JSON(http.StatusOK, articles)
 }

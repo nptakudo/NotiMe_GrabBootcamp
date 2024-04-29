@@ -2,9 +2,15 @@ package messages
 
 import "notime/domain"
 
-type Article struct {
+type ArticleMetadata struct {
 	IsBookmarked bool `json:"is_bookmarked"`
-	domain.Article
+	domain.ArticleMetadata
+}
+
+type ArticleContent struct {
+	Id       uint32 `json:"id"`
+	Content  string `json:"content"`
+	ImageUrl string `json:"image_url"`
 }
 
 type Publisher struct {

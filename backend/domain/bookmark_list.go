@@ -1,12 +1,12 @@
 package domain
 
 type BookmarkList struct {
-	Id          uint32     `json:"id"`
-	Name        string     `json:"name"`
-	IsSavedList bool       `json:"is_saved_list"`
-	Articles    []*Article `json:"articles"`
-	User        *User      `json:"user"`
-	IsOwner     bool       `json:"is_owner"`
+	Id          uint32             `json:"id"`
+	Name        string             `json:"name"`
+	IsSavedList bool               `json:"is_saved_list"`
+	Articles    []*ArticleMetadata `json:"articles"`
+	User        *User              `json:"user"`
+	IsOwner     bool               `json:"is_owner"`
 }
 
 type BookmarkListRepository interface {

@@ -5,18 +5,18 @@ import "notime/domain"
 // ArticleRepositoryImpl TODO
 type ArticleRepositoryImpl struct{}
 
-func (r *ArticleRepositoryImpl) GetById(id uint32) (*domain.Article, error) {
+func (r *ArticleRepositoryImpl) GetById(id uint32) (*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) GetByPublisher(publisherId uint32, count int) ([]*domain.Article, error) {
+func (r *ArticleRepositoryImpl) GetByPublisher(publisherId uint32, count int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) GetLatest(count int) ([]*domain.Article, error) {
+func (r *ArticleRepositoryImpl) GetLatest(count int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) Search(query string, count int) ([]*domain.Article, error) {
+func (r *ArticleRepositoryImpl) Search(query string, count int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }

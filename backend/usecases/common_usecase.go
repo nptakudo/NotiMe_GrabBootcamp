@@ -7,7 +7,7 @@ import (
 )
 
 type CommonUsecase interface {
-	GetArticleById(id uint32, userId uint32) (*messages.Article, error)
+	GetArticleMetadataById(id uint32, userId uint32) (*messages.ArticleMetadata, error)
 	GetPublisherById(id uint32, userId uint32) (*messages.Publisher, error)
 
 	IsBookmarked(articleId uint32, bookmarkListId uint32, userId uint32) (bool, error)
@@ -26,15 +26,15 @@ type CommonUsecaseImpl struct {
 	SubscribeListRepository domain.SubscribeListRepository
 }
 
-func (uc *CommonUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages.Article, error) {
+func (uc *CommonUsecaseImpl) GetArticleMetadataById(id uint32, userId uint32) (*messages.ArticleMetadata, error) {
 	articleDm, err := uc.ArticleRepository.GetById(id)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetArticleById: %v", err)
+		slog.Error("[HomeUsecase] GetArticleMetadataById: %v", err)
 		return nil, ErrInternal
 	}
 	isBookmarked, err := uc.BookmarkListRepository.IsBookmarked(id, userId)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetArticleById: %v", err)
+		slog.Error("[HomeUsecase] GetArticleMetadataById: %v", err)
 		return nil, ErrInternal
 	}
 	return FromDmArticleToApi(articleDm, isBookmarked), nil

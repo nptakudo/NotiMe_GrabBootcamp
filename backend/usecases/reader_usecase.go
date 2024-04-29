@@ -5,6 +5,7 @@ import (
 	"notime/api/messages"
 	"notime/domain"
 	"notime/repository"
+	"notime/utils/htmlutils"
 )
 
 type ReaderUsecaseImpl struct {
@@ -13,8 +14,29 @@ type ReaderUsecaseImpl struct {
 	BookmarkListRepository domain.BookmarkListRepository
 }
 
-func (uc *ReaderUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages.Article, error) {
-	return uc.CommonUsecase.GetArticleById(id, userId)
+func (uc *ReaderUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages.ArticleResponse, error) {
+	metadata, err := uc.CommonUsecase.GetArticleMetadataById(id, userId)
+	if err != nil {
+		return nil, err
+	}
+	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(metadata.Url)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
+		return nil, ErrInternal
+	}
+	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(metadata.Url)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
+		return nil, ErrInternal
+	}
+	return &messages.ArticleResponse{
+		Metadata: metadata,
+		Content: &messages.ArticleContent{
+			Id:       metadata.Id,
+			Content:  body,
+			ImageUrl: imgSrc,
+		},
+	}, nil
 }
 
 func (uc *ReaderUsecaseImpl) Bookmark(bookmarkListId uint32, articleId uint32, userId uint32) error {
@@ -33,7 +55,7 @@ func (uc *ReaderUsecaseImpl) Unsubscribe(publisherId uint32, userId uint32) erro
 	return uc.CommonUsecase.Unsubscribe(publisherId, userId)
 }
 
-func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32, count int) ([]*messages.Article, error) {
+func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32, count int) (*messages.RelatedArticlesResponse, error) {
 	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(articleId, userId, count)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetRelatedArticles: %v", err)
@@ -44,5 +66,5 @@ func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32,
 		slog.Error("[ReaderUsecase] GetRelatedArticles: %v", err)
 		return nil, ErrInternal
 	}
-	return relatedArticlesApi, nil
+	return &messages.RelatedArticlesResponse{Articles: relatedArticlesApi}, nil
 }

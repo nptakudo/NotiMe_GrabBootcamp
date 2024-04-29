@@ -5,7 +5,7 @@ type ArticleListRequest struct {
 }
 
 type ArticleListResponse struct {
-	Articles []*Article `json:"articles"`
+	Articles []*ArticleMetadata `json:"articles"`
 }
 
 type SearchRequest struct {

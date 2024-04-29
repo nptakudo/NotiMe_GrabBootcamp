@@ -2,7 +2,7 @@ package domain
 
 import "time"
 
-type Article struct {
+type ArticleMetadata struct {
 	Id        uint32     `json:"id"`
 	Title     string     `json:"title"`
 	Publisher *Publisher `json:"publisher"`
@@ -11,8 +11,8 @@ type Article struct {
 }
 
 type ArticleRepository interface {
-	GetById(id uint32) (*Article, error)
-	GetByPublisher(publisherId uint32, count int) ([]*Article, error)
-	GetLatest(count int) ([]*Article, error)
-	Search(query string, count int) ([]*Article, error)
+	GetById(id uint32) (*ArticleMetadata, error)
+	GetByPublisher(publisherId uint32, count int) ([]*ArticleMetadata, error)
+	GetLatest(count int) ([]*ArticleMetadata, error)
+	Search(query string, count int) ([]*ArticleMetadata, error)
 }

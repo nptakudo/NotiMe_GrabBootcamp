@@ -13,10 +13,10 @@ type HomeController struct {
 
 type HomeUsecase interface {
 	GetSubscribedPublishers(userId uint32) ([]*messages.Publisher, error)
-	GetLatestSubscribedArticles(count int, userId uint32) ([]*messages.Article, error)
-	GetLatestSubscribedArticlesByPublisher(countEachPublisher int, userId uint32) ([]*messages.Article, error)
-	GetExploreArticles(count int, userId uint32) ([]*messages.Article, error)
-	Search(query string, count int, userId uint32) ([]*messages.Article, error)
+	GetLatestSubscribedArticles(count int, userId uint32) ([]*messages.ArticleMetadata, error)
+	GetLatestSubscribedArticlesByPublisher(countEachPublisher int, userId uint32) ([]*messages.ArticleMetadata, error)
+	GetExploreArticles(count int, userId uint32) ([]*messages.ArticleMetadata, error)
+	Search(query string, count int, userId uint32) ([]*messages.ArticleMetadata, error)
 
 	Bookmark(articleId uint32, bookmarkListId uint32, userId uint32) error
 	Unbookmark(articleId uint32, bookmarkListId uint32, userId uint32) error

@@ -5,12 +5,12 @@ import (
 	"notime/domain"
 )
 
-func fromApiArticleToDm(a *messages.Article) *domain.Article {
-	return &a.Article
+func fromApiArticleToDm(a *messages.ArticleMetadata) *domain.ArticleMetadata {
+	return &a.ArticleMetadata
 }
 
-func FromDmArticleToApi(a *domain.Article, isBookmarked bool) *messages.Article {
-	return &messages.Article{Article: *a, IsBookmarked: isBookmarked}
+func FromDmArticleToApi(a *domain.ArticleMetadata, isBookmarked bool) *messages.ArticleMetadata {
+	return &messages.ArticleMetadata{ArticleMetadata: *a, IsBookmarked: isBookmarked}
 }
 
 func FromApiPublisherToDm(p *messages.Publisher) *domain.Publisher {
@@ -21,8 +21,8 @@ func FromDmPublisherToApi(p *domain.Publisher, isSubscribed bool) *messages.Publ
 	return &messages.Publisher{Publisher: *p, IsSubscribed: isSubscribed}
 }
 
-func fromDmArticlesToApi(articles []*domain.Article, userId uint32, bookmarkListRepository domain.BookmarkListRepository) ([]*messages.Article, error) {
-	articlesApi := make([]*messages.Article, 0)
+func fromDmArticlesToApi(articles []*domain.ArticleMetadata, userId uint32, bookmarkListRepository domain.BookmarkListRepository) ([]*messages.ArticleMetadata, error) {
+	articlesApi := make([]*messages.ArticleMetadata, 0)
 	for _, article := range articles {
 		isBookmarked, err := bookmarkListRepository.IsBookmarked(article.Id, userId)
 		if err != nil {
