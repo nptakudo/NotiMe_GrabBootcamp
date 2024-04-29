@@ -78,7 +78,7 @@ func (uc *CommonUsecaseImpl) Bookmark(articleId uint32, bookmarkListId uint32, u
 		slog.Error("[HomeUsecase] Bookmark: %v", err)
 		return ErrInternal
 	}
-	if bookmarkListDm.Privilege != domain.ReadWrite {
+	if bookmarkListDm.IsOwner == false {
 		return ErrNotAuthorized
 	}
 
@@ -96,7 +96,7 @@ func (uc *CommonUsecaseImpl) Unbookmark(articleId uint32, bookmarkListId uint32,
 		slog.Error("[HomeUsecase] Unbookmark: %v", err)
 		return ErrInternal
 	}
-	if bookmarkListDm.Privilege != domain.ReadWrite {
+	if bookmarkListDm.IsOwner == false {
 		return ErrNotAuthorized
 	}
 

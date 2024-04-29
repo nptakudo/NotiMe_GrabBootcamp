@@ -3,6 +3,7 @@ package domain
 type Publisher struct {
 	Id         uint32 `json:"id"`
 	Name       string `json:"name"`
+	Url        string `json:"url"`
 	AvatarPath string `json:"avatar_path"`
 }
 

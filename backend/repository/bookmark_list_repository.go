@@ -28,10 +28,6 @@ func (r *BookmarkListRepositoryImpl) RemoveFromBookmarkList(articleId uint32, bo
 	return nil
 }
 
-func (r *BookmarkListRepositoryImpl) ChangePrivilege(bookmarkListId uint32, privilege int) error {
-	return nil
-}
-
 func (r *BookmarkListRepositoryImpl) Create(bookmarkListName string, userId uint32) (*domain.BookmarkList, error) {
 	return nil, nil
 }
