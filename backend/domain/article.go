@@ -3,14 +3,15 @@ package domain
 import "time"
 
 type Article struct {
-	ID        uint32     `json:"id"`
+	Id        uint32     `json:"id"`
 	Title     string     `json:"title"`
 	Publisher *Publisher `json:"publisher"`
 	Date      time.Time  `json:"date"`
+	Url       string     `json:"url"`
 }
 
 type ArticleRepository interface {
-	GetByID(id uint32) (*Article, error)
+	GetById(id uint32) (*Article, error)
 	GetByPublisher(publisherId uint32, count int) ([]*Article, error)
 	GetLatest(count int) ([]*Article, error)
 	Search(query string, count int) ([]*Article, error)

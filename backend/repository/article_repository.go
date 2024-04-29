@@ -5,7 +5,7 @@ import "notime/domain"
 // ArticleRepositoryImpl TODO
 type ArticleRepositoryImpl struct{}
 
-func (r *ArticleRepositoryImpl) GetByID(id uint32) (*domain.Article, error) {
+func (r *ArticleRepositoryImpl) GetById(id uint32) (*domain.Article, error) {
 	return nil, nil
 }
 

@@ -1,5 +1,5 @@
 package api
 
 const (
-	UserIDKey = "user-id"
+	UserIdKey = "user-id"
 )

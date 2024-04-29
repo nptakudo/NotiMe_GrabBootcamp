@@ -17,19 +17,19 @@ func JwtAuthMiddleware(secret string) gin.HandlerFunc {
 			authToken := t[1]
 			authorized, err := tokenutils.IsAuthorized(authToken, secret)
 			if authorized {
-				userID, err := tokenutils.ExtractIDFromToken(authToken, secret)
+				userId, err := tokenutils.ExtractIdFromToken(authToken, secret)
 				if err != nil {
 					c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: err.Error()})
 					c.Abort()
 					return
 				}
-				userIDUint32, err := tokenutils.HexToUint32(userID)
+				userIdUint32, err := tokenutils.HexToUint32(userId)
 				if err != nil {
 					c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: err.Error()})
 					c.Abort()
 					return
 				}
-				c.Set(api.UserIDKey, userIDUint32)
+				c.Set(api.UserIdKey, userIdUint32)
 				c.Next()
 				return
 			}

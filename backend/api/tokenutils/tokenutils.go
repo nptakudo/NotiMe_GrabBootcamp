@@ -10,12 +10,12 @@ import (
 
 type JwtCustomClaims struct {
 	Name string `json:"name"`
-	ID   string `json:"id"`
+	Id   string `json:"id"`
 	jwt.RegisteredClaims
 }
 
 type JwtCustomRefreshClaims struct {
-	ID string `json:"id"`
+	Id string `json:"id"`
 	jwt.RegisteredClaims
 }
 
@@ -36,7 +36,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 	exp := time.Now().Add(time.Hour * time.Duration(expiry))
 	claims := &JwtCustomClaims{
 		Name: user.Username,
-		ID:   Uint32ToHex(user.ID),
+		Id:   Uint32ToHex(user.Id),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{Time: exp},
 		},
@@ -51,7 +51,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 
 func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshToken string, err error) {
 	claimsRefresh := &JwtCustomRefreshClaims{
-		ID: Uint32ToHex(user.ID),
+		Id: Uint32ToHex(user.Id),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{Time: time.Now().Add(time.Hour * time.Duration(expiry))},
 		},
@@ -77,7 +77,7 @@ func IsAuthorized(requestToken string, secret string) (bool, error) {
 	return true, nil
 }
 
-func ExtractIDFromToken(requestToken string, secret string) (string, error) {
+func ExtractIdFromToken(requestToken string, secret string) (string, error) {
 	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

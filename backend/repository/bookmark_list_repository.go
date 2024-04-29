@@ -4,7 +4,7 @@ import "notime/domain"
 
 type BookmarkListRepositoryImpl struct{}
 
-func (r *BookmarkListRepositoryImpl) GetByID(id uint32, userId uint32) (*domain.BookmarkList, error) {
+func (r *BookmarkListRepositoryImpl) GetById(id uint32, userId uint32) (*domain.BookmarkList, error) {
 	return nil, nil
 }
 

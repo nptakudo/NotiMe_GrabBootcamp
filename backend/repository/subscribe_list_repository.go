@@ -5,7 +5,7 @@ import "notime/domain"
 // SubscribeListRepositoryImpl TODO
 type SubscribeListRepositoryImpl struct{}
 
-func (r *SubscribeListRepositoryImpl) GetByID(id uint32) ([]*domain.Publisher, error) {
+func (r *SubscribeListRepositoryImpl) GetById(id uint32) ([]*domain.Publisher, error) {
 	return nil, nil
 }
 

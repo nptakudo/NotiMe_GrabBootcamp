@@ -7,7 +7,7 @@ const (
 )
 
 type BookmarkList struct {
-	ID        uint32     `json:"id"`
+	Id        uint32     `json:"id"`
 	Name      string     `json:"name"`
 	Articles  []*Article `json:"articles"`
 	User      *User      `json:"user"`
@@ -15,7 +15,7 @@ type BookmarkList struct {
 }
 
 type BookmarkListRepository interface {
-	GetByID(id uint32, userId uint32) (*BookmarkList, error)
+	GetById(id uint32, userId uint32) (*BookmarkList, error)
 	GetByUser(userId uint32) ([]*BookmarkList, error)
 	IsBookmarked(articleId uint32, userId uint32) (bool, error)
 	IsInBookmarkList(articleId uint32, bookmarkListId uint32) (bool, error)

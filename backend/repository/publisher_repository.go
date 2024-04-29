@@ -5,7 +5,7 @@ import "notime/domain"
 // PublisherRepositoryImpl TODO
 type PublisherRepositoryImpl struct{}
 
-func (r *PublisherRepositoryImpl) GetByID(id uint32) (*domain.Publisher, error) {
+func (r *PublisherRepositoryImpl) GetById(id uint32) (*domain.Publisher, error) {
 	return nil, nil
 }
 

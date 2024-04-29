@@ -14,6 +14,7 @@ func NewHomeRouter(group *gin.RouterGroup) {
 			SubscribeListRepository: &repository.SubscribeListRepositoryImpl{},
 			RecsysRepository:        &repository.RecsysRepositoryImpl{},
 			BookmarkListRepository:  &repository.BookmarkListRepositoryImpl{},
+			CommonUsecase:           &usecases.CommonUsecaseImpl{},
 		},
 	}
 	group.GET("/subscribed_articles_by_date", homeController.GetLatestSubscribedArticles)
