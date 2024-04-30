@@ -4,5 +4,5 @@ import java.math.BigInteger
 
 data class Subscription(
     val userId: BigInteger,
-    val sourceId: BigInteger
+    val publisherId: BigInteger
 )

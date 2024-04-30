@@ -15,7 +15,7 @@ fun AppNavGraph(
         showLogin(navController)
         showLatest(navController)
         showExplore(navController)
-        showPostDetail(navController)
+        showArticleDetail(navController)
         showReadingList(navController)
         showListDetail(navController)
     }
@@ -35,8 +35,8 @@ private fun NavGraphBuilder.showExplore(navController: NavController) {
 
     }
 }
-private fun NavGraphBuilder.showPostDetail(navController: NavController) {
-    composable(Route.PostDetail.route) {
+private fun NavGraphBuilder.showArticleDetail(navController: NavController) {
+    composable(Route.ArticleDetail.route) {
 
     }
 }

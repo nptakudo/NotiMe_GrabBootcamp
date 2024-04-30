@@ -6,5 +6,6 @@ data class ReadingList(
     val listId: BigInteger,
     val listName: String,
     val owner: BigInteger,
-    val isSaved: Boolean
+    val isSaved: Boolean,
+    val articleList: List<Article>
 )
