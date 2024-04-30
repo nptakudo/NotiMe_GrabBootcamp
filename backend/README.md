@@ -7,11 +7,13 @@
 2. Database library: `sqlc` (connect with existing db from data team)
 
 ## Steps to add new routes (home, reader, login, etc.)
+
 1. `api/messages/`: Create new `.go` file and add message formats
 2. `api/controller/`: Create new `.go` file and add (1.) use-case interface, and (2.) controller
 3. `usecases/`: Create new `.go` file and add use-case implementation.
-   - May have to modify repositories in `repository/` and `domain/`
-   - Remember: don't return sensitive errors. May want to use `ErrInternal` or define new errors in `usecases/errors.go`.
+    - May have to modify repositories in `repository/` and `domain/`
+    - Remember: don't return sensitive errors. May want to use `ErrInternal` or define new errors
+      in `usecases/errors.go`.
 4. `api/route/`: Create new `.go` file and add new routes (`GET`, `POST`, etc.)
 
 ## References

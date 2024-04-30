@@ -3,12 +3,15 @@ package usecases
 import (
 	"log/slog"
 	"notime/api/messages"
+	"notime/bootstrap"
 	"notime/domain"
 	"notime/repository"
+	"notime/utils/geminiutils"
 	"notime/utils/htmlutils"
 )
 
 type ReaderUsecaseImpl struct {
+	env                    *bootstrap.Env
 	CommonUsecase          CommonUsecase
 	RecsysRepository       repository.RecsysRepository
 	BookmarkListRepository domain.BookmarkListRepository
@@ -19,16 +22,26 @@ func (uc *ReaderUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages
 	if err != nil {
 		return nil, err
 	}
+
+	// Scrape article content & primary image
 	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(metadata.Url)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
-		return nil, ErrInternal
+		body = ""
 	}
 	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(metadata.Url)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
-		return nil, ErrInternal
+		imgSrc = ""
 	}
+
+	// Generate article summary
+	summary, err := geminiutils.GenerateArticleSummary(uc.env, body)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
+		summary = ""
+	}
+
 	return &messages.ArticleResponse{
 		Metadata: metadata,
 		Content: &messages.ArticleContent{
@@ -36,6 +49,7 @@ func (uc *ReaderUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages
 			Content:  body,
 			ImageUrl: imgSrc,
 		},
+		Summary: summary,
 	}, nil
 }
 

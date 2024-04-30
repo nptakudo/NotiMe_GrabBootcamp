@@ -7,6 +7,7 @@ type ArticleRequest struct {
 type ArticleResponse struct {
 	Metadata *ArticleMetadata `json:"article"`
 	Content  *ArticleContent  `json:"content"`
+	Summary  string           `json:"summary"`
 }
 
 type RelatedArticlesRequest struct {
