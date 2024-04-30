@@ -21,6 +21,6 @@ func Setup(env *bootstrap.Env, timeout time.Duration, gin *gin.Engine) {
 	readerRouter := protectedRouter.Group("/reader")
 	NewReaderRouter(readerRouter)
 
-	commonRouter := protectedRouter.Group("/common")
+	commonRouter := protectedRouter.Group("")
 	CommonRouter(commonRouter)
 }

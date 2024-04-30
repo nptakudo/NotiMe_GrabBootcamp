@@ -41,6 +41,33 @@ func (uc *CommonUsecaseImpl) GetPublisherById(id uint32, userId uint32) (*messag
 	return FromDmPublisherToApi(publisherDm, isSubscribed), nil
 }
 
+func (uc *CommonUsecaseImpl) GetBookmarkLists(userId uint32) ([]*messages.BookmarkList, error) {
+	bookmarkListsDm, err := uc.BookmarkListRepository.GetByUser(userId)
+	if err != nil {
+		slog.Error("[HomeUsecase] GetBookmarkLists: %v", err)
+		return nil, ErrInternal
+	}
+	return fromDmBookmarkListsToApi(bookmarkListsDm), nil
+}
+
+func (uc *CommonUsecaseImpl) GetBookmarkListById(id uint32, userId uint32) (*messages.BookmarkList, error) {
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(id)
+	if err != nil {
+		slog.Error("[HomeUsecase] GetBookmarkListById: %v", err)
+		return nil, ErrInternal
+	}
+	return fromDmBookmarkListToApi(bookmarkListDm), nil
+}
+
+func (uc *CommonUsecaseImpl) GetSubscriptions(userId uint32) ([]*messages.Publisher, error) {
+	subscribedPublishersDm, err := uc.SubscribeListRepository.GetByUser(userId)
+	if err != nil {
+		slog.Error("[HomeUsecase] GetSubscriptions: %v", err)
+		return nil, ErrInternal
+	}
+	return fromDmSubscribedPublishersToApi(subscribedPublishersDm)
+}
+
 func (uc *CommonUsecaseImpl) IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error) {
 	isBookmarked, err := uc.BookmarkListRepository.IsBookmarked(articleId, bookmarkListId)
 	if err != nil {

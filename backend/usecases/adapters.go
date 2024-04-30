@@ -21,6 +21,10 @@ func FromDmPublisherToApi(p *domain.Publisher, isSubscribed bool) *messages.Publ
 	return &messages.Publisher{Publisher: *p, IsSubscribed: isSubscribed}
 }
 
+func fromDmBookmarkListToApi(bookmarkList *domain.BookmarkList) *messages.BookmarkList {
+	return &messages.BookmarkList{BookmarkList: *bookmarkList}
+}
+
 func fromDmArticlesToApi(articles []*domain.ArticleMetadata, userId uint32, bookmarkListRepository domain.BookmarkListRepository) ([]*messages.ArticleMetadata, error) {
 	articlesApi := make([]*messages.ArticleMetadata, 0)
 	for _, article := range articles {
@@ -39,4 +43,12 @@ func fromDmSubscribedPublishersToApi(publishers []*domain.Publisher) ([]*message
 		publishersApi = append(publishersApi, FromDmPublisherToApi(publisher, true))
 	}
 	return publishersApi, nil
+}
+
+func fromDmBookmarkListsToApi(bookmarkLists []*domain.BookmarkList) []*messages.BookmarkList {
+	bookmarkListsApi := make([]*messages.BookmarkList, 0)
+	for _, bookmarkList := range bookmarkLists {
+		bookmarkListsApi = append(bookmarkListsApi, fromDmBookmarkListToApi(bookmarkList))
+	}
+	return bookmarkListsApi
 }

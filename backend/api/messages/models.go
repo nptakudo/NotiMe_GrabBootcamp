@@ -17,3 +17,7 @@ type Publisher struct {
 	IsSubscribed bool `json:"is_subscribed"`
 	domain.Publisher
 }
+
+type BookmarkList struct {
+	domain.BookmarkList
+}
