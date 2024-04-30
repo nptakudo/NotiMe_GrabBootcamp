@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.Article
-import com.example.frontend.data.repository.CommonRepository
+import com.example.frontend.data.model.BookmarkList
+import com.example.frontend.data.repository.BookmarkRepository
 import com.example.frontend.data.repository.RecsysRepository
+import com.example.frontend.data.repository.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,11 +25,13 @@ object HomeConfig {
 
 data class HomeUiState(
     val articles: List<Article>,
+    val bookmarks: List<BookmarkList>,
     val state: State,
 ) {
     companion object {
         val empty = HomeUiState(
             articles = emptyList(),
+            bookmarks = emptyList(),
             state = State.Idle
         )
     }
@@ -41,14 +45,20 @@ enum class State {
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val recsysRepository: RecsysRepository,
-    private val commonRepository: CommonRepository
+    private val bookmarkRepository: BookmarkRepository,
+    private val subscriptionRepository: SubscriptionRepository
 ) : ViewModel() {
     private var _articles = MutableStateFlow(emptyList<Article>())
+    private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
     private var _uiState = MutableStateFlow(HomeUiState.empty)
 
     val uiState = _uiState.combine(_articles) { uiState, articles ->
         uiState.copy(
             articles = articles
+        )
+    }.combine(_bookmarks) { uiState, bookmarks ->
+        uiState.copy(
+            bookmarks = bookmarks
         )
     }.stateIn(
         viewModelScope,
@@ -59,7 +69,7 @@ class HomeViewModel @Inject constructor(
     fun onBookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
         viewModelScope.launch {
             try {
-                commonRepository.bookmarkArticle(articleId, bookmarkId)
+                bookmarkRepository.bookmarkArticle(articleId, bookmarkId)
                 _articles.update { articles ->
                     articles.map {
                         if (it.id == articleId) {
@@ -78,7 +88,7 @@ class HomeViewModel @Inject constructor(
     fun onUnbookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
         viewModelScope.launch {
             try {
-                commonRepository.unbookmarkArticle(articleId, bookmarkId)
+                bookmarkRepository.unbookmarkArticle(articleId, bookmarkId)
                 _articles.update { articles ->
                     articles.map {
                         if (it.id == articleId) {
@@ -97,7 +107,7 @@ class HomeViewModel @Inject constructor(
     fun onSubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                commonRepository.subscribePublisher(publisherId)
+                subscriptionRepository.subscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to subscribe publisher")
             }
@@ -107,7 +117,7 @@ class HomeViewModel @Inject constructor(
     fun onUnsubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                commonRepository.unsubscribePublisher(publisherId)
+                subscriptionRepository.unsubscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to unsubscribe publisher")
             }
@@ -132,6 +142,7 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
             } catch (e: Exception) {
                 Log.e(
                     HomeConfig.LOG_TAG,
