@@ -13,11 +13,11 @@ fun AppNavGraph(
 ) {
     NavHost(navController = navController, startDestination = Route.Login.route) {
         showLogin(navController)
-        showLatest(navController)
+        showHome(navController)
         showExplore(navController)
-        showArticleDetail(navController)
-        showReadingList(navController)
-        showListDetail(navController)
+        showReader(navController)
+        showBookmarkList(navController)
+        showBookmarkListDetail(navController)
     }
 }
 
@@ -27,8 +27,8 @@ private fun NavGraphBuilder.showLogin(navController: NavController) {
     }
 }
 
-private fun NavGraphBuilder.showLatest(navController: NavController) {
-    composable(Route.Latest.route) {
+private fun NavGraphBuilder.showHome(navController: NavController) {
+    composable(Route.Home.route) {
 
     }
 }
@@ -39,20 +39,20 @@ private fun NavGraphBuilder.showExplore(navController: NavController) {
     }
 }
 
-private fun NavGraphBuilder.showArticleDetail(navController: NavController) {
-    composable(Route.ArticleDetail.route) {
+private fun NavGraphBuilder.showReader(navController: NavController) {
+    composable(Route.Reader.route) {
 
     }
 }
 
-private fun NavGraphBuilder.showReadingList(navController: NavController) {
-    composable(Route.ReadingList.route) {
+private fun NavGraphBuilder.showBookmarkList(navController: NavController) {
+    composable(Route.BookmarkList.route) {
 
     }
 }
 
-private fun NavGraphBuilder.showListDetail(navController: NavController) {
-    composable(Route.ListDetail.route) {
+private fun NavGraphBuilder.showBookmarkListDetail(navController: NavController) {
+    composable(Route.BookmarkListDetail.route) {
 
     }
 }

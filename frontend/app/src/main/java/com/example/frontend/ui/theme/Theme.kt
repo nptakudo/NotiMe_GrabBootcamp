@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -79,4 +80,29 @@ fun FrontendTheme(
         shapes = Shapes,
         content = content
     )
+}
+
+object Colors {
+    val topBarContainer: Color
+        @Composable
+        get() {
+            return if (isSystemInDarkTheme()) {
+                DarkPalette.BrandBlue10
+            } else {
+                LightPalette.BrandBlue10
+            }
+        }
+    val navBarContainer: Color
+        @Composable
+        get() {
+            return if (isSystemInDarkTheme()) {
+                DarkPalette.BrandBlue10.copy(
+                    alpha = UiConfig.NavBarAlpha
+                )
+            } else {
+                LightPalette.BrandBlue10.copy(
+                    alpha = UiConfig.NavBarAlpha
+                )
+            }
+        }
 }

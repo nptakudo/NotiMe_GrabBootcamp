@@ -1,12 +1,16 @@
 package com.example.frontend.network
 
 import com.example.frontend.data.model.Article
+import com.example.frontend.data.model.BookmarkList
+import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.model.request.LoginRequest
 import com.example.frontend.data.model.response.ApiResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.math.BigInteger
@@ -37,7 +41,7 @@ interface ApiService {
 
     // ---------------- READER ----------------
     @GET("reader/{article_id}/")
-    suspend fun getArticle(@Path("article_id") articleId: BigInteger): Response<Article>
+    suspend fun getArticleById(@Path("article_id") articleId: BigInteger): Response<Article>
 
     @GET("reader/{article_id}/related_articles/")
     suspend fun getRelatedArticles(
@@ -46,22 +50,45 @@ interface ApiService {
         @Query("offset") offset: Int
     ): Response<List<Article>>
 
-    // ---------------- COMMON ----------------
-    @GET("common/{article_id}/bookmark/{bookmark_id}/")
+    // ---------------- Model: BOOKMARK ----------------
+    @GET("bookmarks/")
+    suspend fun getBookmarkLists(): Response<List<BookmarkList>>
+
+    @GET("bookmarks/{bookmark_id}/")
+    suspend fun getBookmarkListById(@Path("bookmark_id") bookmarkId: BigInteger): Response<BookmarkList>
+
+    @GET("bookmarks/{bookmark_id}/{article_id}/")
+    suspend fun isArticleBookmarked(
+        @Path("article_id") articleId: BigInteger,
+        @Path("bookmark_id") bookmarkId: BigInteger
+    ): Response<ApiResponse>
+
+    @PUT("bookmarks/{bookmark_id}/{article_id}/")
     suspend fun bookmarkArticle(
         @Path("article_id") articleId: BigInteger,
         @Path("bookmark_id") bookmarkId: BigInteger
     ): Response<ApiResponse>
 
-    @GET("common/{article_id}/unbookmark/{bookmark_id}")
+    @DELETE("bookmarks/{bookmark_id}/{article_id}/")
     suspend fun unbookmarkArticle(
         @Path("article_id") articleId: BigInteger,
         @Path("bookmark_id") bookmarkId: BigInteger
     ): Response<ApiResponse>
 
-    @GET("common/{publisher_id}/subscribe/")
+    // ---------------- Model: SUBSCRIPTION ----------------
+    @GET("subscriptions/")
+    suspend fun getSubscriptions(): Response<List<Publisher>>
+
+    @GET("subscriptions/{publisher_id}/")
+    suspend fun isPublisherSubscribed(@Path("publisher_id") publisherId: BigInteger): Response<ApiResponse>
+
+    @PUT("subscriptions/{publisher_id}/")
     suspend fun subscribePublisher(@Path("publisher_id") publisherId: BigInteger): Response<ApiResponse>
 
-    @GET("common/{publisher_id}/unsubscribe/")
+    @DELETE("subscriptions/{publisher_id}/")
     suspend fun unsubscribePublisher(@Path("publisher_id") publisherId: BigInteger): Response<ApiResponse>
+
+    // ---------------- Model: PUBLISHER ----------------
+    @GET("publishers/{publisher_id}/")
+    suspend fun getPublisherById(@Path("publisher_id") publisherId: BigInteger): Response<Publisher>
 }

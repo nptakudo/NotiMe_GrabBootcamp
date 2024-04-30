@@ -1,24 +1,27 @@
 package com.example.frontend.data.datasource
 
+import com.example.frontend.data.model.Publisher
 import com.example.frontend.network.ApiService
 import java.math.BigInteger
 import javax.inject.Inject
 
-class RemoteCommonDataSource @Inject constructor(
+class RemoteSubscriptionDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun bookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
-        val res = apiService.bookmarkArticle(articleId, bookmarkId)
+    suspend fun getSubscriptions(): List<Publisher> {
+        val res = apiService.getSubscriptions()
         if (!res.isSuccessful) {
-            throw Exception("Failed to bookmark article")
+            throw Exception("Failed to get subscribed publishers")
         }
+        return res.body()!!
     }
 
-    suspend fun unbookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
-        val res = apiService.unbookmarkArticle(articleId, bookmarkId)
+    suspend fun isPublisherSubscribed(publisherId: BigInteger): Boolean {
+        val res = apiService.isPublisherSubscribed(publisherId)
         if (!res.isSuccessful) {
-            throw Exception("Failed to unbookmark article")
+            throw Exception("Failed to check if publisher is subscribed")
         }
+        return res.body()!!.message.toBoolean()
     }
 
     suspend fun subscribePublisher(publisherId: BigInteger) {

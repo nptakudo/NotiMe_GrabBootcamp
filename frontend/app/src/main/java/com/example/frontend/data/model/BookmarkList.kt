@@ -2,7 +2,7 @@ package com.example.frontend.data.model
 
 import java.math.BigInteger
 
-data class ReadingList(
+data class BookmarkList(
     val id: BigInteger,
     val name: String,
     val ownerId: BigInteger,
