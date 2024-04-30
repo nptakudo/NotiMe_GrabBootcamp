@@ -4,7 +4,7 @@ import "notime/domain"
 
 type BookmarkListRepositoryImpl struct{}
 
-func (r *BookmarkListRepositoryImpl) GetById(id uint32, userId uint32) (*domain.BookmarkList, error) {
+func (r *BookmarkListRepositoryImpl) GetById(id uint32) (*domain.BookmarkList, error) {
 	return nil, nil
 }
 
@@ -12,7 +12,7 @@ func (r *BookmarkListRepositoryImpl) GetByUser(userId uint32) ([]*domain.Bookmar
 	return nil, nil
 }
 
-func (r *BookmarkListRepositoryImpl) IsBookmarked(articleId uint32, userId uint32) (bool, error) {
+func (r *BookmarkListRepositoryImpl) IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error) {
 	return false, nil
 }
 

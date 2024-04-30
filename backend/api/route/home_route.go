@@ -17,7 +17,13 @@ func NewHomeRouter(group *gin.RouterGroup) {
 			CommonUsecase:           &usecases.CommonUsecaseImpl{},
 		},
 	}
-	group.GET("/subscribed_articles_by_date", homeController.GetLatestSubscribedArticles)
-	group.GET("/subscribed_articles_by_publisher", homeController.GetLatestSubscribedArticlesByPublisher)
+	// Get latest articles from subscribed publishers
+	// Query params: count, page
+	group.GET("/latest_subscribed_articles", homeController.GetLatestSubscribedArticles)
+	// Get latest articles from subscribed publishers by publisher
+	// Query params: count, page
+	group.GET("/latest_subscribed_articles_by_publisher", homeController.GetLatestSubscribedArticlesByPublisher)
+	// Get latest articles from unsubscribed publishers
+	// Query params: count, page
 	group.GET("/explore_articles", homeController.GetExploreArticles)
 }

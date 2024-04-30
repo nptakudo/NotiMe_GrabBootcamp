@@ -7,7 +7,7 @@ import (
 	"notime/usecases"
 )
 
-func NewReaderController(group *gin.RouterGroup) {
+func NewReaderRouter(group *gin.RouterGroup) {
 	readerController := controller.ReaderController{
 		ReaderUsecase: &usecases.ReaderUsecaseImpl{
 			RecsysRepository:       &repository.RecsysRepositoryImpl{},
@@ -15,10 +15,9 @@ func NewReaderController(group *gin.RouterGroup) {
 			CommonUsecase:          &usecases.CommonUsecaseImpl{},
 		},
 	}
-	group.GET("/article", readerController.GetArticleById)
-	group.POST("/bookmark", readerController.Bookmark)
-	group.POST("/unbookmark", readerController.Unbookmark)
-	group.POST("/subscribe", readerController.Subscribe)
-	group.POST("/unsubscribe", readerController.Unsubscribe)
-	group.GET("/related_articles", readerController.GetRelatedArticles)
+	// Get article metadata and content by article id
+	group.GET("/:article_id", readerController.GetArticleById)
+	// Get related articles metadata by article id
+	// Query params: count, page
+	group.GET("/:article_id/related_articles", readerController.GetRelatedArticles)
 }

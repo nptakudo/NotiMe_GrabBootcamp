@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"log/slog"
+	"notime/api/controller"
 	"notime/api/messages"
 	"notime/bootstrap"
 	"notime/domain"
@@ -12,7 +13,7 @@ import (
 
 type ReaderUsecaseImpl struct {
 	env                    *bootstrap.Env
-	CommonUsecase          CommonUsecase
+	CommonUsecase          controller.CommonUsecase
 	RecsysRepository       repository.RecsysRepository
 	BookmarkListRepository domain.BookmarkListRepository
 }
@@ -53,24 +54,8 @@ func (uc *ReaderUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages
 	}, nil
 }
 
-func (uc *ReaderUsecaseImpl) Bookmark(bookmarkListId uint32, articleId uint32, userId uint32) error {
-	return uc.CommonUsecase.Bookmark(articleId, bookmarkListId, userId)
-}
-
-func (uc *ReaderUsecaseImpl) Unbookmark(bookmarkListId uint32, articleId uint32, userId uint32) error {
-	return uc.CommonUsecase.Unbookmark(articleId, bookmarkListId, userId)
-}
-
-func (uc *ReaderUsecaseImpl) Subscribe(publisherId uint32, userId uint32) error {
-	return uc.CommonUsecase.Subscribe(publisherId, userId)
-}
-
-func (uc *ReaderUsecaseImpl) Unsubscribe(publisherId uint32, userId uint32) error {
-	return uc.CommonUsecase.Unsubscribe(publisherId, userId)
-}
-
-func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32, count int) (*messages.RelatedArticlesResponse, error) {
-	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(articleId, userId, count)
+func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32, count int, page int) (*messages.RelatedArticlesResponse, error) {
+	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(articleId, userId, count, page)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetRelatedArticles: %v", err)
 		return nil, ErrInternal

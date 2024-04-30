@@ -10,11 +10,17 @@ import (
 
 func Setup(env *bootstrap.Env, timeout time.Duration, gin *gin.Engine) {
 	publicRouter := gin.Group("")
-	// All Public APIs
 
 	protectedRouter := gin.Group("")
 	// Middleware to verify AccessToken
 	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
-	// All Private APIs
-	NewHomeRouter(protectedRouter)
+
+	homeRouter := protectedRouter.Group("/home")
+	NewHomeRouter(homeRouter)
+
+	readerRouter := protectedRouter.Group("/reader")
+	NewReaderRouter(readerRouter)
+
+	commonRouter := protectedRouter.Group("/common")
+	CommonRouter(commonRouter)
 }
