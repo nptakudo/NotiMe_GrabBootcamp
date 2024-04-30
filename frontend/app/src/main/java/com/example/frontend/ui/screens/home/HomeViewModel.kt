@@ -126,11 +126,17 @@ class HomeViewModel @Inject constructor(
                     if (offset == 0) {
                         recsysRepository.getLatestSubscribedArticles(HomeConfig.LOAD_COUNT, offset)
                     } else {
-                        it.subList(0, offset) + recsysRepository.getLatestSubscribedArticles(count, offset)
+                        it.subList(0, offset) + recsysRepository.getLatestSubscribedArticles(
+                            count,
+                            offset
+                        )
                     }
                 }
             } catch (e: Exception) {
-                Log.e(HomeConfig.LOG_TAG, "Failed to get latest subscribed articles, offset: $offset, count: $count")
+                Log.e(
+                    HomeConfig.LOG_TAG,
+                    "Failed to get latest subscribed articles, offset: $offset, count: $count"
+                )
             }
             _uiState.update { it.copy(state = State.Idle) }
         }

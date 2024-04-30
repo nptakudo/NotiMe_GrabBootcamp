@@ -16,6 +16,7 @@ class RemoteRecsysDataSource @Inject constructor(
             throw Exception("Failed to get related articles")
         }
     }
+
     suspend fun getLatestSubscribedArticles(count: Int, offset: Int): List<Article> {
         val res = apiService.getLatestSubscribedArticles(count, offset)
         if (res.isSuccessful) {
@@ -24,6 +25,7 @@ class RemoteRecsysDataSource @Inject constructor(
             throw Exception("Failed to get latest subscribed articles")
         }
     }
+
     suspend fun getLatestSubscribedArticlesByPublisher(count: Int, offset: Int): List<Article> {
         val res = apiService.getLatestSubscribedArticlesByPublisher(count, offset)
         if (res.isSuccessful) {
@@ -32,6 +34,7 @@ class RemoteRecsysDataSource @Inject constructor(
             throw Exception("Failed to get latest subscribed articles by publisher")
         }
     }
+
     suspend fun getExploreArticles(count: Int, offset: Int): List<Article> {
         val res = apiService.getExploreArticles(count, offset)
         if (res.isSuccessful) {

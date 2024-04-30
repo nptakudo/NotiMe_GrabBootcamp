@@ -40,6 +40,7 @@ object NetworkModule {
             .addConverterFactory(converterFactory)
             .build()
     }
+
     @Singleton
     @Provides
     fun provideRestApiService(retrofit: Retrofit): ApiService {

@@ -20,31 +20,37 @@ fun AppNavGraph(
         showListDetail(navController)
     }
 }
+
 private fun NavGraphBuilder.showLogin(navController: NavController) {
     composable(Route.Login.route) {
 
     }
 }
+
 private fun NavGraphBuilder.showLatest(navController: NavController) {
     composable(Route.Latest.route) {
 
     }
 }
+
 private fun NavGraphBuilder.showExplore(navController: NavController) {
     composable(Route.Explore.route) {
 
     }
 }
+
 private fun NavGraphBuilder.showArticleDetail(navController: NavController) {
     composable(Route.ArticleDetail.route) {
 
     }
 }
+
 private fun NavGraphBuilder.showReadingList(navController: NavController) {
     composable(Route.ReadingList.route) {
 
     }
 }
+
 private fun NavGraphBuilder.showListDetail(navController: NavController) {
     composable(Route.ListDetail.route) {
 
