@@ -12,7 +12,7 @@ type ArticleMetadata struct {
 
 type ArticleRepository interface {
 	GetById(id uint32) (*ArticleMetadata, error)
-	GetByPublisher(publisherId uint32, count int, page int) ([]*ArticleMetadata, error)
-	GetLatest(count int, page int) ([]*ArticleMetadata, error)
-	Search(query string, count int, page int) ([]*ArticleMetadata, error)
+	GetByPublisher(publisherId uint32, count int, offset int) ([]*ArticleMetadata, error)
+	GetLatest(count int, offset int) ([]*ArticleMetadata, error)
+	Search(query string, count int, offset int) ([]*ArticleMetadata, error)
 }

@@ -14,21 +14,21 @@ type HomeController struct {
 
 type HomeUsecase interface {
 	GetSubscribedPublishers(userId uint32) ([]*messages.Publisher, error)
-	GetLatestSubscribedArticles(count int, page int, userId uint32) ([]*messages.ArticleMetadata, error)
-	GetLatestSubscribedArticlesByPublisher(countEachPublisher int, page int, userId uint32) ([]*messages.ArticleMetadata, error)
-	GetExploreArticles(count int, page int, userId uint32) ([]*messages.ArticleMetadata, error)
-	Search(query string, count int, page int, userId uint32) ([]*messages.ArticleMetadata, error)
+	GetLatestSubscribedArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
+	GetLatestSubscribedArticlesByPublisher(countEachPublisher int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
+	GetExploreArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
+	Search(query string, count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
 }
 
 func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) {
 	reqCount, err := strconv.Atoi(ctx.DefaultQuery("count", "-1"))
-	reqPage, err := strconv.Atoi(ctx.DefaultQuery("page", "0"))
+	reqOffset, err := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.GetLatestSubscribedArticles(reqCount, reqPage, uint32(userId))
+	articles, err := controller.HomeUsecase.GetLatestSubscribedArticles(reqCount, reqOffset, uint32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -39,14 +39,14 @@ func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) 
 
 func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gin.Context) {
 	reqCount, err := strconv.Atoi(ctx.DefaultQuery("count", "-1"))
-	reqPage, err := strconv.Atoi(ctx.DefaultQuery("page", "0"))
+	reqOffset, err := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.GetLatestSubscribedArticlesByPublisher(reqCount, reqPage, uint32(userId))
+	articles, err := controller.HomeUsecase.GetLatestSubscribedArticlesByPublisher(reqCount, reqOffset, uint32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -57,14 +57,14 @@ func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gi
 
 func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 	reqCount, err := strconv.Atoi(ctx.DefaultQuery("count", "-1"))
-	reqPage, err := strconv.Atoi(ctx.DefaultQuery("page", "0"))
+	reqOffset, err := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.GetExploreArticles(reqCount, reqPage, uint32(userId))
+	articles, err := controller.HomeUsecase.GetExploreArticles(reqCount, reqOffset, uint32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -76,14 +76,14 @@ func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 func (controller *HomeController) Search(ctx *gin.Context) {
 	reqQuery := ctx.DefaultQuery("query", "")
 	reqCount, err := strconv.Atoi(ctx.DefaultQuery("count", "-1"))
-	reqPage, err := strconv.Atoi(ctx.DefaultQuery("page", "0"))
+	reqOffset, err := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.Search(reqQuery, reqCount, reqPage, uint32(userId))
+	articles, err := controller.HomeUsecase.Search(reqQuery, reqCount, reqOffset, uint32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return

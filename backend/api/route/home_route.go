@@ -18,12 +18,12 @@ func NewHomeRouter(group *gin.RouterGroup) {
 		},
 	}
 	// Get latest articles from subscribed publishers
-	// Query params: count, page
+	// Query params: count, offset
 	group.GET("/latest_subscribed_articles", homeController.GetLatestSubscribedArticles)
 	// Get latest articles from subscribed publishers by publisher
-	// Query params: count, page
+	// Query params: count, offset
 	group.GET("/latest_subscribed_articles_by_publisher", homeController.GetLatestSubscribedArticlesByPublisher)
 	// Get latest articles from unsubscribed publishers
-	// Query params: count, page
+	// Query params: count, offset
 	group.GET("/explore_articles", homeController.GetExploreArticles)
 }

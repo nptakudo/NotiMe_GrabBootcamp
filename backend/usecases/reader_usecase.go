@@ -54,8 +54,8 @@ func (uc *ReaderUsecaseImpl) GetArticleById(id uint32, userId uint32) (*messages
 	}, nil
 }
 
-func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32, count int, page int) (*messages.RelatedArticlesResponse, error) {
-	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(articleId, userId, count, page)
+func (uc *ReaderUsecaseImpl) GetRelatedArticles(articleId uint32, userId uint32, count int, offset int) (*messages.RelatedArticlesResponse, error) {
+	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(articleId, userId, count, offset)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetRelatedArticles: %v", err)
 		return nil, ErrInternal

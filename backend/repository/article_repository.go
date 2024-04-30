@@ -9,14 +9,14 @@ func (r *ArticleRepositoryImpl) GetById(id uint32) (*domain.ArticleMetadata, err
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) GetByPublisher(publisherId uint32, count int, page int) ([]*domain.ArticleMetadata, error) {
+func (r *ArticleRepositoryImpl) GetByPublisher(publisherId uint32, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) GetLatest(count int, page int) ([]*domain.ArticleMetadata, error) {
+func (r *ArticleRepositoryImpl) GetLatest(count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) Search(query string, count int, page int) ([]*domain.ArticleMetadata, error) {
+func (r *ArticleRepositoryImpl) Search(query string, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }

@@ -31,8 +31,8 @@ func (uc *HomeUsecaseImpl) GetSubscribedPublishers(userId uint32) ([]*messages.P
 	return subscribeListApi, nil
 }
 
-func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(count int, page int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromSubscribed(userId, count, page)
+func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
+	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromSubscribed(userId, count, offset)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetLatestSubscribedArticles: %v", err)
 		return nil, ErrInternal
@@ -46,7 +46,7 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(count int, page int, user
 	return articleListApi, nil
 }
 
-func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPublisher int, page int, userId uint32) ([]*messages.ArticleMetadata, error) {
+func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPublisher int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
 	publishers, err := uc.SubscribeListRepository.GetByUser(userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
@@ -55,7 +55,7 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPubli
 
 	articlesApi := make([]*messages.ArticleMetadata, 0)
 	for _, publisher := range publishers {
-		thisArticlesDm, err := uc.RecsysRepository.GetLatestArticlesByPublisher(publisher.Id, userId, countEachPublisher, page)
+		thisArticlesDm, err := uc.RecsysRepository.GetLatestArticlesByPublisher(publisher.Id, userId, countEachPublisher, offset)
 		if err != nil {
 			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
 			return nil, ErrInternal
@@ -70,8 +70,8 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPubli
 	return articlesApi, nil
 }
 
-func (uc *HomeUsecaseImpl) GetExploreArticles(count int, page int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromUnsubscribed(userId, count, page)
+func (uc *HomeUsecaseImpl) GetExploreArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
+	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromUnsubscribed(userId, count, offset)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetExploreArticles: %v", err)
 		return nil, ErrInternal
@@ -86,8 +86,8 @@ func (uc *HomeUsecaseImpl) GetExploreArticles(count int, page int, userId uint32
 
 }
 
-func (uc *HomeUsecaseImpl) Search(query string, count int, page int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	articleListDm, err := uc.ArticleRepository.Search(query, count, page)
+func (uc *HomeUsecaseImpl) Search(query string, count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
+	articleListDm, err := uc.ArticleRepository.Search(query, count, offset)
 	if err != nil {
 		slog.Error("[HomeUsecase] Search: %v", err)
 		return nil, ErrInternal

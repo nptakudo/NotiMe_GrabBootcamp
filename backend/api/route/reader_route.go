@@ -18,6 +18,6 @@ func NewReaderRouter(group *gin.RouterGroup) {
 	// Get article metadata and content by article id
 	group.GET("/:article_id", readerController.GetArticleById)
 	// Get related articles metadata by article id
-	// Query params: count, page
+	// Query params: count, offset
 	group.GET("/:article_id/related_articles", readerController.GetRelatedArticles)
 }
