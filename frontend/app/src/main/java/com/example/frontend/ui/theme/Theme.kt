@@ -16,32 +16,43 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = DarkPalette.BrandBlue,
+    onPrimary = DarkPalette.BGPrimary,
+    secondary = DarkPalette.BrandBlue10,
+    onSecondary = DarkPalette.BrandBlue,
+    background = DarkPalette.BGPrimary,
+    onBackground = DarkPalette.TextPrimary,
+    surface = DarkPalette.BGPrimary,
+    surfaceContainer = DarkPalette.BGSecondary,
+    onSurface = DarkPalette.TextPrimary,
+    onSurfaceVariant = DarkPalette.TextSecondary,
+    inverseOnSurface = DarkPalette.TextBrandBlue,
+    outline = DarkPalette.Outline,
+    outlineVariant = DarkPalette.Outline,
+    onError = DarkPalette.SystemError,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = LightPalette.BrandBlue,
+    onPrimary = LightPalette.BGPrimary,
+    secondary = LightPalette.BrandBlue10,
+    onSecondary = LightPalette.BrandBlue,
+    background = LightPalette.BGPrimary,
+    onBackground = LightPalette.TextPrimary,
+    surface = LightPalette.BGPrimary,
+    surfaceContainer = LightPalette.BGSecondary,
+    onSurface = LightPalette.TextPrimary,
+    onSurfaceVariant = LightPalette.TextSecondary,
+    inverseOnSurface = LightPalette.TextBrandBlue,
+    outline = LightPalette.Outline,
+    outlineVariant = LightPalette.Outline,
+    onError = LightPalette.SystemError,
 )
 
 @Composable
 fun FrontendTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -64,7 +75,8 @@ fun FrontendTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = PoppinsTypography,
+        shapes = Shapes,
         content = content
     )
 }
