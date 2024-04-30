@@ -16,7 +16,7 @@ type CommonUsecase interface {
 	GetArticleMetadataById(id uint32, userId uint32) (*messages.ArticleMetadata, error)
 	GetPublisherById(id uint32, userId uint32) (*messages.Publisher, error)
 
-	IsBookmarked(articleId uint32, bookmarkListId uint32, userId uint32) (bool, error)
+	IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error)
 	IsSubscribed(publisherId uint32, userId uint32) (bool, error)
 
 	Bookmark(articleId uint32, bookmarkListId uint32, userId uint32) error

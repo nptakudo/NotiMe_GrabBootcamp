@@ -41,8 +41,8 @@ func (uc *CommonUsecaseImpl) GetPublisherById(id uint32, userId uint32) (*messag
 	return FromDmPublisherToApi(publisherDm, isSubscribed), nil
 }
 
-func (uc *CommonUsecaseImpl) IsBookmarked(articleId uint32, bookmarkListId uint32, userId uint32) (bool, error) {
-	isBookmarked, err := uc.BookmarkListRepository.IsBookmarked(articleId, userId)
+func (uc *CommonUsecaseImpl) IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error) {
+	isBookmarked, err := uc.BookmarkListRepository.IsBookmarked(articleId, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] IsBookmarked: %v", err)
 		return false, ErrInternal
@@ -60,12 +60,12 @@ func (uc *CommonUsecaseImpl) IsSubscribed(publisherId uint32, userId uint32) (bo
 }
 
 func (uc *CommonUsecaseImpl) Bookmark(articleId uint32, bookmarkListId uint32, userId uint32) error {
-	bookmarkListDm, err := uc.BookmarkListRepository.GetById(bookmarkListId, userId)
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Bookmark: %v", err)
 		return ErrInternal
 	}
-	if bookmarkListDm.IsOwner == false {
+	if bookmarkListDm.OwnerId != userId {
 		return ErrNotAuthorized
 	}
 
@@ -78,12 +78,12 @@ func (uc *CommonUsecaseImpl) Bookmark(articleId uint32, bookmarkListId uint32, u
 }
 
 func (uc *CommonUsecaseImpl) Unbookmark(articleId uint32, bookmarkListId uint32, userId uint32) error {
-	bookmarkListDm, err := uc.BookmarkListRepository.GetById(bookmarkListId, userId)
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Unbookmark: %v", err)
 		return ErrInternal
 	}
-	if bookmarkListDm.IsOwner == false {
+	if bookmarkListDm.OwnerId != userId {
 		return ErrNotAuthorized
 	}
 

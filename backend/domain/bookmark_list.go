@@ -5,8 +5,7 @@ type BookmarkList struct {
 	Name        string             `json:"name"`
 	IsSavedList bool               `json:"is_saved_list"`
 	Articles    []*ArticleMetadata `json:"articles"`
-	User        *User              `json:"user"`
-	IsOwner     bool               `json:"is_owner"`
+	OwnerId     uint32             `json:"owner_id"`
 }
 
 type BookmarkListRepository interface {
