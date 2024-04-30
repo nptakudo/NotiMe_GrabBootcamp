@@ -1,4 +1,4 @@
-package com.example.frontend.data.datasource
+package com.example.frontend.network
 
 import com.example.frontend.data.model.request.LoginRequest
 import com.example.frontend.data.model.response.ApiResponse

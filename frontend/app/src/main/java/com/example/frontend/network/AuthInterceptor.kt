@@ -1,5 +1,6 @@
-package com.example.frontend.data.datasource
+package com.example.frontend.network
 
+import com.example.frontend.data.datasource.SettingDataSource
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
