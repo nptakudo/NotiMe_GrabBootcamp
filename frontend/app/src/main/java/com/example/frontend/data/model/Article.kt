@@ -1,11 +1,13 @@
 package com.example.frontend.data.model
 
 import java.math.BigInteger
+import java.util.Date
 
 data class Article(
-    val articleId: BigInteger,
+    val id: BigInteger,
     val title: String,
     val url: String,
-    val publisherId: BigInteger,
-    // Consider about the cover image of each Article
+    val publisher: Publisher,
+    val date: Date,
+    val isBookmarked: Boolean,
 )
