@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"github.com/spf13/viper"
-	"log"
+	"log/slog"
 )
 
 type Env struct {
@@ -27,16 +27,18 @@ func NewEnv() *Env {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatal("Can't find the file .env: ", err)
+		slog.Error("[Env] Can't find the file .env: %v", err)
+		panic(err)
 	}
 
 	err = viper.Unmarshal(&env)
 	if err != nil {
-		log.Fatal("Environment can't be loaded: ", err)
+		slog.Error("[Env] Environment cannot be loaded: %v", err)
+		panic(err)
 	}
 
 	if env.AppEnv == "development" {
-		log.Println("The App is running in development env")
+		slog.Info("[Env] Environment mode loaded: %s", env.AppEnv)
 	}
 
 	return &env

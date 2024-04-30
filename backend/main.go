@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
+	"log/slog"
 	"notime/api/route"
 	"notime/bootstrap"
 	"time"
@@ -19,6 +19,6 @@ func main() {
 
 	err := gin.Run(env.ServerAddress)
 	if err != nil {
-		log.Fatalf("Failed to run server: %v", err)
+		slog.Error("Failed to run server: %v", err)
 	}
 }

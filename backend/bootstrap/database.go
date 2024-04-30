@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -36,8 +36,9 @@ func CloseDbConnection(client *MockSQLClient) {
 
 	err := client.Disconnect(context.TODO())
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("[Database] CloseDbConnection: %v", err)
+		panic(err)
 	}
 
-	log.Println("Connection to database closed.")
+	slog.Info("Connection to database closed.")
 }
