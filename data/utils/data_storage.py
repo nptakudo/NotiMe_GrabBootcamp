@@ -5,6 +5,16 @@ from dataclasses import dataclass
 
 @dataclass
 class DataLakeConnection:
+    """
+    Dataclass for DataLake Connection
+    
+    Args:
+    endpoint_url (str): The endpoint url of the DataLake (e.g. http://localhost:9000/)
+    aws_access_key_id (str): The access key account for accessing Minio/S3
+    aws_secret_access_key: The secret access key for accessing Minio/S3
+    region_name (str): The region name (default is us-east-1)
+    """
+    
     endpoint_url: str
     aws_access_key_id: str
     aws_secret_access_key: str
