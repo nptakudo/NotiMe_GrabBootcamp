@@ -1,3 +1,6 @@
+#docker volume
+minio/
+#virtual env
 my_venv
 .env
 ### Vim ###
@@ -25,7 +28,7 @@ Session.vim
 sftp-config.json
 
 # Python
-__pycache__
+__pycache__/
 
 # policy
 trust-policy.json
