@@ -67,42 +67,42 @@ val PoppinsTypography = Typography(
         fontSize = 24.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         lineBreak = LineBreak.Heading
     ),
     headlineMedium = defaultPoppinsTextStyle.copy(
         fontSize = 22.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         lineBreak = LineBreak.Heading
     ),
     headlineSmall = defaultPoppinsTextStyle.copy(
         fontSize = 20.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         lineBreak = LineBreak.Heading
     ),
     titleLarge = defaultPoppinsTextStyle.copy(
         fontSize = 19.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         lineBreak = LineBreak.Heading
     ),
     titleMedium = defaultPoppinsTextStyle.copy(
         fontSize = 18.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         lineBreak = LineBreak.Heading
     ),
     titleSmall = defaultPoppinsTextStyle.copy(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.1.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         lineBreak = LineBreak.Heading
     ),
     labelLarge = defaultPoppinsTextStyle.copy(

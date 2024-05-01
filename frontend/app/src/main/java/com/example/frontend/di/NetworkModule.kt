@@ -8,13 +8,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import retrofit2.Converter
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    const val BASE_URL = "https://api.example.com/"
+
     @Singleton
     @Provides
     fun provideOkHttpClient(
@@ -30,14 +32,12 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideRetrofitClient(
-        baseUrl: String,
         okHttpClient: OkHttpClient,
-        converterFactory: Converter.Factory
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(converterFactory)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
