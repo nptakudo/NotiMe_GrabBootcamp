@@ -14,7 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+
+object UiConfig {
+    val NavBarAlpha = 0.8f
+    val sideScreenPadding = 24.dp
+}
 
 private val DarkColorScheme = darkColorScheme(
     primary = DarkPalette.BrandBlue,

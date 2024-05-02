@@ -10,4 +10,5 @@ data class Article(
     val publisher: Publisher,
     val date: Date,
     val isBookmarked: Boolean,
+    val articleImageUrl: String,
 )

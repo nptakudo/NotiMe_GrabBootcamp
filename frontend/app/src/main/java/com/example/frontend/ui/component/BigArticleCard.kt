@@ -3,14 +3,12 @@ package com.example.frontend.ui.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.Bookmark
@@ -26,11 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun BigArticleCard(
     modifier: Modifier = Modifier,
+    textPadding: Dp = 5.dp,
     isBookmarked: Boolean,
     publisherAvatarUrl: String,
     articleImageUrl: String,
@@ -48,7 +48,9 @@ fun BigArticleCard(
         shape = MaterialTheme.shapes.large,
         modifier = modifier.heightIn(max = 320.dp)
     ) {
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             ImageFromUrl(
                 url = articleImageUrl,
                 contentDescription = "Article Image",
@@ -58,70 +60,75 @@ fun BigArticleCard(
                     .height(200.dp)
                     .clip(MaterialTheme.shapes.large)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.padding(
+                    start = textPadding,
+                    end = textPadding,
+                    bottom = textPadding
+                )
             ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ImageFromUrl(
-                        url = publisherAvatarUrl,
-                        contentDescription = "Publisher Avatar",
-                        contentScale = ContentScale.Crop,
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ImageFromUrl(
+                            url = publisherAvatarUrl,
+                            contentDescription = "Publisher Avatar",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .requiredWidth(24.dp)
+                                .requiredHeight(24.dp)
+                                .clip(MaterialTheme.shapes.small)
+                        )
+                        Text(
+                            text = publisher,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                        Text(
+                            text = "·",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                        Text(
+                            text = date,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                    }
+                    IconButton(
+                        onClick = { onBookmarkClick(isBookmarked) },
                         modifier = Modifier
-                            .requiredWidth(24.dp)
-                            .requiredHeight(24.dp)
-                            .clip(MaterialTheme.shapes.small)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = publisher,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "·",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = date,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
-                }
-                IconButton(
-                    onClick = { onBookmarkClick(isBookmarked) },
-                    modifier = Modifier
-                        .padding(0.dp)
-                ) {
-                    if (isBookmarked) {
-                        Icon(
-                            imageVector = Icons.Filled.Bookmark,
-                            contentDescription = "Click to unbookmark",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.Bookmark,
-                            contentDescription = "Click to bookmark",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            .padding(0.dp)
+                    ) {
+                        if (isBookmarked) {
+                            Icon(
+                                imageVector = Icons.Filled.Bookmark,
+                                contentDescription = "Click to unbookmark",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Bookmark,
+                                contentDescription = "Click to bookmark",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }

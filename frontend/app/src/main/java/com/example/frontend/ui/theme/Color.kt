@@ -2,11 +2,6 @@ package com.example.frontend.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-object UiConfig {
-    val NavBarAlpha = 0.8f
-    val sideScreenPadding = 24
-}
-
 object LightPalette {
     val BrandBlue = Color(0xFF2D5BD0)
     val BrandBlue10 = Color(0xFFE9EEFA)

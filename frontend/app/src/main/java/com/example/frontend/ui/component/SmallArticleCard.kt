@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -24,11 +24,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SmallArticleCard(
     modifier: Modifier = Modifier,
+    textPadding: Dp = 3.dp,
     isBookmarked: Boolean,
     articleImageUrl: String,
     title: String,
@@ -46,12 +48,16 @@ fun SmallArticleCard(
         modifier = modifier.requiredHeight(80.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(2f)
+                modifier = Modifier
+                    .weight(2f)
+                    .padding(textPadding),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = title,
@@ -61,8 +67,8 @@ fun SmallArticleCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (isBookmarked) {
@@ -80,21 +86,18 @@ fun SmallArticleCard(
                             modifier = Modifier.clickable { onBookmarkClick(isBookmarked) }
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = publisher,
                         style = MaterialTheme.typography.labelSmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "·",
                         style = MaterialTheme.typography.labelSmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = date,
                         style = MaterialTheme.typography.labelSmall.copy(
