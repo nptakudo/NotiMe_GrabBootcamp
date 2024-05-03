@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.theme.Colors
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 enum class NavBarTab(
     val title: String,
@@ -61,7 +62,10 @@ fun NavBar(
                         containerColor = MaterialTheme.colorScheme.onSurface,
                         contentColor = Colors.navBarContainer,
                     ),
-                    contentPadding = PaddingValues(0.dp),
+                    contentPadding = PaddingValues(
+                        vertical = 12.dp,
+                        horizontal = 16.dp
+                    ),
                 ) {
                     Icon(
                         imageVector = tab.imageVector,
@@ -99,10 +103,12 @@ private fun BottomBarLayout(
     content: @Composable () -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(80.dp),
-        shape = MaterialTheme.shapes.medium.copy(
+            .height(70.dp),
+        shape = RoundedCornerShape(
+            topStart = CornerSize(24.dp),
+            topEnd = CornerSize(24.dp),
             bottomEnd = CornerSize(0.dp),
             bottomStart = CornerSize(0.dp),
         ),

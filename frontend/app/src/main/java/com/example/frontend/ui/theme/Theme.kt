@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
 object UiConfig {
-    val NavBarAlpha = 0.8f
     val sideScreenPadding = 24.dp
 }
 
@@ -102,13 +101,9 @@ object Colors {
         @Composable
         get() {
             return if (isSystemInDarkTheme()) {
-                DarkPalette.BrandBlue10.copy(
-                    alpha = UiConfig.NavBarAlpha
-                )
+                DarkPalette.BrandBlue10
             } else {
-                LightPalette.BrandBlue10.copy(
-                    alpha = UiConfig.NavBarAlpha
-                )
+                LightPalette.BrandBlue10
             }
         }
 }

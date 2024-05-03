@@ -2,6 +2,7 @@ package com.example.frontend.ui.screens.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,10 +21,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.frontend.data.model.Article
@@ -67,6 +72,7 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -109,12 +115,24 @@ fun HomeScreen(
             )
         }
     ) {
-        HomeScreenContentSortByDate(
-            modifier = Modifier.padding(it),
-            articles = uiState.articles,
-            onArticleClick = onArticleClick,
-            onBookmarkClick = { /* TODO */ },
-        )
+        Box(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+                .nestedScroll(refreshState.nestedScrollConnection)
+        ) {
+            if (!refreshState.isRefreshing) {
+                HomeScreenContentSortByDate(
+                    articles = uiState.articles,
+                    onArticleClick = onArticleClick,
+                    onBookmarkClick = { /* TODO */ },
+                )
+            }
+            PullToRefreshContainer(
+                state = refreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+            )
+        }
     }
 }
 
@@ -145,7 +163,7 @@ fun HomeScreenContentSortByDate(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                text = "Latest",
+                text = "Latest news",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     color = MaterialTheme.colorScheme.inverseOnSurface
                 ),

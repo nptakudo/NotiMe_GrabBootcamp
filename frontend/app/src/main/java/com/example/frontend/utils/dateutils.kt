@@ -35,18 +35,18 @@ fun dateToStringAgoFormat(date: Date): String {
     if (daysDifference == 0L) {
         val minutesDifference = ChronoUnit.MINUTES.between(date.toInstant(), Date().toInstant())
         return if (minutesDifference < 100) {
-            "$minutesDifference minutes ago"
+            "${minutesDifference}m ago"
         } else {
             val hoursDifference = ChronoUnit.HOURS.between(date.toInstant(), Date().toInstant())
-            "$hoursDifference hours ago"
+            "${hoursDifference}h ago"
         }
     } else if (daysDifference == 1L) {
         return "Yesterday"
     } else if (daysDifference < 14) {
-        return "$daysDifference days ago"
+        return "${daysDifference}d ago"
     } else if (daysDifference < 60) {
         val weeksDifference = daysDifference / 7
-        return "$weeksDifference weeks ago"
+        return "${weeksDifference}w ago"
     } else if (daysDifference < 730) {
         val monthsDifference = daysDifference / 30
         return "$monthsDifference months ago"

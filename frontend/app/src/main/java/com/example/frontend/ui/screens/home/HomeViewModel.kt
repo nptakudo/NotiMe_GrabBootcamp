@@ -156,7 +156,7 @@ class HomeViewModel @Inject constructor(
                 ),
                 Article(
                     id = BigInteger.valueOf(2),
-                    title = "Article 2",
+                    title = "ArticleArticleArticle 2Article 2Article 2Article 2Article 2",
                     url = "https://picsum.photos/200",
                     publisher = Publisher(
                         id = BigInteger.valueOf(2),

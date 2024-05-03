@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -76,14 +77,18 @@ fun SmallArticleCard(
                             imageVector = Icons.Filled.Bookmark,
                             contentDescription = "Click to unbookmark",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickable { onBookmarkClick(isBookmarked) }
+                            modifier = Modifier
+                                .clickable { onBookmarkClick(true) }
+                                .requiredSize(16.dp)
                         )
                     } else {
                         Icon(
                             imageVector = Icons.Outlined.Bookmark,
                             contentDescription = "Click to bookmark",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickable { onBookmarkClick(isBookmarked) }
+                            modifier = Modifier
+                                .clickable { onBookmarkClick(false) }
+                                .requiredSize(16.dp)
                         )
                     }
                     Text(
@@ -112,7 +117,7 @@ fun SmallArticleCard(
                 contentDescription = "Article Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .weight(0.9f)
+                    .weight(1f)
                     .clip(MaterialTheme.shapes.medium)
             )
         }
