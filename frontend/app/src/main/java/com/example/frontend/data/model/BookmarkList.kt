@@ -7,5 +7,5 @@ data class BookmarkList(
     val name: String,
     val ownerId: BigInteger,
     val isSaved: Boolean,
-    val articles: List<Article>
+    val articles: List<ArticleMetadata>
 )

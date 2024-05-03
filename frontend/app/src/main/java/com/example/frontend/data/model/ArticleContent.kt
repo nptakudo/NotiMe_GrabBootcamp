@@ -6,5 +6,4 @@ data class ArticleContent(
     val id: BigInteger,
     val content: String,
     val imageUrl: String,
-    val summary: String
 )

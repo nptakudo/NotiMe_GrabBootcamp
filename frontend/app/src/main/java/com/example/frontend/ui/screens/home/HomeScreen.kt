@@ -27,11 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.frontend.data.model.Article
+import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.BigArticleCard
 import com.example.frontend.ui.component.NavBar
@@ -72,7 +71,6 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -139,7 +137,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContentSortByDate(
     modifier: Modifier = Modifier,
-    articles: List<Article>,
+    articles: List<ArticleMetadata>,
     onArticleClick: (articleId: BigInteger) -> Unit,
     onBookmarkClick: (articleId: BigInteger) -> Unit,
 ) {
@@ -219,7 +217,7 @@ fun HomeScreenContentSortByDate(
 @Composable
 fun ArticleColumn(
     modifier: Modifier = Modifier,
-    articles: List<Article>,
+    articles: List<ArticleMetadata>,
     onArticleClick: (articleId: BigInteger) -> Unit,
     onBookmarkClick: (articleId: BigInteger) -> Unit,
 ) {
@@ -243,6 +241,5 @@ fun Divider(
 ) {
     HorizontalDivider(
         modifier = modifier.padding(vertical = 8.dp),
-        thickness = 2.dp
     )
 }

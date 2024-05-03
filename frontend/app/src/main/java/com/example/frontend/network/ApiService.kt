@@ -1,6 +1,7 @@
 package com.example.frontend.network
 
 import com.example.frontend.data.model.Article
+import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.model.request.LoginRequest
@@ -25,30 +26,30 @@ interface ApiService {
     suspend fun getLatestSubscribedArticles(
         @Query("count") count: Int,
         @Query("offset") offset: Int
-    ): Response<List<Article>>
+    ): Response<List<ArticleMetadata>>
 
     @GET("home/latest_subscribed_articles_by_publisher/")
     suspend fun getLatestSubscribedArticlesByPublisher(
         @Query("count") count: Int,
         @Query("offset") offset: Int
-    ): Response<List<Article>>
+    ): Response<List<ArticleMetadata>>
 
     @GET("home/explore_articles/")
     suspend fun getExploreArticles(
         @Query("count") count: Int,
         @Query("offset") offset: Int
-    ): Response<List<Article>>
+    ): Response<List<ArticleMetadata>>
 
     // ---------------- READER ----------------
     @GET("reader/{article_id}/")
-    suspend fun getArticleById(@Path("article_id") articleId: BigInteger): Response<Article>
+    suspend fun getArticleMetadataAndContentById(@Path("article_id") articleId: BigInteger): Response<Article>
 
     @GET("reader/{article_id}/related_articles/")
     suspend fun getRelatedArticles(
         @Path("article_id") articleId: BigInteger,
         @Query("count") count: Int,
         @Query("offset") offset: Int
-    ): Response<List<Article>>
+    ): Response<List<ArticleMetadata>>
 
     // ---------------- Model: BOOKMARK ----------------
     @GET("bookmarks/")

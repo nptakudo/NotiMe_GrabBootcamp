@@ -6,5 +6,6 @@ data class Publisher(
     val id: BigInteger,
     val name: String,
     val url: String,
-    val avatarUrl: String
+    val avatarUrl: String?,
+    val isSubscribed: Boolean
 )

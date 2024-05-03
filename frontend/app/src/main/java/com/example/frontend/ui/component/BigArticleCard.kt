@@ -32,8 +32,8 @@ fun BigArticleCard(
     modifier: Modifier = Modifier,
     textPadding: Dp = 5.dp,
     isBookmarked: Boolean,
-    publisherAvatarUrl: String,
-    articleImageUrl: String,
+    publisherAvatarUrl: String?,
+    articleImageUrl: String?,
     title: String,
     publisher: String,
     date: String,
@@ -51,15 +51,17 @@ fun BigArticleCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            ImageFromUrl(
-                url = articleImageUrl,
-                contentDescription = "Article Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(MaterialTheme.shapes.large)
-            )
+            if (articleImageUrl != null) {
+                ImageFromUrl(
+                    url = articleImageUrl,
+                    contentDescription = "Article Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(MaterialTheme.shapes.large)
+                )
+            }
             Column(
                 modifier = Modifier.padding(
                     start = textPadding,
@@ -83,15 +85,17 @@ fun BigArticleCard(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ImageFromUrl(
-                            url = publisherAvatarUrl,
-                            contentDescription = "Publisher Avatar",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .requiredWidth(24.dp)
-                                .requiredHeight(24.dp)
-                                .clip(MaterialTheme.shapes.small)
-                        )
+                        if (publisherAvatarUrl != null) {
+                            ImageFromUrl(
+                                url = publisherAvatarUrl,
+                                contentDescription = "Publisher Avatar",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .requiredWidth(24.dp)
+                                    .requiredHeight(24.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                            )
+                        }
                         Text(
                             text = publisher,
                             style = MaterialTheme.typography.labelSmall.copy(

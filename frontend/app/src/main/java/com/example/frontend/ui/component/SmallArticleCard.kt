@@ -33,7 +33,7 @@ fun SmallArticleCard(
     modifier: Modifier = Modifier,
     textPadding: Dp = 3.dp,
     isBookmarked: Boolean,
-    articleImageUrl: String,
+    articleImageUrl: String?,
     title: String,
     publisher: String,
     date: String,
@@ -58,7 +58,7 @@ fun SmallArticleCard(
                 modifier = Modifier
                     .weight(2f)
                     .padding(textPadding),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
                     text = title,
@@ -69,7 +69,7 @@ fun SmallArticleCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (isBookmarked) {
@@ -93,33 +93,35 @@ fun SmallArticleCard(
                     }
                     Text(
                         text = publisher,
-                        style = MaterialTheme.typography.labelSmall.copy(
+                        style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                     )
                     Text(
                         text = "·",
-                        style = MaterialTheme.typography.labelSmall.copy(
+                        style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                     )
                     Text(
                         text = date,
-                        style = MaterialTheme.typography.labelSmall.copy(
+                        style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(24.dp))
-            ImageFromUrl(
-                url = articleImageUrl,
-                contentDescription = "Article Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(MaterialTheme.shapes.medium)
-            )
+            if (articleImageUrl != null) {
+                Spacer(modifier = Modifier.width(24.dp))
+                ImageFromUrl(
+                    url = articleImageUrl,
+                    contentDescription = "Article Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(MaterialTheme.shapes.medium)
+                )
+            }
         }
     }
 }
