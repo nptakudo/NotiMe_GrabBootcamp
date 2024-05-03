@@ -11,25 +11,6 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 import com.example.frontend.R
 
-private val Poppins = FontFamily(
-    Font(R.font.poppins_thin, FontWeight.Thin),
-    Font(R.font.poppins_thin_italic, FontWeight.Thin, FontStyle.Italic),
-    Font(R.font.poppins_extralight, FontWeight.ExtraLight),
-    Font(R.font.poppins_extralight_italic, FontWeight.ExtraLight, FontStyle.Italic),
-    Font(R.font.poppins_light, FontWeight.Light),
-    Font(R.font.poppins_light_italic, FontWeight.Light, FontStyle.Italic),
-    Font(R.font.poppins_regular, FontWeight.Normal),
-    Font(R.font.poppins_italic, FontWeight.Normal, FontStyle.Italic),
-    Font(R.font.poppins_medium, FontWeight.Medium),
-    Font(R.font.poppins_medium_italic, FontWeight.Medium, FontStyle.Italic),
-    Font(R.font.poppins_semibold, FontWeight.SemiBold),
-    Font(R.font.poppins_semibold_italic, FontWeight.SemiBold, FontStyle.Italic),
-    Font(R.font.poppins_bold, FontWeight.Bold),
-    Font(R.font.poppins_bold_italic, FontWeight.Bold, FontStyle.Italic),
-    Font(R.font.poppins_extrabold, FontWeight.ExtraBold),
-    Font(R.font.poppins_extrabold_italic, FontWeight.ExtraBold, FontStyle.Italic),
-)
-
 private val Merriweather = FontFamily(
     Font(R.font.merriweather_light, FontWeight.Light),
     Font(R.font.merriweather_light_italic, FontWeight.Light, FontStyle.Italic),
@@ -41,93 +22,115 @@ private val Merriweather = FontFamily(
     Font(R.font.merriweather_black_italic, FontWeight.Black, FontStyle.Italic),
 )
 
-private val defaultPoppinsTextStyle = TextStyle(
-    fontFamily = Poppins,
+private val Lato = FontFamily(
+    Font(R.font.lato_thin, FontWeight.Thin),
+    Font(R.font.lato_thinitalic, FontWeight.Thin, FontStyle.Italic),
+    Font(R.font.lato_light, FontWeight.Light),
+    Font(R.font.lato_lightitalic, FontWeight.Light, FontStyle.Italic),
+    Font(R.font.lato_regular, FontWeight.Normal),
+    Font(R.font.lato_italic, FontWeight.Normal, FontStyle.Italic),
+    Font(R.font.lato_bold, FontWeight.SemiBold),
+    Font(R.font.lato_bolditalic, FontWeight.SemiBold, FontStyle.Italic),
+    Font(R.font.lato_black, FontWeight.Bold),
+    Font(R.font.lato_blackitalic, FontWeight.Bold, FontStyle.Italic),
+)
+
+private val defaultLatoTextStyle = TextStyle(
+    fontFamily = Lato,
     lineHeightStyle = LineHeightStyle(
         alignment = LineHeightStyle.Alignment.Center,
         trim = LineHeightStyle.Trim.None
     ),
 )
 
-val buttonTextStyle = defaultPoppinsTextStyle.copy(
+val buttonTextStyle = defaultLatoTextStyle.copy(
     fontSize = 14.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp
 )
 
 val PoppinsTypography = Typography(
-    displayLarge = defaultPoppinsTextStyle.copy(
+    displayLarge = defaultLatoTextStyle.copy(
         fontSize = 48.sp, lineHeight = 50.sp, letterSpacing = 0.sp
     ),
-    displayMedium = defaultPoppinsTextStyle.copy(
+    displayMedium = defaultLatoTextStyle.copy(
         fontSize = 40.sp, lineHeight = 48.sp, letterSpacing = 0.sp
     ),
-    displaySmall = defaultPoppinsTextStyle.copy(
+    displaySmall = defaultLatoTextStyle.copy(
         fontSize = 32.sp, lineHeight = 40.sp, letterSpacing = 0.sp
     ),
-    headlineLarge = defaultPoppinsTextStyle.copy(
+    headlineLarge = defaultLatoTextStyle.copy(
         fontSize = 24.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         lineBreak = LineBreak.Heading
     ),
-    headlineMedium = defaultPoppinsTextStyle.copy(
+    headlineMedium = defaultLatoTextStyle.copy(
         fontSize = 22.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         lineBreak = LineBreak.Heading
     ),
-    headlineSmall = defaultPoppinsTextStyle.copy(
+    headlineSmall = defaultLatoTextStyle.copy(
         fontSize = 20.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         lineBreak = LineBreak.Heading
     ),
-    titleLarge = defaultPoppinsTextStyle.copy(
+    titleLarge = defaultLatoTextStyle.copy(
         fontSize = 19.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         lineBreak = LineBreak.Heading
     ),
-    titleMedium = defaultPoppinsTextStyle.copy(
+    titleMedium = defaultLatoTextStyle.copy(
         fontSize = 18.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         lineBreak = LineBreak.Heading
     ),
-    titleSmall = defaultPoppinsTextStyle.copy(
+    titleSmall = defaultLatoTextStyle.copy(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.1.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         lineBreak = LineBreak.Heading
     ),
-    labelLarge = defaultPoppinsTextStyle.copy(
-        fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.1.sp, fontWeight = FontWeight.Medium
+    labelLarge = defaultLatoTextStyle.copy(
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.1.sp,
+        fontWeight = FontWeight.SemiBold
     ),
-    labelMedium = defaultPoppinsTextStyle.copy(
-        fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.5.sp, fontWeight = FontWeight.Medium
+    labelMedium = defaultLatoTextStyle.copy(
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.5.sp,
+        fontWeight = FontWeight.SemiBold
     ),
-    labelSmall = defaultPoppinsTextStyle.copy(
-        fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp, fontWeight = FontWeight.Medium
+    labelSmall = defaultLatoTextStyle.copy(
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
+        fontWeight = FontWeight.SemiBold
     ),
-    bodyLarge = defaultPoppinsTextStyle.copy(
+    bodyLarge = defaultLatoTextStyle.copy(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp,
         lineBreak = LineBreak.Paragraph
     ),
-    bodyMedium = defaultPoppinsTextStyle.copy(
+    bodyMedium = defaultLatoTextStyle.copy(
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp,
         lineBreak = LineBreak.Paragraph
     ),
-    bodySmall = defaultPoppinsTextStyle.copy(
-        fontSize = 10.sp,
+    bodySmall = defaultLatoTextStyle.copy(
+        fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp,
         lineBreak = LineBreak.Paragraph
@@ -142,7 +145,7 @@ object ReaderTextStyle {
             trim = LineHeightStyle.Trim.None
         ),
     )
-    val title = defaultPoppinsTextStyle.copy(
+    val title = defaultLatoTextStyle.copy(
         fontSize = 32.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.sp,
@@ -156,6 +159,7 @@ object ReaderTextStyle {
         lineBreak = LineBreak.Paragraph,
         lineHeight = 30.sp
     )
+    val bodyResource = R.font.merriweather_regular
     val credit = defaultMerriweatherTextStyle.copy(
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
