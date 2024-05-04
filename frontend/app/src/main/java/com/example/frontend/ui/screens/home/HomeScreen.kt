@@ -17,22 +17,31 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.frontend.data.model.ArticleMetadata
+import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.BigArticleCard
+import com.example.frontend.ui.component.BottomSheetBookmarkContent
+import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.NavBar
 import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.theme.Colors
@@ -42,6 +51,14 @@ import com.example.frontend.utils.dateToStringAgoFormat
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 
+object HomeUiConfig {
+    enum class BottomSheetContentType(val id: Int) {
+        NONE(1),
+        BOOKMARK(2),
+        NEW_BOOKMARK(3),
+    }
+}
+
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,8 +66,9 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     uiState: HomeUiState,
     onLoadMoreArticles: () -> Unit,
-    onBookmarkArticle: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
-    onUnbookmarkArticle: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onSubscribePublisher: (publisherId: BigInteger) -> Unit,
     onUnsubscribePublisher: (publisherId: BigInteger) -> Unit,
     onRefresh: () -> Unit,
@@ -123,7 +141,10 @@ fun HomeScreen(
                 HomeScreenContentSortByDate(
                     articles = uiState.articles,
                     onArticleClick = onArticleClick,
-                    onBookmarkClick = { /* TODO */ },
+                    bookmarks = uiState.bookmarks,
+                    onBookmark = onBookmark,
+                    onUnbookmark = onUnbookmark,
+                    onNewBookmark = onNewBookmark,
                 )
             }
             PullToRefreshContainer(
@@ -134,12 +155,16 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContentSortByDate(
     modifier: Modifier = Modifier,
     articles: List<ArticleMetadata>,
+    bookmarks: List<BookmarkList>,
     onArticleClick: (articleId: BigInteger) -> Unit,
-    onBookmarkClick: (articleId: BigInteger) -> Unit,
+    onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
 ) {
     if (articles.isNotEmpty()) {
         val bigArticle = articles.first()
@@ -147,6 +172,19 @@ fun HomeScreenContentSortByDate(
         val latestArticles = remainingArticles.filter { dateDifferenceFromNow(it.date) == 0L }
         val yesterdayArticles = remainingArticles.filter { dateDifferenceFromNow(it.date) == 1L }
         val olderArticles = remainingArticles.filter { dateDifferenceFromNow(it.date) > 1L }
+
+        val bottomSheetState = rememberModalBottomSheetState()
+        val bottomSheetScope = rememberCoroutineScope()
+        var bottomSheetContent by rememberSaveable {
+            mutableStateOf(HomeUiConfig.BottomSheetContentType.NONE)
+        }
+        var bottomSheetBookmarkArticleId by rememberSaveable {
+            mutableStateOf(BigInteger.ZERO)
+        }
+        val expandBottomSheet: (HomeUiConfig.BottomSheetContentType) -> Unit = {
+            bottomSheetContent = it
+            bottomSheetScope.launch { bottomSheetState.show() }
+        }
 
         val scrollState = rememberScrollState()
         Column(
@@ -174,12 +212,18 @@ fun HomeScreenContentSortByDate(
                 date = dateToStringAgoFormat(bigArticle.date),
                 isBookmarked = bigArticle.isBookmarked,
                 onClick = { onArticleClick(bigArticle.id) },
-                onBookmarkClick = { onBookmarkClick(bigArticle.id) },
+                onBookmarkClick = {
+                    bottomSheetBookmarkArticleId = bigArticle.id
+                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                },
             )
             ArticleColumn(
                 articles = latestArticles,
                 onArticleClick = onArticleClick,
-                onBookmarkClick = onBookmarkClick,
+                onBookmarkClick = {
+                    bottomSheetBookmarkArticleId = it
+                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                },
             )
             Divider()
             Text(
@@ -191,7 +235,10 @@ fun HomeScreenContentSortByDate(
             ArticleColumn(
                 articles = yesterdayArticles,
                 onArticleClick = onArticleClick,
-                onBookmarkClick = onBookmarkClick,
+                onBookmarkClick = {
+                    bottomSheetBookmarkArticleId = it
+                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                },
             )
             Divider()
             Text(
@@ -203,8 +250,48 @@ fun HomeScreenContentSortByDate(
             ArticleColumn(
                 articles = olderArticles,
                 onArticleClick = onArticleClick,
-                onBookmarkClick = onBookmarkClick,
+                onBookmarkClick = {
+                    bottomSheetBookmarkArticleId = it
+                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                },
             )
+            if (bottomSheetContent != HomeUiConfig.BottomSheetContentType.NONE) {
+                val onClose: (() -> Unit) -> Unit = { afterClose ->
+                    bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                        if (!bottomSheetState.isVisible) {
+                            bottomSheetContent = HomeUiConfig.BottomSheetContentType.NONE
+                        }
+                        afterClose()
+                    }
+                }
+                ModalBottomSheet(
+                    onDismissRequest = { onClose {} },
+                    sheetState = bottomSheetState
+                ) {
+                    if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.BOOKMARK) {
+                        BottomSheetBookmarkContent(
+                            articleId = bottomSheetBookmarkArticleId,
+                            bookmarkLists = bookmarks,
+                            onNewBookmarkList = {
+                                onClose {
+                                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK)
+                                }
+                            },
+                            onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
+                            onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                            onClose = { onClose {} },
+                        )
+                    } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
+                        BottomSheetNewBookmarkContent(
+                            onCreateNewBookmark = { name ->
+                                onNewBookmark(name, bottomSheetBookmarkArticleId)
+                                onClose {}
+                            },
+                            onClose = { onClose {} },
+                        )
+                    }
+                }
+            }
         }
     } else {
         Text(

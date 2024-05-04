@@ -1,5 +1,6 @@
 package com.example.frontend.ui.screens.reader
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,12 +33,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +62,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.frontend.ui.component.BottomSheetBookmarkContent
+import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.ImageFromUrl
 import com.example.frontend.ui.component.PublisherCard
 import com.example.frontend.ui.component.SmallArticleCard
@@ -71,8 +76,15 @@ import java.math.BigInteger
 
 object ReaderUiConfig {
     const val ARTICLE_IMG_HEIGHT = 200
+
+    enum class BottomSheetContentType(val id: Int) {
+        NONE(1),
+        BOOKMARK(2),
+        NEW_BOOKMARK(3),
+    }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderScreen(
@@ -81,13 +93,12 @@ fun ReaderScreen(
     onRefresh: () -> Unit,
     onFollow: () -> Unit,
     onUnfollow: () -> Unit,
-    onBookmark: (bookmarkId: BigInteger) -> Unit,
-    onUnbookmark: (bookmarkId: BigInteger) -> Unit,
     onShare: () -> Unit,
     onToBrowser: () -> Unit,
     onRelatedArticleClick: (articleId: BigInteger) -> Unit,
-    onBookmarkRelatedArticle: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
-    onUnbookmarkRelatedArticle: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -99,6 +110,8 @@ fun ReaderScreen(
             refreshState.endRefresh()
         }
     }
+
+    var currentArticleBookmarkRequest by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -128,7 +141,9 @@ fun ReaderScreen(
                     Row {
                         if (uiState.article.metadata.isBookmarked) {
                             IconButton(
-                                onClick = { /* TODO */ },
+                                onClick = {
+                                    currentArticleBookmarkRequest = true
+                                },
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Bookmark,
@@ -138,7 +153,9 @@ fun ReaderScreen(
                             }
                         } else {
                             IconButton(
-                                onClick = { /* TODO */ },
+                                onClick = {
+                                    currentArticleBookmarkRequest = true
+                                },
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.BookmarkBorder,
@@ -195,10 +212,15 @@ fun ReaderScreen(
                     onFollow = onFollow,
                     onUnfollow = onUnfollow,
                     onArticleClick = onRelatedArticleClick,
-                    onBookmark = { /* TODO */ },
-                    onUnbookmark = { /* TODO */ },
+                    onBookmark = onBookmark,
+                    onUnbookmark = onUnbookmark,
+                    onNewBookmark = onNewBookmark,
                     onLoadMoreRelatedArticles = onLoadMoreRelatedArticles,
                     onToBrowser = onToBrowser,
+                    currentArticleBookmarkRequest = currentArticleBookmarkRequest,
+                    onCurrentArticleBookmarkRequestCompleted = {
+                        currentArticleBookmarkRequest = false
+                    },
                 )
             }
             PullToRefreshContainer(
@@ -209,6 +231,7 @@ fun ReaderScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderScreenContent(
     modifier: Modifier = Modifier,
@@ -217,16 +240,36 @@ fun ReaderScreenContent(
     onFollow: () -> Unit,
     onUnfollow: () -> Unit,
     onArticleClick: (articleId: BigInteger) -> Unit,
-    onBookmark: (articleId: BigInteger) -> Unit,
-    onUnbookmark: (bookmarkId: BigInteger) -> Unit,
+    onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
     onToBrowser: () -> Unit,
+    currentArticleBookmarkRequest: Boolean,
+    onCurrentArticleBookmarkRequestCompleted: () -> Unit,
 ) {
     val publisher = uiState.article.metadata.publisher
     val metadata = uiState.article.metadata
     val summary = uiState.article.summary
     val content = uiState.article.content.content
     val relatedArticles = uiState.relatedArticles
+
+    val bottomSheetState = rememberModalBottomSheetState()
+    val bottomSheetScope = rememberCoroutineScope()
+    var bottomSheetContent by rememberSaveable {
+        mutableStateOf(ReaderUiConfig.BottomSheetContentType.NONE)
+    }
+    var bottomSheetBookmarkArticleId by rememberSaveable {
+        mutableStateOf(BigInteger.ZERO)
+    }
+    val expandBottomSheet: (ReaderUiConfig.BottomSheetContentType) -> Unit = {
+        bottomSheetContent = it
+        bottomSheetScope.launch { bottomSheetState.show() }
+    }
+    if (currentArticleBookmarkRequest) {
+        bottomSheetBookmarkArticleId = metadata.id
+        expandBottomSheet(ReaderUiConfig.BottomSheetContentType.BOOKMARK)
+    }
 
     val scrollState = rememberScrollState()
     Column(
@@ -345,12 +388,49 @@ fun ReaderScreenContent(
                         isBookmarked = article.isBookmarked,
                         onClick = { onArticleClick(article.id) },
                         onBookmarkClick = {
-                            if (it) {
-                                onUnbookmark(article.id)
-                            } else {
-                                onBookmark(article.id)
+                            bottomSheetBookmarkArticleId = article.id
+                            expandBottomSheet(ReaderUiConfig.BottomSheetContentType.BOOKMARK)
+                        },
+                    )
+                }
+            }
+        }
+        if (bottomSheetContent != ReaderUiConfig.BottomSheetContentType.NONE) {
+            val onClose: (() -> Unit) -> Unit = { afterClose ->
+                bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                    if (!bottomSheetState.isVisible) {
+                        bottomSheetContent = ReaderUiConfig.BottomSheetContentType.NONE
+                    }
+                    if (currentArticleBookmarkRequest) {
+                        onCurrentArticleBookmarkRequestCompleted()
+                    }
+                    afterClose()
+                }
+            }
+            ModalBottomSheet(
+                onDismissRequest = { onClose {} },
+                sheetState = bottomSheetState
+            ) {
+                if (bottomSheetContent == ReaderUiConfig.BottomSheetContentType.BOOKMARK) {
+                    BottomSheetBookmarkContent(
+                        articleId = bottomSheetBookmarkArticleId,
+                        bookmarkLists = uiState.bookmarks,
+                        onNewBookmarkList = {
+                            onClose {
+                                expandBottomSheet(ReaderUiConfig.BottomSheetContentType.NEW_BOOKMARK)
                             }
                         },
+                        onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
+                        onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                        onClose = { onClose {} },
+                    )
+                } else if (bottomSheetContent == ReaderUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
+                    BottomSheetNewBookmarkContent(
+                        onCreateNewBookmark = { name ->
+                            onNewBookmark(name, bottomSheetBookmarkArticleId)
+                            onClose {}
+                        },
+                        onClose = { onClose {} },
                     )
                 }
             }

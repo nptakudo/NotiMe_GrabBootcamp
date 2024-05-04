@@ -72,15 +72,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 bookmarkRepository.bookmarkArticle(articleId, bookmarkId)
-                _articles.update { articles ->
-                    articles.map {
-                        if (it.id == articleId) {
-                            it.copy(isBookmarked = true)
-                        } else {
-                            it
-                        }
-                    }
-                }
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to bookmark article")
             }
@@ -91,15 +84,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 bookmarkRepository.unbookmarkArticle(articleId, bookmarkId)
-                _articles.update { articles ->
-                    articles.map {
-                        if (it.id == articleId) {
-                            it.copy(isBookmarked = false)
-                        } else {
-                            it
-                        }
-                    }
-                }
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to unbookmark article")
             }
@@ -122,6 +108,44 @@ class HomeViewModel @Inject constructor(
                 subscriptionRepository.unsubscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to unsubscribe publisher")
+            }
+        }
+    }
+
+    fun onCreateNewBookmark(name: String, articleId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                val bookmarkId = bookmarkRepository.createBookmarkList(name)
+                bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
+                // TODO
+//                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                _bookmarks.update {
+                    it + BookmarkList(
+                        id = bookmarkId,
+                        name = name,
+                        articles = emptyList(),
+                        isSaved = true,
+                        ownerId = BigInteger.ONE
+                    )
+                }
+                updateBookmarkedState(articleId)
+            } catch (e: Exception) {
+                Log.e(HomeConfig.LOG_TAG, "Failed to create new bookmark")
+            }
+        }
+    }
+
+    private fun updateBookmarkedState(articleId: BigInteger? = null) {
+        _articles.update { articleList ->
+            articleList.map { article ->
+                if (articleId != null && article.id != articleId) {
+                    article
+                } else
+                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles.any { it.id == article.id } }) {
+                        article.copy(isBookmarked = true)
+                    } else {
+                        article.copy(isBookmarked = false)
+                    }
             }
         }
     }

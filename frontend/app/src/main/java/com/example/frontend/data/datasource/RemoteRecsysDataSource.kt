@@ -8,7 +8,11 @@ import javax.inject.Inject
 class RemoteRecsysDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getRelatedArticles(articleId: BigInteger, count: Int, offset: Int): List<ArticleMetadata> {
+    suspend fun getRelatedArticles(
+        articleId: BigInteger,
+        count: Int,
+        offset: Int
+    ): List<ArticleMetadata> {
         val res = apiService.getRelatedArticles(articleId, count, offset)
         if (res.isSuccessful) {
             return res.body()!!
@@ -26,7 +30,10 @@ class RemoteRecsysDataSource @Inject constructor(
         }
     }
 
-    suspend fun getLatestSubscribedArticlesByPublisher(count: Int, offset: Int): List<ArticleMetadata> {
+    suspend fun getLatestSubscribedArticlesByPublisher(
+        count: Int,
+        offset: Int
+    ): List<ArticleMetadata> {
         val res = apiService.getLatestSubscribedArticlesByPublisher(count, offset)
         if (res.isSuccessful) {
             return res.body()!!

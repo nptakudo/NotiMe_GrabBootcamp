@@ -76,7 +76,7 @@ class ReaderViewModel @Inject constructor(
         )
     }.combine(_relatedArticles) { uiState, articles ->
         uiState.copy(
-            relatedArticles = articles
+            relatedArticles = articles.sortedBy { it.date }
         )
     }.stateIn(
         viewModelScope,
@@ -88,11 +88,8 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 bookmarkRepository.bookmarkArticle(articleId, bookmarkId)
-                _article.update { article ->
-                    article.copy(
-                        metadata = article.metadata.copy(isBookmarked = true)
-                    )
-                }
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to bookmark article")
             }
@@ -103,41 +100,8 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 bookmarkRepository.unbookmarkArticle(articleId, bookmarkId)
-                _article.update { article ->
-                    article.copy(
-                        metadata = article.metadata.copy(isBookmarked = false)
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e(HomeConfig.LOG_TAG, "Failed to unbookmark article")
-            }
-        }
-    }
-
-    fun onBookmarkArticle(bookmarkId: BigInteger) {
-        viewModelScope.launch {
-            try {
-                bookmarkRepository.bookmarkArticle(articleId, bookmarkId)
-                _article.update { article ->
-                    article.copy(
-                        metadata = article.metadata.copy(isBookmarked = true)
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e(HomeConfig.LOG_TAG, "Failed to bookmark article")
-            }
-        }
-    }
-
-    fun onUnbookmarkArticle(bookmarkId: BigInteger) {
-        viewModelScope.launch {
-            try {
-                bookmarkRepository.unbookmarkArticle(articleId, bookmarkId)
-                _article.update { article ->
-                    article.copy(
-                        metadata = article.metadata.copy(isBookmarked = false)
-                    )
-                }
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to unbookmark article")
             }
@@ -190,8 +154,46 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
+    fun onCreateNewBookmark(name: String, articleId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                val bookmarkId = bookmarkRepository.createBookmarkList(name)
+                bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
+                // TODO
+//                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                _bookmarks.update {
+                    it + BookmarkList(
+                        id = bookmarkId,
+                        name = name,
+                        articles = emptyList(),
+                        isSaved = true,
+                        ownerId = BigInteger.ONE
+                    )
+                }
+                updateBookmarkedState(articleId)
+            } catch (e: Exception) {
+                Log.e(HomeConfig.LOG_TAG, "Failed to create new bookmark")
+            }
+        }
+    }
+
     init {
         refreshUiState()
+    }
+
+    private fun updateBookmarkedState(articleId: BigInteger? = null) {
+        _relatedArticles.update { articleList ->
+            articleList.map { article ->
+                if (articleId != null && article.id != articleId) {
+                    article
+                } else
+                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles.any { it.id == article.id } }) {
+                        article.copy(isBookmarked = true)
+                    } else {
+                        article.copy(isBookmarked = false)
+                    }
+            }
+        }
     }
 
     fun refreshUiState(offset: Int = 0, count: Int = ReaderConfig.RELATED_ARTICLE_COUNT) {
@@ -315,6 +317,31 @@ class ReaderViewModel @Inject constructor(
                         ),
                         isBookmarked = true,
                         articleImageUrl = "https://picsum.photos/400",
+                    ),
+                )
+            }
+            _bookmarks.update {
+                listOf(
+                    BookmarkList(
+                        id = BigInteger.ONE,
+                        name = "Bookmark 1",
+                        articles = emptyList(),
+                        isSaved = true,
+                        ownerId = BigInteger.ONE
+                    ),
+                    BookmarkList(
+                        id = BigInteger.ONE,
+                        name = "Bookmark 2",
+                        articles = emptyList(),
+                        isSaved = true,
+                        ownerId = BigInteger.ONE
+                    ),
+                    BookmarkList(
+                        id = BigInteger.ONE,
+                        name = "Bookmark 3",
+                        articles = emptyList(),
+                        isSaved = true,
+                        ownerId = BigInteger.ONE
                     ),
                 )
             }

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.theme.FrontendTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +23,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
+                    HomeRoute(
+                        viewModel = hiltViewModel(),
+                        onArticleClick = {},
+                        onNavigateNavBar = {},
+                        onAboutClick = {},
+                        onLogOutClick = {}
+                    )
+//                    ReaderRoute(
+//                        viewModel = hiltViewModel(),
+//                        onReadAnotherArticle = {},
+//                        onBack = {}
+//                    )
                 }
             }
         }

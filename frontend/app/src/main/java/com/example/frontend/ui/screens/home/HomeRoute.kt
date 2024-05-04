@@ -25,18 +25,9 @@ fun HomeRoute(
     HomeScreen(
         uiState = uiState,
         onLoadMoreArticles = { viewModel.onLoadMoreArticles() },
-        onBookmarkArticle = { articleId, bookmarkId ->
-            viewModel.onBookmarkArticle(
-                articleId,
-                bookmarkId
-            )
-        },
-        onUnbookmarkArticle = { articleId, bookmarkId ->
-            viewModel.onUnbookmarkArticle(
-                articleId,
-                bookmarkId
-            )
-        },
+        onBookmark = viewModel::onBookmarkArticle,
+        onUnbookmark = viewModel::onUnbookmarkArticle,
+        onNewBookmark = viewModel::onCreateNewBookmark,
         onSubscribePublisher = { publisherId -> viewModel.onSubscribePublisher(publisherId) },
         onUnsubscribePublisher = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) },
         onRefresh = { viewModel.refreshUiState() },
