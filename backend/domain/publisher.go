@@ -1,20 +1,22 @@
 package domain
 
+import "context"
+
 type Publisher struct {
-	Id         uint32 `json:"id"`
+	Id         int32  `json:"id"`
 	Name       string `json:"name"`
 	Url        string `json:"url"`
 	AvatarPath string `json:"avatar_path"`
 }
 
 type PublisherRepository interface {
-	GetById(id uint32) (*Publisher, error)
-	Search(name string) ([]*Publisher, error)
+	GetById(ctx context.Context, id int32) (*Publisher, error)
+	Search(ctx context.Context, name string) ([]*Publisher, error)
 }
 
 type SubscribeListRepository interface {
-	GetByUserId(userId uint32) ([]*Publisher, error)
-	IsSubscribed(publisherId uint32, userId uint32) (bool, error)
-	AddToSubscribeList(publisherId uint32, userId uint32) error
-	RemoveFromSubscribeList(publisherId uint32, userId uint32) error
+	GetByUserId(ctx context.Context, userId int32) ([]*Publisher, error)
+	IsSubscribed(ctx context.Context, publisherId int32, userId int32) (bool, error)
+	AddToSubscribeList(ctx context.Context, publisherId int32, userId int32) error
+	RemoveFromSubscribeList(ctx context.Context, publisherId int32, userId int32) error
 }

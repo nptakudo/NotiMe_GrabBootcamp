@@ -3,19 +3,13 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 	"notime/api/controller"
-	"notime/repository"
+	"notime/external/sql/store"
 	"notime/usecases"
 )
 
-func NewHomeRouter(group *gin.RouterGroup) {
+func NewHomeRouter(group *gin.RouterGroup, db *store.Queries) {
 	homeController := controller.HomeController{
-		HomeUsecase: &usecases.HomeUsecaseImpl{
-			ArticleRepository:       &repository.ArticleRepositoryImpl{},
-			SubscribeListRepository: &repository.SubscribeListRepositoryImpl{},
-			RecsysRepository:        &repository.RecsysRepositoryImpl{},
-			BookmarkListRepository:  &repository.BookmarkListRepositoryImpl{},
-			CommonUsecase:           &usecases.CommonUsecaseImpl{},
-		},
+		HomeUsecase: usecases.NewHomeUsecase(db),
 	}
 	// Get latest articles from subscribed publishers
 	// Query params: count, offset

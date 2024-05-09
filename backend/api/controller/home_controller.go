@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"notime/api"
@@ -13,11 +14,11 @@ type HomeController struct {
 }
 
 type HomeUsecase interface {
-	GetSubscribedPublishers(userId uint32) ([]*messages.Publisher, error)
-	GetLatestSubscribedArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
-	GetLatestSubscribedArticlesByPublisher(countEachPublisher int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
-	GetExploreArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
-	Search(query string, count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error)
+	GetSubscribedPublishers(ctx context.Context, userId int32) ([]*messages.Publisher, error)
+	GetLatestSubscribedArticles(ctx context.Context, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error)
+	GetLatestSubscribedArticlesByPublisher(ctx context.Context, countEachPublisher int, offset int, userId int32) ([]*messages.ArticleMetadata, error)
+	GetExploreArticles(ctx context.Context, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error)
+	Search(ctx context.Context, query string, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error)
 }
 
 func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) {
@@ -28,7 +29,7 @@ func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) 
 		return
 	}
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.GetLatestSubscribedArticles(reqCount, reqOffset, uint32(userId))
+	articles, err := controller.HomeUsecase.GetLatestSubscribedArticles(ctx, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -46,7 +47,7 @@ func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gi
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.GetLatestSubscribedArticlesByPublisher(reqCount, reqOffset, uint32(userId))
+	articles, err := controller.HomeUsecase.GetLatestSubscribedArticlesByPublisher(ctx, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -64,7 +65,7 @@ func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.GetExploreArticles(reqCount, reqOffset, uint32(userId))
+	articles, err := controller.HomeUsecase.GetExploreArticles(ctx, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -83,7 +84,7 @@ func (controller *HomeController) Search(ctx *gin.Context) {
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.HomeUsecase.Search(reqQuery, reqCount, reqOffset, uint32(userId))
+	articles, err := controller.HomeUsecase.Search(ctx, reqQuery, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return

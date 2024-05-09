@@ -1,10 +1,12 @@
 package usecases
 
 import (
+	"context"
 	"log/slog"
 	"notime/api/controller"
 	"notime/api/messages"
 	"notime/domain"
+	"notime/external/sql/store"
 	"notime/repository"
 )
 
@@ -16,8 +18,23 @@ type HomeUsecaseImpl struct {
 	CommonUsecase           controller.CommonUsecase
 }
 
-func (uc *HomeUsecaseImpl) GetSubscribedPublishers(userId uint32) ([]*messages.Publisher, error) {
-	subscribeListDm, err := uc.SubscribeListRepository.GetByUserId(userId)
+func NewHomeUsecase(db *store.Queries) controller.HomeUsecase {
+	articleRepository := repository.NewArticleRepository(db)
+	bookmarkListRepository := repository.NewBookmarkListRepository(db)
+	subscribeListRepository := repository.NewSubscribeListRepository(db)
+	recsysRepository := repository.NewRecsysRepository()
+
+	return &HomeUsecaseImpl{
+		ArticleRepository:       articleRepository,
+		SubscribeListRepository: subscribeListRepository,
+		RecsysRepository:        recsysRepository,
+		BookmarkListRepository:  bookmarkListRepository,
+		CommonUsecase:           NewCommonUsecase(db),
+	}
+}
+
+func (uc *HomeUsecaseImpl) GetSubscribedPublishers(ctx context.Context, userId int32) ([]*messages.Publisher, error) {
+	subscribeListDm, err := uc.SubscribeListRepository.GetByUserId(ctx, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetSubscribedPublishers: %v", err)
 		return nil, ErrInternal
@@ -31,14 +48,14 @@ func (uc *HomeUsecaseImpl) GetSubscribedPublishers(userId uint32) ([]*messages.P
 	return subscribeListApi, nil
 }
 
-func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromSubscribed(userId, count, offset)
+func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(ctx context.Context, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
+	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromSubscribed(ctx, userId, count, offset)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetLatestSubscribedArticles: %v", err)
 		return nil, ErrInternal
 	}
 
-	articleListApi, err := fromDmArticlesToApi(articleListDm, userId, uc.BookmarkListRepository)
+	articleListApi, err := fromDmArticlesToApi(ctx, articleListDm, userId, uc.BookmarkListRepository)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetLatestSubscribedArticles: %v", err)
 		return nil, ErrInternal
@@ -46,8 +63,8 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(count int, offset int, us
 	return articleListApi, nil
 }
 
-func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPublisher int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	publishers, err := uc.SubscribeListRepository.GetByUserId(userId)
+func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(ctx context.Context, countEachPublisher int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
+	publishers, err := uc.SubscribeListRepository.GetByUserId(ctx, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
 		return nil, ErrInternal
@@ -55,12 +72,12 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPubli
 
 	articlesApi := make([]*messages.ArticleMetadata, 0)
 	for _, publisher := range publishers {
-		thisArticlesDm, err := uc.RecsysRepository.GetLatestArticlesByPublisher(publisher.Id, userId, countEachPublisher, offset)
+		thisArticlesDm, err := uc.RecsysRepository.GetLatestArticlesByPublisher(ctx, publisher.Id, userId, countEachPublisher, offset)
 		if err != nil {
 			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
 			return nil, ErrInternal
 		}
-		thisArticlesApi, err := fromDmArticlesToApi(thisArticlesDm, userId, uc.BookmarkListRepository)
+		thisArticlesApi, err := fromDmArticlesToApi(ctx, thisArticlesDm, userId, uc.BookmarkListRepository)
 		if err != nil {
 			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
 			return nil, ErrInternal
@@ -70,14 +87,14 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPubli
 	return articlesApi, nil
 }
 
-func (uc *HomeUsecaseImpl) GetExploreArticles(count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromUnsubscribed(userId, count, offset)
+func (uc *HomeUsecaseImpl) GetExploreArticles(ctx context.Context, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
+	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromUnsubscribed(ctx, userId, count, offset)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetExploreArticles: %v", err)
 		return nil, ErrInternal
 	}
 
-	articleListApi, err := fromDmArticlesToApi(articleListDm, userId, uc.BookmarkListRepository)
+	articleListApi, err := fromDmArticlesToApi(ctx, articleListDm, userId, uc.BookmarkListRepository)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetExploreArticles: %v", err)
 		return nil, ErrInternal
@@ -86,14 +103,14 @@ func (uc *HomeUsecaseImpl) GetExploreArticles(count int, offset int, userId uint
 
 }
 
-func (uc *HomeUsecaseImpl) Search(query string, count int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	articleListDm, err := uc.ArticleRepository.Search(query, count, offset)
+func (uc *HomeUsecaseImpl) Search(ctx context.Context, query string, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
+	articleListDm, err := uc.ArticleRepository.Search(ctx, query, count, offset)
 	if err != nil {
 		slog.Error("[HomeUsecase] Search: %v", err)
 		return nil, ErrInternal
 	}
 
-	articleListApi, err := fromDmArticlesToApi(articleListDm, userId, uc.BookmarkListRepository)
+	articleListApi, err := fromDmArticlesToApi(ctx, articleListDm, userId, uc.BookmarkListRepository)
 	if err != nil {
 		slog.Error("[HomeUsecase] Search: %v", err)
 		return nil, ErrInternal

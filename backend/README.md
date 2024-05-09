@@ -17,7 +17,9 @@
 4. `api/route/`: Create new `.go` file and add new routes (`GET`, `POST`, etc.)
 
 ## To run mock database
+
 - At backend root, run (remember to delete data volume if any):
+
 ```commandline
 docker-compose -f external/sql/mock_db/docker-compose.yml up
 ```

@@ -4,11 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"notime/api/middleware"
 	"notime/bootstrap"
+	"notime/external/sql/store"
 
 	"time"
 )
 
-func Setup(env *bootstrap.Env, timeout time.Duration, gin *gin.Engine) {
+func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gin.Engine) {
 	// TODO
 	//publicRouter := gin.Group("")
 
@@ -17,11 +18,11 @@ func Setup(env *bootstrap.Env, timeout time.Duration, gin *gin.Engine) {
 	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 
 	homeRouter := protectedRouter.Group("/home")
-	NewHomeRouter(homeRouter)
+	NewHomeRouter(homeRouter, db)
 
 	readerRouter := protectedRouter.Group("/reader")
-	NewReaderRouter(readerRouter)
+	NewReaderRouter(readerRouter, env, db)
 
 	commonRouter := protectedRouter.Group("")
-	CommonRouter(commonRouter)
+	CommonRouter(commonRouter, db)
 }

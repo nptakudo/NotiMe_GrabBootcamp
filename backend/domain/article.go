@@ -1,9 +1,12 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type ArticleMetadata struct {
-	Id        uint32     `json:"id"`
+	Id        int64      `json:"id"`
 	Title     string     `json:"title"`
 	Publisher *Publisher `json:"publisher"`
 	Date      time.Time  `json:"date"`
@@ -11,7 +14,7 @@ type ArticleMetadata struct {
 }
 
 type ArticleRepository interface {
-	GetById(id uint32) (*ArticleMetadata, error)
-	GetByPublisher(publisherId uint32, count int, offset int) ([]*ArticleMetadata, error)
-	Search(query string, count int, offset int) ([]*ArticleMetadata, error)
+	GetById(ctx context.Context, id int64) (*ArticleMetadata, error)
+	GetByPublisher(ctx context.Context, publisherId int32, count int, offset int) ([]*ArticleMetadata, error)
+	Search(ctx context.Context, query string, count int, offset int) ([]*ArticleMetadata, error)
 }

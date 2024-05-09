@@ -1,9 +1,13 @@
 package usecases
 
 import (
+	"context"
 	"log/slog"
+	"notime/api/controller"
 	"notime/api/messages"
 	"notime/domain"
+	"notime/external/sql/store"
+	"notime/repository"
 )
 
 type CommonUsecaseImpl struct {
@@ -13,13 +17,27 @@ type CommonUsecaseImpl struct {
 	SubscribeListRepository domain.SubscribeListRepository
 }
 
-func (uc *CommonUsecaseImpl) GetArticleMetadataById(id uint32, userId uint32) (*messages.ArticleMetadata, error) {
-	articleDm, err := uc.ArticleRepository.GetById(id)
+func NewCommonUsecase(db *store.Queries) controller.CommonUsecase {
+	articleRepository := repository.NewArticleRepository(db)
+	publisherRepository := repository.NewPublisherRepository(db)
+	bookmarkListRepository := repository.NewBookmarkListRepository(db)
+	subscribeListRepository := repository.NewSubscribeListRepository(db)
+
+	return &CommonUsecaseImpl{
+		ArticleRepository:       articleRepository,
+		PublisherRepository:     publisherRepository,
+		BookmarkListRepository:  bookmarkListRepository,
+		SubscribeListRepository: subscribeListRepository,
+	}
+}
+
+func (uc *CommonUsecaseImpl) GetArticleMetadataById(ctx context.Context, id int64, userId int32) (*messages.ArticleMetadata, error) {
+	articleDm, err := uc.ArticleRepository.GetById(ctx, id)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetArticleMetadataById: %v", err)
 		return nil, ErrInternal
 	}
-	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(id, userId)
+	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(ctx, id, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetArticleMetadataById: %v", err)
 		return nil, ErrInternal
@@ -27,13 +45,13 @@ func (uc *CommonUsecaseImpl) GetArticleMetadataById(id uint32, userId uint32) (*
 	return FromDmArticleToApi(articleDm, isBookmarked), nil
 }
 
-func (uc *CommonUsecaseImpl) GetPublisherById(id uint32, userId uint32) (*messages.Publisher, error) {
-	publisherDm, err := uc.PublisherRepository.GetById(id)
+func (uc *CommonUsecaseImpl) GetPublisherById(ctx context.Context, id int32, userId int32) (*messages.Publisher, error) {
+	publisherDm, err := uc.PublisherRepository.GetById(ctx, id)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetPublisherById: %v", err)
 		return nil, ErrInternal
 	}
-	isSubscribed, err := uc.SubscribeListRepository.IsSubscribed(id, userId)
+	isSubscribed, err := uc.SubscribeListRepository.IsSubscribed(ctx, id, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetPublisherById: %v", err)
 		return nil, ErrInternal
@@ -41,8 +59,8 @@ func (uc *CommonUsecaseImpl) GetPublisherById(id uint32, userId uint32) (*messag
 	return FromDmPublisherToApi(publisherDm, isSubscribed), nil
 }
 
-func (uc *CommonUsecaseImpl) GetBookmarkLists(userId uint32) ([]*messages.BookmarkList, error) {
-	bookmarkListsDm, err := uc.BookmarkListRepository.GetOwnByUser(userId)
+func (uc *CommonUsecaseImpl) GetBookmarkLists(ctx context.Context, userId int32) ([]*messages.BookmarkList, error) {
+	bookmarkListsDm, err := uc.BookmarkListRepository.GetOwnByUser(ctx, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetBookmarkLists: %v", err)
 		return nil, ErrInternal
@@ -50,8 +68,8 @@ func (uc *CommonUsecaseImpl) GetBookmarkLists(userId uint32) ([]*messages.Bookma
 	return fromDmBookmarkListsToApi(bookmarkListsDm), nil
 }
 
-func (uc *CommonUsecaseImpl) GetBookmarkListById(id uint32, userId uint32) (*messages.BookmarkList, error) {
-	bookmarkListDm, err := uc.BookmarkListRepository.GetById(id)
+func (uc *CommonUsecaseImpl) GetBookmarkListById(ctx context.Context, id int32, userId int32) (*messages.BookmarkList, error) {
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(ctx, id)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetBookmarkListById: %v", err)
 		return nil, ErrInternal
@@ -59,8 +77,8 @@ func (uc *CommonUsecaseImpl) GetBookmarkListById(id uint32, userId uint32) (*mes
 	return fromDmBookmarkListToApi(bookmarkListDm), nil
 }
 
-func (uc *CommonUsecaseImpl) GetSubscriptions(userId uint32) ([]*messages.Publisher, error) {
-	subscribedPublishersDm, err := uc.SubscribeListRepository.GetByUserId(userId)
+func (uc *CommonUsecaseImpl) GetSubscriptions(ctx context.Context, userId int32) ([]*messages.Publisher, error) {
+	subscribedPublishersDm, err := uc.SubscribeListRepository.GetByUserId(ctx, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetSubscriptions: %v", err)
 		return nil, ErrInternal
@@ -68,8 +86,8 @@ func (uc *CommonUsecaseImpl) GetSubscriptions(userId uint32) ([]*messages.Publis
 	return fromDmSubscribedPublishersToApi(subscribedPublishersDm)
 }
 
-func (uc *CommonUsecaseImpl) IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error) {
-	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(articleId, bookmarkListId)
+func (uc *CommonUsecaseImpl) IsBookmarked(ctx context.Context, articleId int64, bookmarkListId int32) (bool, error) {
+	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(ctx, articleId, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] IsInBookmarkList: %v", err)
 		return false, ErrInternal
@@ -77,8 +95,8 @@ func (uc *CommonUsecaseImpl) IsBookmarked(articleId uint32, bookmarkListId uint3
 	return isBookmarked, nil
 }
 
-func (uc *CommonUsecaseImpl) IsSubscribed(publisherId uint32, userId uint32) (bool, error) {
-	isSubscribed, err := uc.SubscribeListRepository.IsSubscribed(publisherId, userId)
+func (uc *CommonUsecaseImpl) IsSubscribed(ctx context.Context, publisherId int32, userId int32) (bool, error) {
+	isSubscribed, err := uc.SubscribeListRepository.IsSubscribed(ctx, publisherId, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] IsSubscribed: %v", err)
 		return false, ErrInternal
@@ -86,8 +104,8 @@ func (uc *CommonUsecaseImpl) IsSubscribed(publisherId uint32, userId uint32) (bo
 	return isSubscribed, nil
 }
 
-func (uc *CommonUsecaseImpl) Bookmark(articleId uint32, bookmarkListId uint32, userId uint32) error {
-	bookmarkListDm, err := uc.BookmarkListRepository.GetById(bookmarkListId)
+func (uc *CommonUsecaseImpl) Bookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error {
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(ctx, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Bookmark: %v", err)
 		return ErrInternal
@@ -96,7 +114,7 @@ func (uc *CommonUsecaseImpl) Bookmark(articleId uint32, bookmarkListId uint32, u
 		return ErrNotAuthorized
 	}
 
-	err = uc.BookmarkListRepository.AddToBookmarkList(bookmarkListId, articleId)
+	err = uc.BookmarkListRepository.AddToBookmarkList(ctx, articleId, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Bookmark: %v", err)
 		return ErrInternal
@@ -104,8 +122,8 @@ func (uc *CommonUsecaseImpl) Bookmark(articleId uint32, bookmarkListId uint32, u
 	return nil
 }
 
-func (uc *CommonUsecaseImpl) Unbookmark(articleId uint32, bookmarkListId uint32, userId uint32) error {
-	bookmarkListDm, err := uc.BookmarkListRepository.GetById(bookmarkListId)
+func (uc *CommonUsecaseImpl) Unbookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error {
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(ctx, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Unbookmark: %v", err)
 		return ErrInternal
@@ -114,7 +132,7 @@ func (uc *CommonUsecaseImpl) Unbookmark(articleId uint32, bookmarkListId uint32,
 		return ErrNotAuthorized
 	}
 
-	err = uc.BookmarkListRepository.RemoveFromBookmarkList(bookmarkListId, articleId)
+	err = uc.BookmarkListRepository.RemoveFromBookmarkList(ctx, articleId, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Unbookmark: %v", err)
 		return ErrInternal
@@ -122,16 +140,16 @@ func (uc *CommonUsecaseImpl) Unbookmark(articleId uint32, bookmarkListId uint32,
 	return nil
 }
 
-func (uc *CommonUsecaseImpl) Subscribe(publisherId uint32, userId uint32) error {
-	err := uc.SubscribeListRepository.AddToSubscribeList(publisherId, userId)
+func (uc *CommonUsecaseImpl) Subscribe(ctx context.Context, publisherId int32, userId int32) error {
+	err := uc.SubscribeListRepository.AddToSubscribeList(ctx, publisherId, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Subscribe: %v", err)
 		return ErrInternal
 	}
 	return nil
 }
-func (uc *CommonUsecaseImpl) Unsubscribe(publisherId uint32, userId uint32) error {
-	err := uc.SubscribeListRepository.RemoveFromSubscribeList(publisherId, userId)
+func (uc *CommonUsecaseImpl) Unsubscribe(ctx context.Context, publisherId int32, userId int32) error {
+	err := uc.SubscribeListRepository.RemoveFromSubscribeList(ctx, publisherId, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Unsubscribe: %v", err)
 		return ErrInternal

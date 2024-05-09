@@ -3,18 +3,13 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 	"notime/api/controller"
-	"notime/repository"
+	"notime/external/sql/store"
 	"notime/usecases"
 )
 
-func CommonRouter(group *gin.RouterGroup) {
+func CommonRouter(group *gin.RouterGroup, db *store.Queries) {
 	commonController := controller.CommonController{
-		CommonUsecase: &usecases.CommonUsecaseImpl{
-			ArticleRepository:       &repository.ArticleRepositoryImpl{},
-			PublisherRepository:     &repository.PublisherRepositoryImpl{},
-			BookmarkListRepository:  &repository.BookmarkListRepositoryImpl{},
-			SubscribeListRepository: &repository.SubscribeListRepositoryImpl{},
-		},
+		CommonUsecase: usecases.NewCommonUsecase(db),
 	}
 	// Get publisher by id
 	group.GET("/publisher/:publisher_id", commonController.GetPublisherById)

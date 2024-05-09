@@ -18,7 +18,7 @@ func main() {
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 	gin := gin.Default()
-	route.Setup(env, timeout, gin)
+	route.Setup(env, app.Database.Queries, timeout, gin)
 
 	err := gin.Run(env.ServerAddress)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 )
 
 type Querier interface {
-	AddArticleToBookmarkList(ctx context.Context, arg AddArticleToBookmarkListParams) (ListPost, error)
+	AddArticleToBookmarkList(ctx context.Context, arg AddArticleToBookmarkListParams) error
 	CreateBookmarkList(ctx context.Context, arg CreateBookmarkListParams) (ReadingList, error)
 	DeleteBookmarkList(ctx context.Context, id int32) (ReadingList, error)
 	// -- DROP SCHEMA public CASCADE;
@@ -69,13 +69,16 @@ type Querier interface {
 	// ARTICLE REPOSITORY
 	//-----------------------------------------------
 	GetArticleById(ctx context.Context, id int64) (Post, error)
-	GetArticlesByPublisherId(ctx context.Context, sourceID pgtype.Int4) ([]Post, error)
+	// params: publisherId: number, limit: number, offset: number
+	// behavior: sorted by publish_date desc
+	GetArticlesByPublisherId(ctx context.Context, arg GetArticlesByPublisherIdParams) ([]Post, error)
+	GetArticlesInBookmarkList(ctx context.Context, listID int32) ([]Post, error)
 	//-----------------------------------------------
 	// BOOKMARK LIST REPOSITORY
 	//-----------------------------------------------
-	GetBookmarkListById(ctx context.Context, id int32) ([]ReadingList, error)
+	GetBookmarkListById(ctx context.Context, id int32) (ReadingList, error)
 	GetBookmarkListsOwnByUserId(ctx context.Context, owner pgtype.Int4) ([]ReadingList, error)
-	GetBookmarkListsSharedWithUserId(ctx context.Context, userID int32) ([]GetBookmarkListsSharedWithUserIdRow, error)
+	GetBookmarkListsSharedWithUserId(ctx context.Context, userID int32) ([]ReadingList, error)
 	//-----------------------------------------------
 	// PUBLISHER REPOSITORY
 	//-----------------------------------------------
@@ -83,14 +86,16 @@ type Querier interface {
 	//-----------------------------------------------
 	// SUBSCRIBE LIST REPOSITORY
 	//-----------------------------------------------
-	GetSubscribedPublishersByUserId(ctx context.Context, userID int32) ([]GetSubscribedPublishersByUserIdRow, error)
+	GetSubscribedPublishersByUserId(ctx context.Context, userID int32) ([]Source, error)
 	IsArticleInBookmarkList(ctx context.Context, arg IsArticleInBookmarkListParams) (ListPost, error)
 	IsPublisherSubscribedByUserId(ctx context.Context, arg IsPublisherSubscribedByUserIdParams) (Subscription, error)
-	RemoveArticleFromBookmarkList(ctx context.Context, arg RemoveArticleFromBookmarkListParams) (ListPost, error)
-	SearchArticlesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Post, error)
+	RemoveArticleFromBookmarkList(ctx context.Context, arg RemoveArticleFromBookmarkListParams) error
+	// params: name: string, limit: number, offset: number
+	// behavior: sorted by publish_date desc
+	SearchArticlesByName(ctx context.Context, arg SearchArticlesByNameParams) ([]Post, error)
 	SearchPublishersByName(ctx context.Context, dollar_1 pgtype.Text) ([]Source, error)
-	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) (Subscription, error)
-	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) (Subscription, error)
+	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error
+	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error
 }
 
 var _ Querier = (*Queries)(nil)

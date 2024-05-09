@@ -1,29 +1,36 @@
 package repository
 
-import "notime/domain"
+import (
+	"context"
+	"notime/domain"
+)
 
 type RecsysRepository interface {
-	GetLatestArticlesFromSubscribed(userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error)
-	GetLatestArticlesFromUnsubscribed(userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error)
-	GetLatestArticlesByPublisher(publisherId uint32, userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error)
-	GetRelatedArticles(articleId uint32, userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error)
+	GetLatestArticlesFromSubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error)
+	GetLatestArticlesFromUnsubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error)
+	GetLatestArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error)
+	GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error)
 }
 
 // RecsysRepositoryImpl TODO
 type RecsysRepositoryImpl struct{}
 
-func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error) {
+func NewRecsysRepository() RecsysRepository {
+	return &RecsysRepositoryImpl{}
+}
+
+func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error) {
+func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *RecsysRepositoryImpl) GetLatestArticlesByPublisher(publisherId uint32, userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error) {
+func (r *RecsysRepositoryImpl) GetLatestArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }
 
-func (r *RecsysRepositoryImpl) GetRelatedArticles(articleId uint32, userId uint32, count int, offset int) ([]*domain.ArticleMetadata, error) {
+func (r *RecsysRepositoryImpl) GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }

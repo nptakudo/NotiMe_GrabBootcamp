@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"notime/api"
@@ -13,8 +14,8 @@ type ReaderController struct {
 }
 
 type ReaderUsecase interface {
-	GetArticleById(id uint32, userId uint32) (*messages.ArticleResponse, error)
-	GetRelatedArticles(articleId uint32, userId uint32, count int, offset int) (*messages.RelatedArticlesResponse, error)
+	GetArticleById(ctx context.Context, id int64, userId int32) (*messages.ArticleResponse, error)
+	GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) (*messages.RelatedArticlesResponse, error)
 }
 
 func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
@@ -24,7 +25,7 @@ func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
 		return
 	}
 	userId := ctx.GetInt64(api.UserIdKey)
-	article, err := controller.ReaderUsecase.GetArticleById(uint32(reqArticleId), uint32(userId))
+	article, err := controller.ReaderUsecase.GetArticleById(ctx, int64(reqArticleId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -43,7 +44,7 @@ func (controller *ReaderController) GetRelatedArticles(ctx *gin.Context) {
 	}
 
 	userId := ctx.GetInt64(api.UserIdKey)
-	articles, err := controller.ReaderUsecase.GetRelatedArticles(uint32(reqArticleId), uint32(userId), reqCount, reqOffset)
+	articles, err := controller.ReaderUsecase.GetRelatedArticles(ctx, int64(reqArticleId), int32(userId), reqCount, reqOffset)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return

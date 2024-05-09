@@ -3,17 +3,14 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 	"notime/api/controller"
-	"notime/repository"
+	"notime/bootstrap"
+	"notime/external/sql/store"
 	"notime/usecases"
 )
 
-func NewReaderRouter(group *gin.RouterGroup) {
+func NewReaderRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queries) {
 	readerController := controller.ReaderController{
-		ReaderUsecase: &usecases.ReaderUsecaseImpl{
-			RecsysRepository:       &repository.RecsysRepositoryImpl{},
-			BookmarkListRepository: &repository.BookmarkListRepositoryImpl{},
-			CommonUsecase:          &usecases.CommonUsecaseImpl{},
-		},
+		ReaderUsecase: usecases.NewReaderUsecase(env, db),
 	}
 	// Get article metadata and content by article id
 	group.GET("/:article_id", readerController.GetArticleById)

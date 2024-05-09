@@ -14,10 +14,10 @@ type SearchRequest struct {
 }
 
 type BookmarkRequest struct {
-	ArticleId      uint32 `form:"article_id" binding:"required"`
-	BookmarkListId uint32 `form:"bookmark_list_id" binding:"required"`
+	ArticleId      int64 `form:"article_id" binding:"required"`
+	BookmarkListId int32 `form:"bookmark_list_id" binding:"required"`
 }
 
 type SubscribeRequest struct {
-	PublisherId uint32 `form:"publisher_id" binding:"required"`
+	PublisherId int32 `form:"publisher_id" binding:"required"`
 }

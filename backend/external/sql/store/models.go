@@ -19,11 +19,11 @@ type ListSharing struct {
 }
 
 type Post struct {
-	ID          int64       `json:"id"`
-	Title       string      `json:"title"`
-	PublishDate pgtype.Int8 `json:"publish_date"`
-	Url         string      `json:"url"`
-	SourceID    pgtype.Int4 `json:"source_id"`
+	ID          int64            `json:"id"`
+	Title       string           `json:"title"`
+	PublishDate pgtype.Timestamp `json:"publish_date"`
+	Url         string           `json:"url"`
+	SourceID    pgtype.Int4      `json:"source_id"`
 }
 
 type ReadingList struct {

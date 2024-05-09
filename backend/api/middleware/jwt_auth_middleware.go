@@ -23,13 +23,13 @@ func JwtAuthMiddleware(secret string) gin.HandlerFunc {
 					c.Abort()
 					return
 				}
-				userIdUint32, err := tokenutils.HexToUint32(userId)
+				userIdInt32, err := tokenutils.HexToInt32(userId)
 				if err != nil {
 					c.JSON(http.StatusUnauthorized, messages.SimpleResponse{Message: err.Error()})
 					c.Abort()
 					return
 				}
-				c.Set(api.UserIdKey, userIdUint32)
+				c.Set(api.UserIdKey, userIdInt32)
 				c.Next()
 				return
 			}

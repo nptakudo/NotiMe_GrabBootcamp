@@ -11,8 +11,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const addArticleToBookmarkList = `-- name: AddArticleToBookmarkList :one
-INSERT INTO list_post (list_id, post_id) VALUES ($1, $2) RETURNING list_id, post_id
+const addArticleToBookmarkList = `-- name: AddArticleToBookmarkList :exec
+INSERT INTO list_post (list_id, post_id)
+VALUES ($1, $2)
 `
 
 type AddArticleToBookmarkListParams struct {
@@ -20,15 +21,15 @@ type AddArticleToBookmarkListParams struct {
 	PostID int64 `json:"post_id"`
 }
 
-func (q *Queries) AddArticleToBookmarkList(ctx context.Context, arg AddArticleToBookmarkListParams) (ListPost, error) {
-	row := q.db.QueryRow(ctx, addArticleToBookmarkList, arg.ListID, arg.PostID)
-	var i ListPost
-	err := row.Scan(&i.ListID, &i.PostID)
-	return i, err
+func (q *Queries) AddArticleToBookmarkList(ctx context.Context, arg AddArticleToBookmarkListParams) error {
+	_, err := q.db.Exec(ctx, addArticleToBookmarkList, arg.ListID, arg.PostID)
+	return err
 }
 
 const createBookmarkList = `-- name: CreateBookmarkList :one
-INSERT INTO reading_list (list_name, owner, is_saved) VALUES ($1, $2, $3) RETURNING id, list_name, owner, is_saved
+INSERT INTO reading_list (list_name, owner, is_saved)
+VALUES ($1, $2, $3)
+RETURNING id, list_name, owner, is_saved
 `
 
 type CreateBookmarkListParams struct {
@@ -50,7 +51,10 @@ func (q *Queries) CreateBookmarkList(ctx context.Context, arg CreateBookmarkList
 }
 
 const deleteBookmarkList = `-- name: DeleteBookmarkList :one
-DELETE FROM reading_list WHERE id = $1 RETURNING id, list_name, owner, is_saved
+DELETE
+FROM reading_list
+WHERE id = $1
+RETURNING id, list_name, owner, is_saved
 `
 
 func (q *Queries) DeleteBookmarkList(ctx context.Context, id int32) (ReadingList, error) {
@@ -68,7 +72,9 @@ func (q *Queries) DeleteBookmarkList(ctx context.Context, id int32) (ReadingList
 const getArticleById = `-- name: GetArticleById :one
 
 
-SELECT id, title, publish_date, url, source_id FROM post WHERE id = $1
+SELECT id, title, publish_date, url, source_id
+FROM post
+WHERE id = $1
 `
 
 // -- DROP SCHEMA public CASCADE;
@@ -153,11 +159,24 @@ func (q *Queries) GetArticleById(ctx context.Context, id int64) (Post, error) {
 }
 
 const getArticlesByPublisherId = `-- name: GetArticlesByPublisherId :many
-SELECT id, title, publish_date, url, source_id FROM post WHERE source_id = $1
+SELECT id, title, publish_date, url, source_id
+FROM post
+WHERE source_id = $1
+ORDER BY publish_date DESC
+LIMIT $2
+OFFSET $3
 `
 
-func (q *Queries) GetArticlesByPublisherId(ctx context.Context, sourceID pgtype.Int4) ([]Post, error) {
-	rows, err := q.db.Query(ctx, getArticlesByPublisherId, sourceID)
+type GetArticlesByPublisherIdParams struct {
+	SourceID pgtype.Int4 `json:"source_id"`
+	Limit    int32       `json:"limit"`
+	Offset   int32       `json:"offset"`
+}
+
+// params: publisherId: number, limit: number, offset: number
+// behavior: sorted by publish_date desc
+func (q *Queries) GetArticlesByPublisherId(ctx context.Context, arg GetArticlesByPublisherIdParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getArticlesByPublisherId, arg.SourceID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -182,28 +201,28 @@ func (q *Queries) GetArticlesByPublisherId(ctx context.Context, sourceID pgtype.
 	return items, nil
 }
 
-const getBookmarkListById = `-- name: GetBookmarkListById :many
-
-SELECT id, list_name, owner, is_saved FROM reading_list WHERE id = $1
+const getArticlesInBookmarkList = `-- name: GetArticlesInBookmarkList :many
+SELECT post.id, post.title, post.publish_date, post.url, post.source_id
+FROM post
+         JOIN list_post ON post.id = list_post.post_id
+WHERE list_post.list_id = $1
 `
 
-// -----------------------------------------------
-// BOOKMARK LIST REPOSITORY
-// -----------------------------------------------
-func (q *Queries) GetBookmarkListById(ctx context.Context, id int32) ([]ReadingList, error) {
-	rows, err := q.db.Query(ctx, getBookmarkListById, id)
+func (q *Queries) GetArticlesInBookmarkList(ctx context.Context, listID int32) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getArticlesInBookmarkList, listID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ReadingList{}
+	items := []Post{}
 	for rows.Next() {
-		var i ReadingList
+		var i Post
 		if err := rows.Scan(
 			&i.ID,
-			&i.ListName,
-			&i.Owner,
-			&i.IsSaved,
+			&i.Title,
+			&i.PublishDate,
+			&i.Url,
+			&i.SourceID,
 		); err != nil {
 			return nil, err
 		}
@@ -215,8 +234,32 @@ func (q *Queries) GetBookmarkListById(ctx context.Context, id int32) ([]ReadingL
 	return items, nil
 }
 
+const getBookmarkListById = `-- name: GetBookmarkListById :one
+
+SELECT id, list_name, owner, is_saved
+FROM reading_list
+WHERE id = $1
+`
+
+// -----------------------------------------------
+// BOOKMARK LIST REPOSITORY
+// -----------------------------------------------
+func (q *Queries) GetBookmarkListById(ctx context.Context, id int32) (ReadingList, error) {
+	row := q.db.QueryRow(ctx, getBookmarkListById, id)
+	var i ReadingList
+	err := row.Scan(
+		&i.ID,
+		&i.ListName,
+		&i.Owner,
+		&i.IsSaved,
+	)
+	return i, err
+}
+
 const getBookmarkListsOwnByUserId = `-- name: GetBookmarkListsOwnByUserId :many
-SELECT id, list_name, owner, is_saved FROM reading_list WHERE owner = $1
+SELECT id, list_name, owner, is_saved
+FROM reading_list
+WHERE owner = $1
 `
 
 func (q *Queries) GetBookmarkListsOwnByUserId(ctx context.Context, owner pgtype.Int4) ([]ReadingList, error) {
@@ -245,37 +288,26 @@ func (q *Queries) GetBookmarkListsOwnByUserId(ctx context.Context, owner pgtype.
 }
 
 const getBookmarkListsSharedWithUserId = `-- name: GetBookmarkListsSharedWithUserId :many
-SELECT DISTINCT id, list_name, owner, is_saved, list_id, user_id
+SELECT DISTINCT reading_list.id, reading_list.list_name, reading_list.owner, reading_list.is_saved
 FROM reading_list
-JOIN list_sharing ON reading_list.id = list_sharing.list_id
+         JOIN list_sharing ON reading_list.id = list_sharing.list_id
 WHERE list_sharing.user_id = $1
 `
 
-type GetBookmarkListsSharedWithUserIdRow struct {
-	ID       int32       `json:"id"`
-	ListName string      `json:"list_name"`
-	Owner    pgtype.Int4 `json:"owner"`
-	IsSaved  bool        `json:"is_saved"`
-	ListID   int32       `json:"list_id"`
-	UserID   int32       `json:"user_id"`
-}
-
-func (q *Queries) GetBookmarkListsSharedWithUserId(ctx context.Context, userID int32) ([]GetBookmarkListsSharedWithUserIdRow, error) {
+func (q *Queries) GetBookmarkListsSharedWithUserId(ctx context.Context, userID int32) ([]ReadingList, error) {
 	rows, err := q.db.Query(ctx, getBookmarkListsSharedWithUserId, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetBookmarkListsSharedWithUserIdRow{}
+	items := []ReadingList{}
 	for rows.Next() {
-		var i GetBookmarkListsSharedWithUserIdRow
+		var i ReadingList
 		if err := rows.Scan(
 			&i.ID,
 			&i.ListName,
 			&i.Owner,
 			&i.IsSaved,
-			&i.ListID,
-			&i.UserID,
 		); err != nil {
 			return nil, err
 		}
@@ -289,7 +321,9 @@ func (q *Queries) GetBookmarkListsSharedWithUserId(ctx context.Context, userID i
 
 const getPublisherById = `-- name: GetPublisherById :one
 
-SELECT id, name, url, avatar FROM source WHERE id = $1
+SELECT id, name, url, avatar
+FROM source
+WHERE id = $1
 `
 
 // -----------------------------------------------
@@ -309,40 +343,29 @@ func (q *Queries) GetPublisherById(ctx context.Context, id int32) (Source, error
 
 const getSubscribedPublishersByUserId = `-- name: GetSubscribedPublishersByUserId :many
 
-SELECT DISTINCT id, name, url, avatar, user_id, source_id
+SELECT DISTINCT source.id, source.name, source.url, source.avatar
 FROM source
-JOIN subscription ON source.id = subscription.source_id
+         JOIN subscription ON source.id = subscription.source_id
 WHERE subscription.user_id = $1
 `
-
-type GetSubscribedPublishersByUserIdRow struct {
-	ID       int32  `json:"id"`
-	Name     string `json:"name"`
-	Url      string `json:"url"`
-	Avatar   string `json:"avatar"`
-	UserID   int32  `json:"user_id"`
-	SourceID int32  `json:"source_id"`
-}
 
 // -----------------------------------------------
 // SUBSCRIBE LIST REPOSITORY
 // -----------------------------------------------
-func (q *Queries) GetSubscribedPublishersByUserId(ctx context.Context, userID int32) ([]GetSubscribedPublishersByUserIdRow, error) {
+func (q *Queries) GetSubscribedPublishersByUserId(ctx context.Context, userID int32) ([]Source, error) {
 	rows, err := q.db.Query(ctx, getSubscribedPublishersByUserId, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetSubscribedPublishersByUserIdRow{}
+	items := []Source{}
 	for rows.Next() {
-		var i GetSubscribedPublishersByUserIdRow
+		var i Source
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.Url,
 			&i.Avatar,
-			&i.UserID,
-			&i.SourceID,
 		); err != nil {
 			return nil, err
 		}
@@ -355,7 +378,10 @@ func (q *Queries) GetSubscribedPublishersByUserId(ctx context.Context, userID in
 }
 
 const isArticleInBookmarkList = `-- name: IsArticleInBookmarkList :one
-SELECT list_id, post_id FROM list_post WHERE list_id = $1 AND post_id = $2
+SELECT list_id, post_id
+FROM list_post
+WHERE list_id = $1
+  AND post_id = $2
 `
 
 type IsArticleInBookmarkListParams struct {
@@ -371,7 +397,10 @@ func (q *Queries) IsArticleInBookmarkList(ctx context.Context, arg IsArticleInBo
 }
 
 const isPublisherSubscribedByUserId = `-- name: IsPublisherSubscribedByUserId :one
-SELECT user_id, source_id FROM subscription WHERE user_id = $1 AND source_id = $2
+SELECT user_id, source_id
+FROM subscription
+WHERE user_id = $1
+  AND source_id = $2
 `
 
 type IsPublisherSubscribedByUserIdParams struct {
@@ -386,8 +415,11 @@ func (q *Queries) IsPublisherSubscribedByUserId(ctx context.Context, arg IsPubli
 	return i, err
 }
 
-const removeArticleFromBookmarkList = `-- name: RemoveArticleFromBookmarkList :one
-DELETE FROM list_post WHERE list_id = $1 AND post_id = $2 RETURNING list_id, post_id
+const removeArticleFromBookmarkList = `-- name: RemoveArticleFromBookmarkList :exec
+DELETE
+FROM list_post
+WHERE list_id = $1
+  AND post_id = $2
 `
 
 type RemoveArticleFromBookmarkListParams struct {
@@ -395,19 +427,30 @@ type RemoveArticleFromBookmarkListParams struct {
 	PostID int64 `json:"post_id"`
 }
 
-func (q *Queries) RemoveArticleFromBookmarkList(ctx context.Context, arg RemoveArticleFromBookmarkListParams) (ListPost, error) {
-	row := q.db.QueryRow(ctx, removeArticleFromBookmarkList, arg.ListID, arg.PostID)
-	var i ListPost
-	err := row.Scan(&i.ListID, &i.PostID)
-	return i, err
+func (q *Queries) RemoveArticleFromBookmarkList(ctx context.Context, arg RemoveArticleFromBookmarkListParams) error {
+	_, err := q.db.Exec(ctx, removeArticleFromBookmarkList, arg.ListID, arg.PostID)
+	return err
 }
 
 const searchArticlesByName = `-- name: SearchArticlesByName :many
-SELECT id, title, publish_date, url, source_id FROM post WHERE title ILIKE '%' || $1 || '%'
+SELECT id, title, publish_date, url, source_id
+FROM post
+WHERE title ILIKE '%' || $3 || '%'
+ORDER BY publish_date DESC
+LIMIT $1
+OFFSET $2
 `
 
-func (q *Queries) SearchArticlesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Post, error) {
-	rows, err := q.db.Query(ctx, searchArticlesByName, dollar_1)
+type SearchArticlesByNameParams struct {
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+	Query  pgtype.Text `json:"query"`
+}
+
+// params: name: string, limit: number, offset: number
+// behavior: sorted by publish_date desc
+func (q *Queries) SearchArticlesByName(ctx context.Context, arg SearchArticlesByNameParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, searchArticlesByName, arg.Limit, arg.Offset, arg.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +476,9 @@ func (q *Queries) SearchArticlesByName(ctx context.Context, dollar_1 pgtype.Text
 }
 
 const searchPublishersByName = `-- name: SearchPublishersByName :many
-SELECT id, name, url, avatar FROM source WHERE name ILIKE '%' || $1 || '%'
+SELECT id, name, url, avatar
+FROM source
+WHERE name ILIKE '%' || $1 || '%'
 `
 
 func (q *Queries) SearchPublishersByName(ctx context.Context, dollar_1 pgtype.Text) ([]Source, error) {
@@ -461,8 +506,9 @@ func (q *Queries) SearchPublishersByName(ctx context.Context, dollar_1 pgtype.Te
 	return items, nil
 }
 
-const subscribePublisher = `-- name: SubscribePublisher :one
-INSERT INTO subscription (user_id, source_id) VALUES ($1, $2) RETURNING user_id, source_id
+const subscribePublisher = `-- name: SubscribePublisher :exec
+INSERT INTO subscription (user_id, source_id)
+VALUES ($1, $2)
 `
 
 type SubscribePublisherParams struct {
@@ -470,15 +516,16 @@ type SubscribePublisherParams struct {
 	SourceID int32 `json:"source_id"`
 }
 
-func (q *Queries) SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) (Subscription, error) {
-	row := q.db.QueryRow(ctx, subscribePublisher, arg.UserID, arg.SourceID)
-	var i Subscription
-	err := row.Scan(&i.UserID, &i.SourceID)
-	return i, err
+func (q *Queries) SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error {
+	_, err := q.db.Exec(ctx, subscribePublisher, arg.UserID, arg.SourceID)
+	return err
 }
 
-const unsubscribePublisher = `-- name: UnsubscribePublisher :one
-DELETE FROM subscription WHERE user_id = $1 AND source_id = $2 RETURNING user_id, source_id
+const unsubscribePublisher = `-- name: UnsubscribePublisher :exec
+DELETE
+FROM subscription
+WHERE user_id = $1
+  AND source_id = $2
 `
 
 type UnsubscribePublisherParams struct {
@@ -486,9 +533,7 @@ type UnsubscribePublisherParams struct {
 	SourceID int32 `json:"source_id"`
 }
 
-func (q *Queries) UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) (Subscription, error) {
-	row := q.db.QueryRow(ctx, unsubscribePublisher, arg.UserID, arg.SourceID)
-	var i Subscription
-	err := row.Scan(&i.UserID, &i.SourceID)
-	return i, err
+func (q *Queries) UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error {
+	_, err := q.db.Exec(ctx, unsubscribePublisher, arg.UserID, arg.SourceID)
+	return err
 }

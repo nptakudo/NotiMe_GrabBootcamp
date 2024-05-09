@@ -8,7 +8,7 @@ type ArticleMetadata struct {
 }
 
 type ArticleContent struct {
-	Id       uint32 `json:"id"`
+	Id       int64  `json:"id"`
 	Content  string `json:"content"`
 	ImageUrl string `json:"image_url"`
 }

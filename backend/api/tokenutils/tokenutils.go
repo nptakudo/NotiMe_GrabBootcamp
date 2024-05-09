@@ -19,12 +19,12 @@ type JwtCustomRefreshClaims struct {
 	jwt.RegisteredClaims
 }
 
-func Uint32ToHex(id uint32) string {
+func Int32ToHex(id int32) string {
 	return fmt.Sprintf("%08x", id)
 }
 
-func HexToUint32(id string) (uint32, error) {
-	var i uint32
+func HexToInt32(id string) (int32, error) {
+	var i int32
 	_, err := fmt.Sscanf(id, "%08x", &i)
 	if err != nil {
 		return 0, err
@@ -36,7 +36,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 	exp := time.Now().Add(time.Hour * time.Duration(expiry))
 	claims := &JwtCustomClaims{
 		Name: user.Username,
-		Id:   Uint32ToHex(user.Id),
+		Id:   Int32ToHex(user.Id),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{Time: exp},
 		},
@@ -51,7 +51,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 
 func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshToken string, err error) {
 	claimsRefresh := &JwtCustomRefreshClaims{
-		Id: Uint32ToHex(user.Id),
+		Id: Int32ToHex(user.Id),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{Time: time.Now().Add(time.Hour * time.Duration(expiry))},
 		},

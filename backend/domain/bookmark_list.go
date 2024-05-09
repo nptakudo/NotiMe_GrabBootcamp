@@ -1,20 +1,22 @@
 package domain
 
+import "context"
+
 type BookmarkList struct {
-	Id          uint32             `json:"id"`
+	Id          int32              `json:"id"`
 	Name        string             `json:"name"`
 	IsSavedList bool               `json:"is_saved_list"`
 	Articles    []*ArticleMetadata `json:"articles"`
-	OwnerId     uint32             `json:"owner_id"`
+	OwnerId     int32              `json:"owner_id"`
 }
 
 type BookmarkListRepository interface {
-	GetById(id uint32) (*BookmarkList, error)
-	GetOwnByUser(userId uint32) ([]*BookmarkList, error)
-	GetSharedWithUser(userId uint32) ([]*BookmarkList, error)
-	IsInBookmarkList(articleId uint32, bookmarkListId uint32) (bool, error)
-	AddToBookmarkList(articleId uint32, bookmarkListId uint32) error
-	RemoveFromBookmarkList(articleId uint32, bookmarkListId uint32) error
-	Create(bookmarkListName string, userId uint32) (*BookmarkList, error)
-	Delete(bookmarkListId uint32) (*BookmarkList, error)
+	GetById(ctx context.Context, id int32) (*BookmarkList, error)
+	GetOwnByUser(ctx context.Context, userId int32) ([]*BookmarkList, error)
+	GetSharedWithUser(ctx context.Context, userId int32) ([]*BookmarkList, error)
+	IsInBookmarkList(ctx context.Context, articleId int64, bookmarkListId int32) (bool, error)
+	AddToBookmarkList(ctx context.Context, articleId int64, bookmarkListId int32) error
+	RemoveFromBookmarkList(ctx context.Context, articleId int64, bookmarkListId int32) error
+	Create(ctx context.Context, bookmarkListName string, userId int32, isSaved bool) (*BookmarkList, error)
+	Delete(ctx context.Context, bookmarkListId int32) (*BookmarkList, error)
 }

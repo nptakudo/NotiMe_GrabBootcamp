@@ -60,21 +60,29 @@ FROM post
 WHERE id = $1;
 
 -- name: GetArticlesByPublisherId :many
+-- params: publisherId: number, limit: number, offset: number
+-- behavior: sorted by publish_date desc
 SELECT *
 FROM post
-WHERE source_id = $1;
+WHERE source_id = $1
+ORDER BY publish_date DESC
+LIMIT $2 OFFSET $3;
 
 -- name: SearchArticlesByName :many
+-- params: name: string, limit: number, offset: number
+-- behavior: sorted by publish_date desc
 SELECT *
 FROM post
-WHERE title ILIKE '%' || $1 || '%';
+WHERE title ILIKE '%' || @query || '%'
+ORDER BY publish_date DESC
+LIMIT $1 OFFSET $2;
 
 
 -------------------------------------------------
 -- BOOKMARK LIST REPOSITORY
 -------------------------------------------------
 
--- name: GetBookmarkListById :many
+-- name: GetBookmarkListById :one
 SELECT *
 FROM reading_list
 WHERE id = $1;
@@ -85,10 +93,16 @@ FROM reading_list
 WHERE owner = $1;
 
 -- name: GetBookmarkListsSharedWithUserId :many
-SELECT DISTINCT *
+SELECT DISTINCT reading_list.*
 FROM reading_list
          JOIN list_sharing ON reading_list.id = list_sharing.list_id
 WHERE list_sharing.user_id = $1;
+
+-- name: GetArticlesInBookmarkList :many
+SELECT post.*
+FROM post
+         JOIN list_post ON post.id = list_post.post_id
+WHERE list_post.list_id = $1;
 
 -- name: IsArticleInBookmarkList :one
 SELECT *
@@ -96,17 +110,15 @@ FROM list_post
 WHERE list_id = $1
   AND post_id = $2;
 
--- name: AddArticleToBookmarkList :one
+-- name: AddArticleToBookmarkList :exec
 INSERT INTO list_post (list_id, post_id)
-VALUES ($1, $2)
-RETURNING *;
+VALUES ($1, $2);
 
--- name: RemoveArticleFromBookmarkList :one
+-- name: RemoveArticleFromBookmarkList :exec
 DELETE
 FROM list_post
 WHERE list_id = $1
-  AND post_id = $2
-RETURNING *;
+  AND post_id = $2;
 
 -- name: CreateBookmarkList :one
 INSERT INTO reading_list (list_name, owner, is_saved)
@@ -140,7 +152,7 @@ WHERE name ILIKE '%' || $1 || '%';
 -------------------------------------------------
 
 -- name: GetSubscribedPublishersByUserId :many
-SELECT DISTINCT *
+SELECT DISTINCT source.*
 FROM source
          JOIN subscription ON source.id = subscription.source_id
 WHERE subscription.user_id = $1;
@@ -151,14 +163,12 @@ FROM subscription
 WHERE user_id = $1
   AND source_id = $2;
 
--- name: SubscribePublisher :one
+-- name: SubscribePublisher :exec
 INSERT INTO subscription (user_id, source_id)
-VALUES ($1, $2)
-RETURNING *;
+VALUES ($1, $2);
 
--- name: UnsubscribePublisher :one
+-- name: UnsubscribePublisher :exec
 DELETE
 FROM subscription
 WHERE user_id = $1
-  AND source_id = $2
-RETURNING *;
+  AND source_id = $2;
