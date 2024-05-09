@@ -8,6 +8,10 @@
 from itemadapter import ItemAdapter
 
 
-class WebscrapePipeline:
+class HTMLToS3:
     def process_item(self, item, spider):
+        # write to s3
+
+        # s3.put_object(Bucket='huhu', Key='test.html', Body=item['content'])
+        print('hehehehehe')
         return item
