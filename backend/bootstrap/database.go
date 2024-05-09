@@ -2,39 +2,45 @@ package bootstrap
 
 import (
 	"context"
-	"fmt"
+	"github.com/jackc/pgx/v5"
 	"log/slog"
+	"notime/external/sql/store"
 	"time"
 )
 
-// MockSQLClient TODO
-type MockSQLClient struct{}
-
-func (m *MockSQLClient) Disconnect(ctx context.Context) error {
-	return nil
+type DbClient struct {
+	conn *pgx.Conn
+	*store.Queries
 }
 
-func NewDatabase(env *Env) *MockSQLClient {
-	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+func (m *DbClient) Disconnect(ctx context.Context) error {
+	return m.conn.Close(ctx)
+}
+
+func NewDatabase(ctx context.Context, env *Env) *DbClient {
+	_, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	dbHost := env.DBHost
 	dbPort := env.DBPort
 	dbUser := env.DBUser
 	dbPass := env.DBPass
+	dbName := env.DBName
 
-	_ = fmt.Sprintf("db://%s:%s@%s:%s", dbUser, dbPass, dbHost, dbPort)
-
-	// Connect to database
-	return &MockSQLClient{}
+	conn, err := pgx.Connect(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
+	if err != nil {
+		slog.Error("[Database] Unable to connect to database: %v", err)
+		panic(err)
+	}
+	return &DbClient{conn, store.New(conn)}
 }
 
-func CloseDbConnection(client *MockSQLClient) {
+func CloseDbConnection(ctx context.Context, client *DbClient) {
 	if client == nil {
 		return
 	}
 
-	err := client.Disconnect(context.TODO())
+	err := client.Disconnect(ctx)
 	if err != nil {
 		slog.Error("[Database] CloseDbConnection: %v", err)
 		panic(err)

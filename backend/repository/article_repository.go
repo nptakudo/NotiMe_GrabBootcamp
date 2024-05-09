@@ -13,10 +13,6 @@ func (r *ArticleRepositoryImpl) GetByPublisher(publisherId uint32, count int, of
 	return nil, nil
 }
 
-func (r *ArticleRepositoryImpl) GetLatest(count int, offset int) ([]*domain.ArticleMetadata, error) {
-	return nil, nil
-}
-
 func (r *ArticleRepositoryImpl) Search(query string, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	return nil, nil
 }

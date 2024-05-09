@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"notime/api/route"
@@ -9,9 +10,11 @@ import (
 )
 
 func main() {
-	app := bootstrap.App()
+	ctx := context.Background()
+
+	app := bootstrap.App(ctx)
 	env := app.Env
-	defer app.CloseDBConnection()
+	defer app.CloseDBConnection(ctx)
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 	gin := gin.Default()

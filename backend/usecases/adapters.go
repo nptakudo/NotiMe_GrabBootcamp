@@ -28,7 +28,7 @@ func fromDmBookmarkListToApi(bookmarkList *domain.BookmarkList) *messages.Bookma
 func fromDmArticlesToApi(articles []*domain.ArticleMetadata, userId uint32, bookmarkListRepository domain.BookmarkListRepository) ([]*messages.ArticleMetadata, error) {
 	articlesApi := make([]*messages.ArticleMetadata, 0)
 	for _, article := range articles {
-		isBookmarked, err := bookmarkListRepository.IsBookmarked(article.Id, userId)
+		isBookmarked, err := bookmarkListRepository.IsInBookmarkList(article.Id, userId)
 		if err != nil {
 			return nil, err
 		}

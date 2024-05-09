@@ -10,8 +10,8 @@ type BookmarkList struct {
 
 type BookmarkListRepository interface {
 	GetById(id uint32) (*BookmarkList, error)
-	GetByUser(userId uint32) ([]*BookmarkList, error)
-	IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error)
+	GetOwnByUser(userId uint32) ([]*BookmarkList, error)
+	GetSharedWithUser(userId uint32) ([]*BookmarkList, error)
 	IsInBookmarkList(articleId uint32, bookmarkListId uint32) (bool, error)
 	AddToBookmarkList(articleId uint32, bookmarkListId uint32) error
 	RemoveFromBookmarkList(articleId uint32, bookmarkListId uint32) error

@@ -19,7 +19,7 @@ func (uc *CommonUsecaseImpl) GetArticleMetadataById(id uint32, userId uint32) (*
 		slog.Error("[HomeUsecase] GetArticleMetadataById: %v", err)
 		return nil, ErrInternal
 	}
-	isBookmarked, err := uc.BookmarkListRepository.IsBookmarked(id, userId)
+	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(id, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetArticleMetadataById: %v", err)
 		return nil, ErrInternal
@@ -42,7 +42,7 @@ func (uc *CommonUsecaseImpl) GetPublisherById(id uint32, userId uint32) (*messag
 }
 
 func (uc *CommonUsecaseImpl) GetBookmarkLists(userId uint32) ([]*messages.BookmarkList, error) {
-	bookmarkListsDm, err := uc.BookmarkListRepository.GetByUser(userId)
+	bookmarkListsDm, err := uc.BookmarkListRepository.GetOwnByUser(userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetBookmarkLists: %v", err)
 		return nil, ErrInternal
@@ -60,7 +60,7 @@ func (uc *CommonUsecaseImpl) GetBookmarkListById(id uint32, userId uint32) (*mes
 }
 
 func (uc *CommonUsecaseImpl) GetSubscriptions(userId uint32) ([]*messages.Publisher, error) {
-	subscribedPublishersDm, err := uc.SubscribeListRepository.GetByUser(userId)
+	subscribedPublishersDm, err := uc.SubscribeListRepository.GetByUserId(userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetSubscriptions: %v", err)
 		return nil, ErrInternal
@@ -69,9 +69,9 @@ func (uc *CommonUsecaseImpl) GetSubscriptions(userId uint32) ([]*messages.Publis
 }
 
 func (uc *CommonUsecaseImpl) IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error) {
-	isBookmarked, err := uc.BookmarkListRepository.IsBookmarked(articleId, bookmarkListId)
+	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(articleId, bookmarkListId)
 	if err != nil {
-		slog.Error("[HomeUsecase] IsBookmarked: %v", err)
+		slog.Error("[HomeUsecase] IsInBookmarkList: %v", err)
 		return false, ErrInternal
 	}
 	return isBookmarked, nil

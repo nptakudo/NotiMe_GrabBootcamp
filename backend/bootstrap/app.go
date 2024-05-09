@@ -1,17 +1,19 @@
 package bootstrap
 
+import "context"
+
 type Application struct {
 	Env      *Env
-	Database *MockSQLClient
+	Database *DbClient
 }
 
-func App() Application {
+func App(ctx context.Context) Application {
 	app := &Application{}
 	app.Env = NewEnv()
-	app.Database = NewDatabase(app.Env)
+	app.Database = NewDatabase(ctx, app.Env)
 	return *app
 }
 
-func (app *Application) CloseDBConnection() {
-	CloseDbConnection(app.Database)
+func (app *Application) CloseDBConnection(ctx context.Context) {
+	CloseDbConnection(ctx, app.Database)
 }

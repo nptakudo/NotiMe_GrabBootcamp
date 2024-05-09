@@ -9,6 +9,6 @@ func (r *PublisherRepositoryImpl) GetById(id uint32) (*domain.Publisher, error) 
 	return nil, nil
 }
 
-func (r *PublisherRepositoryImpl) GetByName(name string) (*domain.Publisher, error) {
+func (r *PublisherRepositoryImpl) Search(name string) ([]*domain.Publisher, error) {
 	return nil, nil
 }

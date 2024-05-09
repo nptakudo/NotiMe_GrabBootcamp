@@ -9,12 +9,11 @@ type Publisher struct {
 
 type PublisherRepository interface {
 	GetById(id uint32) (*Publisher, error)
-	GetByName(name string) (*Publisher, error)
+	Search(name string) ([]*Publisher, error)
 }
 
 type SubscribeListRepository interface {
-	GetById(id uint32) ([]*Publisher, error)
-	GetByUser(userId uint32) ([]*Publisher, error)
+	GetByUserId(userId uint32) ([]*Publisher, error)
 	IsSubscribed(publisherId uint32, userId uint32) (bool, error)
 	AddToSubscribeList(publisherId uint32, userId uint32) error
 	RemoveFromSubscribeList(publisherId uint32, userId uint32) error

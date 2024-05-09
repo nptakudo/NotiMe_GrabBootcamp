@@ -8,12 +8,12 @@ func (r *BookmarkListRepositoryImpl) GetById(id uint32) (*domain.BookmarkList, e
 	return nil, nil
 }
 
-func (r *BookmarkListRepositoryImpl) GetByUser(userId uint32) ([]*domain.BookmarkList, error) {
+func (r *BookmarkListRepositoryImpl) GetOwnByUser(userId uint32) ([]*domain.BookmarkList, error) {
 	return nil, nil
 }
 
-func (r *BookmarkListRepositoryImpl) IsBookmarked(articleId uint32, bookmarkListId uint32) (bool, error) {
-	return false, nil
+func (r *BookmarkListRepositoryImpl) GetSharedWithUser(userId uint32) ([]*domain.BookmarkList, error) {
+	return nil, nil
 }
 
 func (r *BookmarkListRepositoryImpl) IsInBookmarkList(articleId uint32, bookmarkListId uint32) (bool, error) {

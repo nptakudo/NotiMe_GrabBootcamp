@@ -9,7 +9,8 @@ import (
 )
 
 func Setup(env *bootstrap.Env, timeout time.Duration, gin *gin.Engine) {
-	publicRouter := gin.Group("")
+	// TODO
+	//publicRouter := gin.Group("")
 
 	protectedRouter := gin.Group("")
 	// Middleware to verify AccessToken

@@ -17,7 +17,7 @@ type HomeUsecaseImpl struct {
 }
 
 func (uc *HomeUsecaseImpl) GetSubscribedPublishers(userId uint32) ([]*messages.Publisher, error) {
-	subscribeListDm, err := uc.SubscribeListRepository.GetByUser(userId)
+	subscribeListDm, err := uc.SubscribeListRepository.GetByUserId(userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetSubscribedPublishers: %v", err)
 		return nil, ErrInternal
@@ -47,7 +47,7 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(count int, offset int, us
 }
 
 func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(countEachPublisher int, offset int, userId uint32) ([]*messages.ArticleMetadata, error) {
-	publishers, err := uc.SubscribeListRepository.GetByUser(userId)
+	publishers, err := uc.SubscribeListRepository.GetByUserId(userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
 		return nil, ErrInternal
