@@ -1,0 +1,12 @@
+polars
+lxml_html_clean
+typing_extensions
+Scrapy
+fastapi
+uvicorn
+pydantic
+json
+pickle
+scikit-learn
+requests
+Flask
