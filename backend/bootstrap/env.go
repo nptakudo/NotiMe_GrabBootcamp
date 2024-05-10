@@ -19,6 +19,8 @@ type Env struct {
 	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
 	LlmApiKey              string `mapstructure:"LLM_API_KEY"`
+	WebscrapeHost          string `mapstructure:"WEBSCRAPE_HOST"`
+	WebscrapePort          string `mapstructure:"WEBSCRAPE_PORT"`
 }
 
 func NewEnv() *Env {
