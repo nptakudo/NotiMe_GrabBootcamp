@@ -9,3 +9,6 @@ scikit-learn
 requests
 Flask
 transformer
+pandas
+numpy
+torch
