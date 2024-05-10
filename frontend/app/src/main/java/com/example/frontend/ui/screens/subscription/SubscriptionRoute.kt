@@ -1,10 +1,9 @@
-package com.example.frontend.ui.screens.subscribed_list
+package com.example.frontend.ui.screens.subscription
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.frontend.data.model.Subscription
 import com.example.frontend.navigation.Route
 
 @Composable

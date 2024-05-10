@@ -1,20 +1,14 @@
-package com.example.frontend.ui.screens.subscribed_list
+package com.example.frontend.ui.screens.subscription
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,19 +17,27 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.NavBar
-import com.example.frontend.ui.screens.home.HomeScreenContentSortByDate
+import com.example.frontend.ui.component.PublisherCard
+import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import kotlinx.coroutines.launch
+import java.math.BigInteger
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +64,7 @@ fun SubscriptionScreen (
             TopAppBar(
                 title = {
                     Text(
-                        text = "Home",
+                        text = "Subscribed Publishers",
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.SemiBold
                         )
@@ -71,26 +73,7 @@ fun SubscriptionScreen (
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Colors.topBarContainer
                 ),
-                actions = {
-                    Row {
-                        IconButton(
-                            onClick = onSearchIconClick,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Search,
-                                contentDescription = "search for articles",
-                            )
-                        }
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.MoreVert,
-                                contentDescription = "more options",
-                            )
-                        }
-                    }
-                }
+                actions = {}
             )
         },
         bottomBar = {
@@ -140,10 +123,22 @@ fun SubscriptionScreenContent(
                 ),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text (
-                text = "Subscribed Publishers",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Column (
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                subscriptions.forEach { publisher ->
+                    val isFollowing = remember { mutableStateOf(publisher.isSubscribed) }
+                    SubscriptionCard(
+                        name = publisher.name,
+                        avatarUrl = publisher.avatarUrl,
+                        url = publisher.url,
+                        isFollowing = isFollowing,
+                        onFollowClick = {
+                            isFollowing.value = !isFollowing.value
+                        }
+                    )
+                }
+            }
         }
 
     } else {

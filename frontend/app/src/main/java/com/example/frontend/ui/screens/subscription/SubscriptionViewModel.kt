@@ -1,12 +1,10 @@
-package com.example.frontend.ui.screens.subscribed_list
+package com.example.frontend.ui.screens.subscription
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.Publisher
-import com.example.frontend.data.model.Subscription
 import com.example.frontend.data.repository.SubscriptionRepository
-import com.example.frontend.ui.screens.home.HomeConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -84,7 +82,7 @@ class SubscriptionViewModel @Inject constructor(
                     id = BigInteger.valueOf(1),
                     name = "Publisher 1",
                     url = "Publisher 1 description",
-                    avatarUrl = "https://via.placeholder.com/150",
+                    avatarUrl = "https://findingtom.com/images/uploads/medium-logo/article-image-00.jpeg",
                     isSubscribed = true
                 ),
                 Publisher(
@@ -129,6 +127,27 @@ class SubscriptionViewModel @Inject constructor(
                     avatarUrl = "https://via.placeholder.com/150",
                     isSubscribed = true
                 ),
+                Publisher(
+                    id = BigInteger.valueOf(8),
+                    name = "Publisher 8",
+                    url = "Publisher 8 description",
+                    avatarUrl = "https://via.placeholder.com/150",
+                    isSubscribed = true
+                ),
+                Publisher(
+                    id = BigInteger.valueOf(9),
+                    name = "Publisher 9",
+                    url = "Publisher 9 description",
+                    avatarUrl = "https://via.placeholder.com/150",
+                    isSubscribed = true
+                ),
+                Publisher(
+                    id = BigInteger.valueOf(10),
+                    name = "Publisher 10",
+                    url = "Publisher 10 description",
+                    avatarUrl = "https://via.placeholder.com/150",
+                    isSubscribed = true
+                )
             )
         }
         _uiState.update { it.copy(state = State.Idle) }

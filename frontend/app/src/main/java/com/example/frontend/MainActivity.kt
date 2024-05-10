@@ -8,8 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.frontend.ui.screens.home.HomeRoute
-import com.example.frontend.ui.screens.subscribed_list.SubscriptionRoute
+import com.example.frontend.ui.screens.subscription.SubscriptionRoute
 import com.example.frontend.ui.theme.FrontendTheme
 import dagger.hilt.android.AndroidEntryPoint
 
