@@ -4,19 +4,46 @@ from botocore.client import Config
 from dataclasses import asdict
 from utils.config import get_datalake_creds
 
+
+import time
+import requests
+
 s3 = boto3.client('s3',**asdict(get_datalake_creds()))
-                #   endpoint_url='http://localhost:9000',
-                #   aws_access_key_id="7Vatx4rSRWLj73ArsqAS",
-                #   aws_secret_access_key="9v1Z718T3zUvvLDV2h2xZXZwjMJaOSScM6AHOSSq",
-                # #   config=Config(signature_version='s3v4'),
-                #   region_name='us-east-1')
+                # #   config=Config(signature_version='s3v4')
 
 folder_path = "tmp"
-bucket_name = "hehe"
+bucket_name = "heheeeee"
 object_prefix = "huhu-folder/"
 
 # Create a new bucket
-s3.create_bucket(Bucket=bucket_name)
+# s3.create_bucket(Bucket=bucket_name)
+
+#get execution time
+start = time.time()
+
+
+url = 'https://2ality.com/'
+start = time.time()
+response = requests.get(url)
+html = response.text
+end = time.time()
+print(end - start)
+
+url = url.split('//')[-1]
+filename = url.replace('/','')
+filename = filename.replace(':','')
+filename = filename.replace('.','')
+
+# read html file
+response = s3.get_object(Bucket='hehe', Key=f'{filename}.html')
+html = response['Body'].read().decode('utf-8')
+# print(html)
+end = time.time()
+print(end - start)
+
+
+
+
 
 # s3.Bucket('huhu').upload_file('tmp/headphones-bronz.csv',"headphones-bronz.csv")
 # response = s3.list_objects_v2(Bucket=bucket_name, Prefix="huhu-folder/")

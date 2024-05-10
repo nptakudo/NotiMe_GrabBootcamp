@@ -10,7 +10,7 @@ my_venv
 Session.vim
 .netrwhist
 *~
-
+.DS_Store
 ### SublimeText ###
 # cache files for sublime text
 *.tmlanguage.cache
