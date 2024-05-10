@@ -6,10 +6,10 @@ import sys
 import requests
 import lxml
 from bs4 import BeautifulSoup
-from testbs import get_title, get_text
+# from testbs import get_title, get_text
 # create a data frame by reading a csv file
 # df = pl.read_csv('html_urls.csv')
-df = pl.read_csv('/Users/takudo/Documents/NotiMe_GrabBootcamp/data/webscrape/webscrape/spiders/test.csv')
+# df = pl.read_csv('/Users/takudo/Documents/NotiMe_GrabBootcamp/data/webscrape/webscrape/spiders/test.csv')
 #read half of the data frame
 # first_df = df.head(df.shape[0]//2)
 #read the other half of the data frame
@@ -18,8 +18,8 @@ df = pl.read_csv('/Users/takudo/Documents/NotiMe_GrabBootcamp/data/webscrape/web
 class SourceCrawler(scrapy.Spider): 
     name = "src_crawler"
     # read urls from the data frame
-    start_urls = df['src'].to_list()
-    # start_urls = ['https://www.startdataengineering.com/']
+    # start_urls = df['src'].to_list()
+    start_urls = ['https://www.startdataengineering.com/']
 
     def parse(self, response): 
         # initialize the link extractor
