@@ -6,6 +6,7 @@ import sys
 import requests
 import lxml
 from bs4 import BeautifulSoup
+import json
 # from testbs import get_title, get_text
 # create a data frame by reading a csv file
 # df = pl.read_csv('html_urls.csv')
@@ -61,10 +62,12 @@ class InstantCrawl(scrapy.Spider):
         title = soup.title.string
         # print(response.body)
         #get the text of the blog
-        text = soup.get_text().replace('\n', ' ')
+        text = soup.get_text().replace('\n','')
+        time = soup.select("[class*=date],[class*=time]",limit=1)
+        time = time[0].text
         #get the image of the blog
         # img = get_img(response)
-        yield {"url":response.url, "title":title} 
+        yield {"url":response.url, "title":title, "post-date":time} 
 
 process = CrawlerProcess(
     settings={

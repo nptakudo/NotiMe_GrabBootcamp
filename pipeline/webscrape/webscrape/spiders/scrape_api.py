@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import subprocess
+import json
 
 app = Flask(__name__)
 
@@ -15,7 +16,12 @@ def execute_command():
     try:
         # Execute the Bash command using subprocess
         subprocess.call(bash_command, shell=True)
-        return '', 204  # No content response
+
+        # Read the contents of output.json file
+        with open('output.json', 'r') as file:
+            output_data = json.load(file)
+        
+        return jsonify(output_data), 200
     except Exception as e:
         return jsonify({'error': f'Command execution failed: {str(e)}'}), 500
 
