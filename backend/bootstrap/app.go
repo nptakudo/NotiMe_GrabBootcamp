@@ -14,6 +14,6 @@ func App(ctx context.Context) Application {
 	return *app
 }
 
-func (app *Application) CloseDBConnection(ctx context.Context) {
-	CloseDbConnection(ctx, app.Database)
+func (app *Application) CloseDBConnection() {
+	CloseDbConnection(app.Database)
 }

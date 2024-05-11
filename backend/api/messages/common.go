@@ -4,10 +4,6 @@ type ArticleListRequest struct {
 	Count int `form:"count" binding:"required"`
 }
 
-type ArticleListResponse struct {
-	Articles []*ArticleMetadata `json:"articles"`
-}
-
 type SearchRequest struct {
 	Query string `form:"query" binding:"required"`
 	Count int    `form:"count" binding:"required"`

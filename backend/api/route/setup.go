@@ -2,7 +2,6 @@ package route
 
 import (
 	"github.com/gin-gonic/gin"
-	"notime/api/middleware"
 	"notime/bootstrap"
 	"notime/external/sql/store"
 
@@ -14,8 +13,9 @@ func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gi
 	//publicRouter := gin.Group("")
 
 	protectedRouter := gin.Group("")
+	// TODO
 	// Middleware to verify AccessToken
-	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
+	//protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 
 	homeRouter := protectedRouter.Group("/home")
 	NewHomeRouter(homeRouter, db)

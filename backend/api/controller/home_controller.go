@@ -35,7 +35,7 @@ func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) 
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleListResponse{Articles: articles})
+	ctx.JSON(http.StatusOK, articles)
 }
 
 func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gin.Context) {
@@ -53,7 +53,7 @@ func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gi
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleListResponse{Articles: articles})
+	ctx.JSON(http.StatusOK, articles)
 }
 
 func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
@@ -71,7 +71,7 @@ func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleListResponse{Articles: articles})
+	ctx.JSON(http.StatusOK, articles)
 }
 
 func (controller *HomeController) Search(ctx *gin.Context) {
@@ -90,5 +90,5 @@ func (controller *HomeController) Search(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, messages.ArticleListResponse{Articles: articles})
+	ctx.JSON(http.StatusOK, articles)
 }

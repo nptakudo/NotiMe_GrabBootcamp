@@ -14,7 +14,7 @@ func main() {
 
 	app := bootstrap.App(ctx)
 	env := app.Env
-	defer app.CloseDBConnection(ctx)
+	defer app.CloseDBConnection()
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 	gin := gin.Default()

@@ -1,5 +1,6 @@
 package com.example.frontend.di
 
+import com.example.frontend.BuildConfig
 import com.example.frontend.network.ApiService
 import com.example.frontend.network.AuthInterceptor
 import com.example.frontend.network.RequestInterceptor
@@ -15,7 +16,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    const val BASE_URL = "https://api.example.com/"
+    private const val BASE_URL = BuildConfig.BACKEND_SERVER_URL
 
     @Singleton
     @Provides

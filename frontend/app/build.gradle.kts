@@ -23,7 +23,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BACKEND_SERVER_URL", project.properties["BACKEND_SERVER_URL"].toString())
+        }
         release {
+            // TODO
+            buildConfigField("String", "BACKEND_SERVER_URL", project.properties["BACKEND_SERVER_URL"].toString())
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -39,6 +45,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {

@@ -2,19 +2,19 @@ package bootstrap
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 	"notime/external/sql/store"
 	"time"
 )
 
 type DbClient struct {
-	conn *pgx.Conn
+	pool *pgxpool.Pool
 	*store.Queries
 }
 
-func (m *DbClient) Disconnect(ctx context.Context) error {
-	return m.conn.Close(ctx)
+func (m *DbClient) Disconnect() {
+	m.pool.Close()
 }
 
 func NewDatabase(ctx context.Context, env *Env) *DbClient {
@@ -27,24 +27,18 @@ func NewDatabase(ctx context.Context, env *Env) *DbClient {
 	dbPass := env.DBPass
 	dbName := env.DBName
 
-	conn, err := pgx.Connect(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
+	pool, err := pgxpool.New(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
 	if err != nil {
 		slog.Error("[Database] Unable to connect to database: %v", err)
 		panic(err)
 	}
-	return &DbClient{conn, store.New(conn)}
+	return &DbClient{pool, store.New(pool)}
 }
 
-func CloseDbConnection(ctx context.Context, client *DbClient) {
+func CloseDbConnection(client *DbClient) {
 	if client == nil {
 		return
 	}
-
-	err := client.Disconnect(ctx)
-	if err != nil {
-		slog.Error("[Database] CloseDbConnection: %v", err)
-		panic(err)
-	}
-
+	client.Disconnect()
 	slog.Info("Connection to database closed.")
 }
