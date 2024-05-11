@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
@@ -34,7 +36,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
@@ -145,6 +151,7 @@ fun HomeScreen(
                     onBookmark = onBookmark,
                     onUnbookmark = onUnbookmark,
                     onNewBookmark = onNewBookmark,
+                    onToExplore = { onNavigateNavBar(Route.Explore) }
                 )
             }
             PullToRefreshContainer(
@@ -165,6 +172,7 @@ fun HomeScreenContentSortByDate(
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
+    onToExplore: () -> Unit,
 ) {
     if (articles.isNotEmpty()) {
         val bigArticle = articles.first()
@@ -294,10 +302,48 @@ fun HomeScreenContentSortByDate(
             }
         }
     } else {
-        Text(
-            text = "Start subscribing to publishers to see articles here! Hop over to Explore to find new publishers.",
-            style = MaterialTheme.typography.titleMedium
-        )
+        val annotatedString = buildAnnotatedString {
+            append("Start subscribing to publishers to see articles here! Hop over to ")
+
+            pushStringAnnotation(tag = "explore", annotation = "explore")
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                )
+            ) {
+                append("Explore")
+            }
+            pop()
+
+            append(" to find new publishers.")
+        }
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = UiConfig.sideScreenPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            ClickableText(
+                text = annotatedString,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
+                onClick = { offset ->
+                    annotatedString.getStringAnnotations(
+                        tag = "explore",
+                        start = offset,
+                        end = offset
+                    ).firstOrNull()?.let {
+                        onToExplore()
+                    }
+                }
+            )
+        }
     }
 }
 
