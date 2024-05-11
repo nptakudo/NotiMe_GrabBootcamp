@@ -4,6 +4,9 @@ import pickle
 import json
 import recommended_helper_functions
 import uvicorn
+from pyngrok import ngrok
+from fastapi.middleware.cors import CORSMiddleware
+import nest_asyncio
 
 app = FastAPI()
 
@@ -16,5 +19,7 @@ def vectorize_text(input: Input):
     text = input.content
     vec=recommended_helper_functions.vectorize(str(text))
     return vec
-
-uvicorn.run(app, host="127.0.0.1", port=8000)
+public_url = ngrok.connect(8000)
+print('Public URL:', public_url.public_url)
+nest_asyncio.apply()
+uvicorn.run(app, port=8000)
