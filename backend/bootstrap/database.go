@@ -29,7 +29,7 @@ func NewDatabase(ctx context.Context, env *Env) *DbClient {
 
 	conn, err := pgx.Connect(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
 	if err != nil {
-		slog.Error("[Database] Unable to connect to database: %v", err)
+		slog.Error("[Database] Unable to connect to database:", err)
 		panic(err)
 	}
 	return &DbClient{conn, store.New(conn)}

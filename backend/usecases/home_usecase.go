@@ -36,13 +36,13 @@ func NewHomeUsecase(db *store.Queries) controller.HomeUsecase {
 func (uc *HomeUsecaseImpl) GetSubscribedPublishers(ctx context.Context, userId int32) ([]*messages.Publisher, error) {
 	subscribeListDm, err := uc.SubscribeListRepository.GetByUserId(ctx, userId)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetSubscribedPublishers: %v", err)
+		slog.Error("[HomeUsecase] GetSubscribedPublishers:", err)
 		return nil, ErrInternal
 	}
 
 	subscribeListApi, err := fromDmSubscribedPublishersToApi(subscribeListDm)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetSubscribedPublishers: %v", err)
+		slog.Error("[HomeUsecase] GetSubscribedPublishers:", err)
 		return nil, ErrInternal
 	}
 	return subscribeListApi, nil
@@ -51,13 +51,13 @@ func (uc *HomeUsecaseImpl) GetSubscribedPublishers(ctx context.Context, userId i
 func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(ctx context.Context, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
 	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromSubscribed(ctx, userId, count, offset)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetLatestSubscribedArticles: %v", err)
+		slog.Error("[HomeUsecase] GetLatestSubscribedArticles:", err)
 		return nil, ErrInternal
 	}
 
 	articleListApi, err := fromDmArticlesToApi(ctx, articleListDm, userId, uc.BookmarkListRepository)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetLatestSubscribedArticles: %v", err)
+		slog.Error("[HomeUsecase] GetLatestSubscribedArticles:", err)
 		return nil, ErrInternal
 	}
 	return articleListApi, nil
@@ -66,7 +66,7 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticles(ctx context.Context, coun
 func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(ctx context.Context, countEachPublisher int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
 	publishers, err := uc.SubscribeListRepository.GetByUserId(ctx, userId)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
+		slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher:", err)
 		return nil, ErrInternal
 	}
 
@@ -74,12 +74,12 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(ctx context.Co
 	for _, publisher := range publishers {
 		thisArticlesDm, err := uc.RecsysRepository.GetLatestArticlesByPublisher(ctx, publisher.Id, userId, countEachPublisher, offset)
 		if err != nil {
-			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
+			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher:", err)
 			return nil, ErrInternal
 		}
 		thisArticlesApi, err := fromDmArticlesToApi(ctx, thisArticlesDm, userId, uc.BookmarkListRepository)
 		if err != nil {
-			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher: %v", err)
+			slog.Error("[HomeUsecase] GetLatestSubscribedArticlesByPublisher:", err)
 			return nil, ErrInternal
 		}
 		articlesApi = append(articlesApi, thisArticlesApi...)
@@ -90,13 +90,13 @@ func (uc *HomeUsecaseImpl) GetLatestSubscribedArticlesByPublisher(ctx context.Co
 func (uc *HomeUsecaseImpl) GetExploreArticles(ctx context.Context, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
 	articleListDm, err := uc.RecsysRepository.GetLatestArticlesFromUnsubscribed(ctx, userId, count, offset)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetExploreArticles: %v", err)
+		slog.Error("[HomeUsecase] GetExploreArticles:", err)
 		return nil, ErrInternal
 	}
 
 	articleListApi, err := fromDmArticlesToApi(ctx, articleListDm, userId, uc.BookmarkListRepository)
 	if err != nil {
-		slog.Error("[HomeUsecase] GetExploreArticles: %v", err)
+		slog.Error("[HomeUsecase] GetExploreArticles:", err)
 		return nil, ErrInternal
 	}
 	return articleListApi, nil
@@ -106,13 +106,13 @@ func (uc *HomeUsecaseImpl) GetExploreArticles(ctx context.Context, count int, of
 func (uc *HomeUsecaseImpl) Search(ctx context.Context, query string, count int, offset int, userId int32) ([]*messages.ArticleMetadata, error) {
 	articleListDm, err := uc.ArticleRepository.Search(ctx, query, count, offset)
 	if err != nil {
-		slog.Error("[HomeUsecase] Search: %v", err)
+		slog.Error("[HomeUsecase] Search:", err)
 		return nil, ErrInternal
 	}
 
 	articleListApi, err := fromDmArticlesToApi(ctx, articleListDm, userId, uc.BookmarkListRepository)
 	if err != nil {
-		slog.Error("[HomeUsecase] Search: %v", err)
+		slog.Error("[HomeUsecase] Search:", err)
 		return nil, ErrInternal
 	}
 	return articleListApi, nil

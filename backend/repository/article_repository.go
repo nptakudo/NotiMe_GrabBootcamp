@@ -21,13 +21,13 @@ func NewArticleRepository(q *store.Queries) domain.ArticleRepository {
 func (r *ArticleRepositoryImpl) GetById(ctx context.Context, id int64) (*domain.ArticleMetadata, error) {
 	dbArticle, err := r.q.GetArticleById(ctx, id)
 	if err != nil {
-		slog.Error("[Article Repository] GetById query: %v", err)
+		slog.Error("[Article Repository] GetById query:", err)
 		return nil, err
 	}
 
 	dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
 	if err != nil {
-		slog.Error("[Article Repository] GetById convert: %v", err)
+		slog.Error("[Article Repository] GetById convert:", err)
 		return nil, err
 	}
 	return dmArticle, nil
@@ -40,7 +40,7 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 		Offset:   int32(offset),
 	})
 	if err != nil {
-		slog.Error("[Article Repository] GetById query: %v", err)
+		slog.Error("[Article Repository] GetById query:", err)
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 	for _, dbArticle := range dbArticles {
 		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
 		if err != nil {
-			slog.Error("[Article Repository] GetById convert: %v", err)
+			slog.Error("[Article Repository] GetById convert:", err)
 			return nil, err
 		}
 		dmArticles = append(dmArticles, dmArticle)
@@ -63,7 +63,7 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 		Offset: int32(offset),
 	})
 	if err != nil {
-		slog.Error("[Article Repository] GetById query: %v", err)
+		slog.Error("[Article Repository] GetById query:", err)
 		return nil, err
 	}
 
@@ -71,7 +71,7 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 	for _, dbArticle := range dbArticles {
 		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
 		if err != nil {
-			slog.Error("[Article Repository] GetById convert: %v", err)
+			slog.Error("[Article Repository] GetById convert:", err)
 			return nil, err
 		}
 		dmArticles = append(dmArticles, dmArticle)

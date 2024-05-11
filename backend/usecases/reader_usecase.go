@@ -41,19 +41,19 @@ func (uc *ReaderUsecaseImpl) GetArticleById(ctx context.Context, id int64, userI
 	// Scrape article content & primary image
 	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(metadata.Url)
 	if err != nil {
-		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
+		slog.Error("[ReaderUsecase] GetArticleById:", err)
 		body = ""
 	}
 	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(metadata.Url)
 	if err != nil {
-		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
+		slog.Error("[ReaderUsecase] GetArticleById:", err)
 		imgSrc = ""
 	}
 
 	// Generate article summary
 	summary, err := geminiutils.GenerateArticleSummary(uc.env, body)
 	if err != nil {
-		slog.Error("[ReaderUsecase] GetArticleById: %v", err)
+		slog.Error("[ReaderUsecase] GetArticleById:", err)
 		summary = ""
 	}
 
@@ -71,12 +71,12 @@ func (uc *ReaderUsecaseImpl) GetArticleById(ctx context.Context, id int64, userI
 func (uc *ReaderUsecaseImpl) GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) (*messages.RelatedArticlesResponse, error) {
 	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(ctx, articleId, userId, count, offset)
 	if err != nil {
-		slog.Error("[ReaderUsecase] GetRelatedArticles: %v", err)
+		slog.Error("[ReaderUsecase] GetRelatedArticles:", err)
 		return nil, ErrInternal
 	}
 	relatedArticlesApi, err := fromDmArticlesToApi(ctx, relatedArticlesDm, userId, uc.BookmarkListRepository)
 	if err != nil {
-		slog.Error("[ReaderUsecase] GetRelatedArticles: %v", err)
+		slog.Error("[ReaderUsecase] GetRelatedArticles:", err)
 		return nil, ErrInternal
 	}
 	return &messages.RelatedArticlesResponse{Articles: relatedArticlesApi}, nil

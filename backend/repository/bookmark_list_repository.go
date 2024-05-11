@@ -20,12 +20,12 @@ func NewBookmarkListRepository(q *store.Queries) domain.BookmarkListRepository {
 func (r *BookmarkListRepositoryImpl) GetById(ctx context.Context, id int32) (*domain.BookmarkList, error) {
 	dbBookmarkList, err := r.q.GetBookmarkListById(ctx, id)
 	if err != nil {
-		slog.Error("[BookmarkList Repository] GetById query: %v", err)
+		slog.Error("[BookmarkList Repository] GetById query:", err)
 		return nil, err
 	}
 	dmBookmarkList, err := r.completeDmBookmarkListFromDb(ctx, &dbBookmarkList)
 	if err != nil {
-		slog.Error("[BookmarkList Repository] GetById convert: %v", err)
+		slog.Error("[BookmarkList Repository] GetById convert:", err)
 		return nil, err
 	}
 	return dmBookmarkList, nil
@@ -34,14 +34,14 @@ func (r *BookmarkListRepositoryImpl) GetById(ctx context.Context, id int32) (*do
 func (r *BookmarkListRepositoryImpl) GetOwnByUser(ctx context.Context, userId int32) ([]*domain.BookmarkList, error) {
 	dbBookmarkLists, err := r.q.GetBookmarkListsOwnByUserId(ctx, pgtype.Int4{Int32: userId})
 	if err != nil {
-		slog.Error("[BookmarkList Repository] GetOwnByUser query: %v", err)
+		slog.Error("[BookmarkList Repository] GetOwnByUser query:", err)
 		return nil, err
 	}
 	dmBookmarkLists := make([]*domain.BookmarkList, 0)
 	for _, dbBookmarkList := range dbBookmarkLists {
 		dmBookmarkList, err := r.completeDmBookmarkListFromDb(ctx, &dbBookmarkList)
 		if err != nil {
-			slog.Error("[BookmarkList Repository] GetOwnByUser convert: %v", err)
+			slog.Error("[BookmarkList Repository] GetOwnByUser convert:", err)
 			return nil, err
 		}
 		dmBookmarkLists = append(dmBookmarkLists, dmBookmarkList)
@@ -52,14 +52,14 @@ func (r *BookmarkListRepositoryImpl) GetOwnByUser(ctx context.Context, userId in
 func (r *BookmarkListRepositoryImpl) GetSharedWithUser(ctx context.Context, userId int32) ([]*domain.BookmarkList, error) {
 	dbBookmarkLists, err := r.q.GetBookmarkListsSharedWithUserId(ctx, userId)
 	if err != nil {
-		slog.Error("[BookmarkList Repository] GetSharedWithUser query: %v", err)
+		slog.Error("[BookmarkList Repository] GetSharedWithUser query:", err)
 		return nil, err
 	}
 	dmBookmarkLists := make([]*domain.BookmarkList, 0)
 	for _, dbBookmarkList := range dbBookmarkLists {
 		dmBookmarkList, err := r.completeDmBookmarkListFromDb(ctx, &dbBookmarkList)
 		if err != nil {
-			slog.Error("[BookmarkList Repository] GetSharedWithUser convert: %v", err)
+			slog.Error("[BookmarkList Repository] GetSharedWithUser convert:", err)
 			return nil, err
 		}
 		dmBookmarkLists = append(dmBookmarkLists, dmBookmarkList)
@@ -73,7 +73,7 @@ func (r *BookmarkListRepositoryImpl) IsInBookmarkList(ctx context.Context, artic
 		PostID: articleId,
 	})
 	if err != nil {
-		slog.Error("[BookmarkList Repository] IsInBookmarkList query: %v", err)
+		slog.Error("[BookmarkList Repository] IsInBookmarkList query:", err)
 		return false, err
 	}
 	return true, nil
@@ -85,7 +85,7 @@ func (r *BookmarkListRepositoryImpl) AddToBookmarkList(ctx context.Context, arti
 		PostID: articleId,
 	})
 	if err != nil {
-		slog.Error("[BookmarkList Repository] AddToBookmarkList query: %v", err)
+		slog.Error("[BookmarkList Repository] AddToBookmarkList query:", err)
 		return err
 	}
 	return nil
@@ -97,7 +97,7 @@ func (r *BookmarkListRepositoryImpl) RemoveFromBookmarkList(ctx context.Context,
 		PostID: articleId,
 	})
 	if err != nil {
-		slog.Error("[BookmarkList Repository] RemoveFromBookmarkList query: %v", err)
+		slog.Error("[BookmarkList Repository] RemoveFromBookmarkList query:", err)
 		return err
 	}
 	return nil
@@ -110,12 +110,12 @@ func (r *BookmarkListRepositoryImpl) Create(ctx context.Context, bookmarkListNam
 		IsSaved:  isSaved,
 	})
 	if err != nil {
-		slog.Error("[BookmarkList Repository] Create query: %v", err)
+		slog.Error("[BookmarkList Repository] Create query:", err)
 		return nil, err
 	}
 	dmBookmarkList, err := r.completeDmBookmarkListFromDb(ctx, &dbBookmarkList)
 	if err != nil {
-		slog.Error("[BookmarkList Repository] Create convert: %v", err)
+		slog.Error("[BookmarkList Repository] Create convert:", err)
 		return nil, err
 	}
 	return dmBookmarkList, nil
@@ -124,12 +124,12 @@ func (r *BookmarkListRepositoryImpl) Create(ctx context.Context, bookmarkListNam
 func (r *BookmarkListRepositoryImpl) Delete(ctx context.Context, bookmarkListId int32) (*domain.BookmarkList, error) {
 	dbBookmarkList, err := r.q.DeleteBookmarkList(ctx, bookmarkListId)
 	if err != nil {
-		slog.Error("[BookmarkList Repository] Delete query: %v", err)
+		slog.Error("[BookmarkList Repository] Delete query:", err)
 		return nil, err
 	}
 	dmBookmarkList, err := r.completeDmBookmarkListFromDb(ctx, &dbBookmarkList)
 	if err != nil {
-		slog.Error("[BookmarkList Repository] Delete convert: %v", err)
+		slog.Error("[BookmarkList Repository] Delete convert:", err)
 		return nil, err
 	}
 	return dmBookmarkList, nil

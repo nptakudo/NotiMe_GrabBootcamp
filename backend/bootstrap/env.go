@@ -29,13 +29,13 @@ func NewEnv() *Env {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		slog.Error("[Env] Can't find the file .env: %v", err)
+		slog.Error("[Env] Can't find the file .env:", err)
 		panic(err)
 	}
 
 	err = viper.Unmarshal(&env)
 	if err != nil {
-		slog.Error("[Env] Environment cannot be loaded: %v", err)
+		slog.Error("[Env] Environment cannot be loaded:", err)
 		panic(err)
 	}
 
