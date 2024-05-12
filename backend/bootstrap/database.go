@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log/slog"
 	"notime/external/sql/store"
 	"time"
@@ -27,9 +27,9 @@ func NewDatabase(ctx context.Context, env *Env) *DbClient {
 	dbPass := env.DBPass
 	dbName := env.DBName
 
-	pool, err := pgxpool.New(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
+	pool, err := pgxpool.Connect(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
 	if err != nil {
-		slog.Error("[Database] Unable to connect to database: %v", err)
+		slog.Error("[Database] Unable to connect to database:", "error", err)
 		panic(err)
 	}
 	return &DbClient{pool, store.New(pool)}

@@ -22,6 +22,6 @@ func main() {
 
 	err := gin.Run(env.ServerAddress)
 	if err != nil {
-		slog.Error("Failed to run server: %v", err)
+		slog.Error("Failed to run server:", "error", err)
 	}
 }

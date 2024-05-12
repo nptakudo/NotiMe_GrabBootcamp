@@ -16,17 +16,17 @@ CREATE TABLE "user"
 CREATE TABLE source
 (
     id     SERIAL PRIMARY KEY,
-    "name" VARCHAR(255) NOT NULL,
-    "url"  VARCHAR(255) NOT NULL,
-    avatar VARCHAR(255) NOT NULL -- consider how to store the image
+    "name" VARCHAR(255)        NOT NULL,
+    "url"  VARCHAR(255) UNIQUE NOT NULL,
+    avatar VARCHAR(255)        NOT NULL -- consider how to store the image
 );
 
 CREATE TABLE post
 (
     id           BIGSERIAL PRIMARY KEY,
-    title        VARCHAR(255) NOT NULL,
-    publish_date BIGINT,
-    "url"        VARCHAR(255) NOT NULL,
+    title        VARCHAR(255)        NOT NULL,
+    publish_date TIMESTAMP           NOT NULL,
+    "url"        VARCHAR(255) UNIQUE NOT NULL,
     source_id    INTEGER REFERENCES source (id) ON DELETE CASCADE -- delete post when source is deleted
     -- consider about the image of post to show on the top
 );

@@ -17,7 +17,7 @@ var (
 )
 
 func GetLargestImageUrlFromArticle(url string) (string, error) {
-	html, err := getSanitizedHtml(url)
+	html, err := GetSanitizedHtml(url)
 	if err != nil {
 		return "", err
 	}
@@ -25,7 +25,7 @@ func GetLargestImageUrlFromArticle(url string) (string, error) {
 	// Select <article> from the HTML document
 	doc, err := goquery.NewDocumentFromReader(html)
 	if err != nil {
-		slog.Error("[HTMLUtils] GetLargestImageUrlFromArticle: %v", err)
+		slog.Error("[HTMLUtils] GetLargestImageUrlFromArticle:", "error", err)
 		return "", ErrCannotParse
 	}
 	article := doc.Find("article").First()
@@ -69,7 +69,7 @@ func GetLargestImageUrlFromArticle(url string) (string, error) {
 }
 
 func ScrapeAndConvertArticleToMarkdown(url string) (string, error) {
-	html, err := getSanitizedHtml(url)
+	html, err := GetSanitizedHtml(url)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +77,7 @@ func ScrapeAndConvertArticleToMarkdown(url string) (string, error) {
 	// Select <article> from the HTML document
 	doc, err := goquery.NewDocumentFromReader(html)
 	if err != nil {
-		slog.Error("[HTMLUtils] ScrapeAndConvertArticleToMarkdown: %v", err)
+		slog.Error("[HTMLUtils] ScrapeAndConvertArticleToMarkdown:", "error", err)
 		return "", ErrCannotParse
 	}
 	article := doc.Find("article").First()
@@ -99,23 +99,23 @@ func ScrapeAndConvertArticleToMarkdown(url string) (string, error) {
 	return markdown, nil
 }
 
-func getSanitizedHtml(url string) (*bytes.Buffer, error) {
+func GetSanitizedHtml(url string) (*bytes.Buffer, error) {
 	// Request the HTML page.
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		slog.Error("[HTMLUtils] getSanitizedHtml: %v", err)
+		slog.Error("[HTMLUtils] GetSanitizedHtml:", "error", err)
 		return nil, ErrCannotFetch
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		slog.Error("[HTMLUtils] getSanitizedHtml: %v", err)
+		slog.Error("[HTMLUtils] GetSanitizedHtml:", "error", err)
 		return nil, ErrCannotFetch
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		slog.Error("[HTMLUtils] getSanitizedHtml: status code error: %d %s", res.StatusCode, res.Status)
+		slog.Error("[HTMLUtils] GetSanitizedHtml: status code error:", "status code", res.StatusCode, "status", res.Status)
 		return nil, ErrCannotFetch
 	}
 

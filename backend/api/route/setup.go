@@ -9,8 +9,9 @@ import (
 )
 
 func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gin.Engine) {
+	publicRouter := gin.Group("")
 	// TODO
-	//publicRouter := gin.Group("")
+	NewDebugRouter(publicRouter, env, db)
 
 	protectedRouter := gin.Group("")
 	// TODO
@@ -18,11 +19,11 @@ func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gi
 	//protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 
 	homeRouter := protectedRouter.Group("/home")
-	NewHomeRouter(homeRouter, db)
+	NewHomeRouter(homeRouter, env, db)
 
 	readerRouter := protectedRouter.Group("/reader")
 	NewReaderRouter(readerRouter, env, db)
 
 	commonRouter := protectedRouter.Group("")
-	CommonRouter(commonRouter, db)
+	NewCommonRouter(commonRouter, env, db)
 }

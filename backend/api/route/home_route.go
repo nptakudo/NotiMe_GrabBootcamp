@@ -3,13 +3,14 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 	"notime/api/controller"
+	"notime/bootstrap"
 	"notime/external/sql/store"
 	"notime/usecases"
 )
 
-func NewHomeRouter(group *gin.RouterGroup, db *store.Queries) {
+func NewHomeRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queries) {
 	homeController := controller.HomeController{
-		HomeUsecase: usecases.NewHomeUsecase(db),
+		HomeUsecase: usecases.NewHomeUsecase(env, db),
 	}
 	// Get latest articles from subscribed publishers
 	// Query params: count, offset

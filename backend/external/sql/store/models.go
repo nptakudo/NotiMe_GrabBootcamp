@@ -5,7 +5,7 @@
 package store
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type ListPost struct {
@@ -19,18 +19,18 @@ type ListSharing struct {
 }
 
 type Post struct {
-	ID          int64            `json:"id"`
-	Title       string           `json:"title"`
-	PublishDate pgtype.Timestamp `json:"publish_date"`
-	Url         string           `json:"url"`
-	SourceID    pgtype.Int4      `json:"source_id"`
+	ID          int64     `json:"id"`
+	Title       string    `json:"title"`
+	PublishDate time.Time `json:"publish_date"`
+	Url         string    `json:"url"`
+	SourceID    int32     `json:"source_id"`
 }
 
 type ReadingList struct {
-	ID       int32       `json:"id"`
-	ListName string      `json:"list_name"`
-	Owner    pgtype.Int4 `json:"owner"`
-	IsSaved  bool        `json:"is_saved"`
+	ID       int32  `json:"id"`
+	ListName string `json:"list_name"`
+	Owner    int32  `json:"owner"`
+	IsSaved  bool   `json:"is_saved"`
 }
 
 type Source struct {
