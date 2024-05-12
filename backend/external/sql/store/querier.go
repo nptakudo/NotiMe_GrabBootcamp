@@ -6,13 +6,14 @@ package store
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 type Querier interface {
 	AddArticleToBookmarkList(ctx context.Context, arg AddArticleToBookmarkListParams) error
+	CreateArticle(ctx context.Context, arg CreateArticleParams) (Post, error)
 	CreateBookmarkList(ctx context.Context, arg CreateBookmarkListParams) (ReadingList, error)
+	CreatePublisher(ctx context.Context, arg CreatePublisherParams) (Source, error)
 	DeleteBookmarkList(ctx context.Context, id int32) (ReadingList, error)
 	// -- DROP SCHEMA public CASCADE;
 	// -- CREATE SCHEMA public;
@@ -77,7 +78,7 @@ type Querier interface {
 	// BOOKMARK LIST REPOSITORY
 	//-----------------------------------------------
 	GetBookmarkListById(ctx context.Context, id int32) (ReadingList, error)
-	GetBookmarkListsOwnByUserId(ctx context.Context, owner pgtype.Int4) ([]ReadingList, error)
+	GetBookmarkListsOwnByUserId(ctx context.Context, owner int32) ([]ReadingList, error)
 	GetBookmarkListsSharedWithUserId(ctx context.Context, userID int32) ([]ReadingList, error)
 	//-----------------------------------------------
 	// PUBLISHER REPOSITORY
@@ -93,7 +94,7 @@ type Querier interface {
 	// params: name: string, limit: number, offset: number
 	// behavior: sorted by publish_date desc
 	SearchArticlesByName(ctx context.Context, arg SearchArticlesByNameParams) ([]Post, error)
-	SearchPublishersByName(ctx context.Context, dollar_1 pgtype.Text) ([]Source, error)
+	SearchPublishersByName(ctx context.Context, dollar_1 sql.NullString) ([]Source, error)
 	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error
 	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error
 }

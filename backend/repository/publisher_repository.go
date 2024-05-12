@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 	"log/slog"
 	"notime/domain"
 	"notime/external/sql/store"
@@ -19,31 +19,49 @@ func NewPublisherRepository(q *store.Queries) domain.PublisherRepository {
 func (r *PublisherRepositoryImpl) GetById(ctx context.Context, id int32) (*domain.Publisher, error) {
 	dbPublisher, err := r.q.GetPublisherById(ctx, id)
 	if err != nil {
-		slog.Error("[Publisher Repository] GetById: ", err)
+		slog.Error("[Publisher Repository] GetById:", "error", err)
 		return nil, err
 	}
 	dmPublisher, err := convertDbPublisherToDm(&dbPublisher)
 	if err != nil {
-		slog.Error("[Publisher Repository] GetById: ", err)
+		slog.Error("[Publisher Repository] GetById:", "error", err)
 		return nil, err
 	}
 	return dmPublisher, nil
 }
 
 func (r *PublisherRepositoryImpl) Search(ctx context.Context, name string) ([]*domain.Publisher, error) {
-	dbPublishers, err := r.q.SearchPublishersByName(ctx, pgtype.Text{String: name})
+	dbPublishers, err := r.q.SearchPublishersByName(ctx, sql.NullString{String: name})
 	if err != nil {
-		slog.Error("[Publisher Repository] Search: ", err)
+		slog.Error("[Publisher Repository] Search:", "error", err)
 		return nil, err
 	}
 	dmPublishers := make([]*domain.Publisher, 0)
 	for _, dbPublisher := range dbPublishers {
 		dmPublisher, err := convertDbPublisherToDm(&dbPublisher)
 		if err != nil {
-			slog.Error("[Publisher Repository] Search: ", err)
+			slog.Error("[Publisher Repository] Search:", "error", err)
 			return nil, err
 		}
 		dmPublishers = append(dmPublishers, dmPublisher)
 	}
 	return dmPublishers, nil
+}
+
+func (r *PublisherRepositoryImpl) Create(ctx context.Context, name string, url string, avatarPath string) (*domain.Publisher, error) {
+	dbPublisher, err := r.q.CreatePublisher(ctx, store.CreatePublisherParams{
+		Name:   name,
+		Url:    url,
+		Avatar: avatarPath,
+	})
+	if err != nil {
+		slog.Error("[Publisher Repository] Create:", "error", err)
+		return nil, err
+	}
+	dmPublisher, err := convertDbPublisherToDm(&dbPublisher)
+	if err != nil {
+		slog.Error("[Publisher Repository] Create:", "error", err)
+		return nil, err
+	}
+	return dmPublisher, nil
 }

@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v4"
 	"log/slog"
 	"notime/external/sql/store"
 	"time"
@@ -29,7 +29,7 @@ func NewDatabase(ctx context.Context, env *Env) *DbClient {
 
 	conn, err := pgx.Connect(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
 	if err != nil {
-		slog.Error("[Database] Unable to connect to database:", err)
+		slog.Error("[Database] Unable to connect to database:", "error", err)
 		panic(err)
 	}
 	return &DbClient{conn, store.New(conn)}
@@ -42,7 +42,7 @@ func CloseDbConnection(ctx context.Context, client *DbClient) {
 
 	err := client.Disconnect(ctx)
 	if err != nil {
-		slog.Error("[Database] CloseDbConnection: %v", err)
+		slog.Error("[Database] CloseDbConnection:", "error", err)
 		panic(err)
 	}
 

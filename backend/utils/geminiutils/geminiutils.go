@@ -24,7 +24,7 @@ func GenerateArticleSummary(env *bootstrap.Env, content string) (string, error) 
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(env.LlmApiKey))
 	if err != nil {
-		slog.Error("[GeminiUtils] GenerateArticleSummary:", err)
+		slog.Error("[GeminiUtils] GenerateArticleSummary:", "error", err)
 		return "", ErrCannotGenerateSummary
 	}
 	defer client.Close()
@@ -32,7 +32,7 @@ func GenerateArticleSummary(env *bootstrap.Env, content string) (string, error) 
 	model := client.GenerativeModel("gemini-pro")
 	resp, err := model.GenerateContent(ctx, genai.Text(fmt.Sprintf(summarizePrompt, content)))
 	if err != nil {
-		slog.Error("[GeminiUtils] GenerateArticleSummary:", err)
+		slog.Error("[GeminiUtils] GenerateArticleSummary:", "error", err)
 		return "", ErrCannotGenerateSummary
 	}
 

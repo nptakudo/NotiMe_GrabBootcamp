@@ -15,7 +15,7 @@ func convertDbArticleToDm(dbArticle *store.Post, dbPublisher *store.Source) (*do
 	if dbPublisher == nil || dbArticle == nil {
 		return nil, ErrInstanceIsNil
 	}
-	if dbPublisher.ID != dbArticle.SourceID.Int32 {
+	if dbPublisher.ID != dbArticle.SourceID {
 		return nil, ErrPublisherIdMismatch
 	}
 
@@ -28,7 +28,7 @@ func convertDbArticleToDm(dbArticle *store.Post, dbPublisher *store.Source) (*do
 		Title:     dbArticle.Title,
 		Publisher: dmPublisher,
 		Url:       dbArticle.Url,
-		Date:      dbArticle.PublishDate.Time,
+		Date:      dbArticle.PublishDate,
 	}, nil
 }
 
@@ -42,7 +42,7 @@ func convertDbBookmarkListToDm(dbBookmarkListMetadata *store.ReadingList, dmArti
 		Name:        dbBookmarkListMetadata.ListName,
 		IsSavedList: dbBookmarkListMetadata.IsSaved,
 		Articles:    dmArticles,
-		OwnerId:     dbBookmarkListMetadata.Owner.Int32,
+		OwnerId:     dbBookmarkListMetadata.Owner,
 	}, nil
 }
 

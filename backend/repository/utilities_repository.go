@@ -11,7 +11,7 @@ type UtilitiesRepository struct {
 }
 
 func (r *UtilitiesRepository) completeDmArticleFromDb(ctx context.Context, dbArticle *store.Post) (*domain.ArticleMetadata, error) {
-	dbPublisher, err := r.q.GetPublisherById(ctx, dbArticle.SourceID.Int32)
+	dbPublisher, err := r.q.GetPublisherById(ctx, dbArticle.SourceID)
 	if err != nil {
 		return nil, err
 	}

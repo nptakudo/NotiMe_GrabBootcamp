@@ -24,7 +24,7 @@ func (r *SubscribeListRepositoryImpl) GetByUserId(ctx context.Context, userId in
 	for _, dbSubscribePublisher := range dbSubscribePublishers {
 		dmSubscribePublisher, err := convertDbPublisherToDm(&dbSubscribePublisher)
 		if err != nil {
-			slog.Error("[SubscribeList Repository] GetByUserId:", err)
+			slog.Error("[SubscribeList Repository] GetByUserId:", "error", err)
 			return nil, err
 		}
 		dmSubscribePublishers = append(dmSubscribePublishers, dmSubscribePublisher)
@@ -38,7 +38,7 @@ func (r *SubscribeListRepositoryImpl) IsSubscribed(ctx context.Context, publishe
 		UserID:   userId,
 	})
 	if err != nil {
-		slog.Error("[SubscribeList Repository] IsSubscribed:", err)
+		slog.Error("[SubscribeList Repository] IsSubscribed:", "error", err)
 		return false, err
 	}
 	return true, nil
@@ -50,7 +50,7 @@ func (r *SubscribeListRepositoryImpl) AddToSubscribeList(ctx context.Context, pu
 		UserID:   userId,
 	})
 	if err != nil {
-		slog.Error("[SubscribeList Repository] AddToSubscribeList:", err)
+		slog.Error("[SubscribeList Repository] AddToSubscribeList:", "error", err)
 		return err
 	}
 	return nil
@@ -62,7 +62,7 @@ func (r *SubscribeListRepositoryImpl) RemoveFromSubscribeList(ctx context.Contex
 		UserID:   userId,
 	})
 	if err != nil {
-		slog.Error("[SubscribeList Repository] RemoveFromSubscribeList:", err)
+		slog.Error("[SubscribeList Repository] RemoveFromSubscribeList:", "error", err)
 		return err
 	}
 	return nil

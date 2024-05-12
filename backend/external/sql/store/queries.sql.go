@@ -7,8 +7,8 @@ package store
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
+	"time"
 )
 
 const addArticleToBookmarkList = `-- name: AddArticleToBookmarkList :exec
@@ -26,6 +26,35 @@ func (q *Queries) AddArticleToBookmarkList(ctx context.Context, arg AddArticleTo
 	return err
 }
 
+const createArticle = `-- name: CreateArticle :one
+INSERT INTO post (title, publish_date, url, source_id) VALUES ($1, $2, $3, $4) RETURNING post.id, post.title, post.publish_date, post.url, post.source_id
+`
+
+type CreateArticleParams struct {
+	Title       string    `json:"title"`
+	PublishDate time.Time `json:"publish_date"`
+	Url         string    `json:"url"`
+	SourceID    int32     `json:"source_id"`
+}
+
+func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (Post, error) {
+	row := q.db.QueryRow(ctx, createArticle,
+		arg.Title,
+		arg.PublishDate,
+		arg.Url,
+		arg.SourceID,
+	)
+	var i Post
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.PublishDate,
+		&i.Url,
+		&i.SourceID,
+	)
+	return i, err
+}
+
 const createBookmarkList = `-- name: CreateBookmarkList :one
 INSERT INTO reading_list (list_name, owner, is_saved)
 VALUES ($1, $2, $3)
@@ -33,9 +62,9 @@ RETURNING id, list_name, owner, is_saved
 `
 
 type CreateBookmarkListParams struct {
-	ListName string      `json:"list_name"`
-	Owner    pgtype.Int4 `json:"owner"`
-	IsSaved  bool        `json:"is_saved"`
+	ListName string `json:"list_name"`
+	Owner    int32  `json:"owner"`
+	IsSaved  bool   `json:"is_saved"`
 }
 
 func (q *Queries) CreateBookmarkList(ctx context.Context, arg CreateBookmarkListParams) (ReadingList, error) {
@@ -46,6 +75,28 @@ func (q *Queries) CreateBookmarkList(ctx context.Context, arg CreateBookmarkList
 		&i.ListName,
 		&i.Owner,
 		&i.IsSaved,
+	)
+	return i, err
+}
+
+const createPublisher = `-- name: CreatePublisher :one
+INSERT INTO source (name, url, avatar) VALUES ($1, $2, $3) RETURNING source.id, source.name, source.url, source.avatar
+`
+
+type CreatePublisherParams struct {
+	Name   string `json:"name"`
+	Url    string `json:"url"`
+	Avatar string `json:"avatar"`
+}
+
+func (q *Queries) CreatePublisher(ctx context.Context, arg CreatePublisherParams) (Source, error) {
+	row := q.db.QueryRow(ctx, createPublisher, arg.Name, arg.Url, arg.Avatar)
+	var i Source
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Url,
+		&i.Avatar,
 	)
 	return i, err
 }
@@ -163,14 +214,13 @@ SELECT id, title, publish_date, url, source_id
 FROM post
 WHERE source_id = $1
 ORDER BY publish_date DESC
-LIMIT $2
-OFFSET $3
+LIMIT $2 OFFSET $3
 `
 
 type GetArticlesByPublisherIdParams struct {
-	SourceID pgtype.Int4 `json:"source_id"`
-	Limit    int32       `json:"limit"`
-	Offset   int32       `json:"offset"`
+	SourceID int32 `json:"source_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
 }
 
 // params: publisherId: number, limit: number, offset: number
@@ -262,7 +312,7 @@ FROM reading_list
 WHERE owner = $1
 `
 
-func (q *Queries) GetBookmarkListsOwnByUserId(ctx context.Context, owner pgtype.Int4) ([]ReadingList, error) {
+func (q *Queries) GetBookmarkListsOwnByUserId(ctx context.Context, owner int32) ([]ReadingList, error) {
 	rows, err := q.db.Query(ctx, getBookmarkListsOwnByUserId, owner)
 	if err != nil {
 		return nil, err
@@ -437,14 +487,13 @@ SELECT id, title, publish_date, url, source_id
 FROM post
 WHERE title ILIKE '%' || $3 || '%'
 ORDER BY publish_date DESC
-LIMIT $1
-OFFSET $2
+LIMIT $1 OFFSET $2
 `
 
 type SearchArticlesByNameParams struct {
-	Limit  int32       `json:"limit"`
-	Offset int32       `json:"offset"`
-	Query  pgtype.Text `json:"query"`
+	Limit  int32          `json:"limit"`
+	Offset int32          `json:"offset"`
+	Query  sql.NullString `json:"query"`
 }
 
 // params: name: string, limit: number, offset: number
@@ -481,7 +530,7 @@ FROM source
 WHERE name ILIKE '%' || $1 || '%'
 `
 
-func (q *Queries) SearchPublishersByName(ctx context.Context, dollar_1 pgtype.Text) ([]Source, error) {
+func (q *Queries) SearchPublishersByName(ctx context.Context, dollar_1 sql.NullString) ([]Source, error) {
 	rows, err := q.db.Query(ctx, searchPublishersByName, dollar_1)
 	if err != nil {
 		return nil, err

@@ -16,6 +16,12 @@ import (
 )
 
 func ScrapeFromUrl(url string, host string, port string, timeout time.Duration) ([]*models.ScrapedArticle, error) {
+	publisherName, err := getPublisherNameFromSubdomainsAndDomain(url)
+	if err != nil {
+		slog.Error("[Webscrape] ScrapeFromUrl:", "error", err)
+		return nil, err
+	}
+
 	// Define the command to be executed
 	command := "python3 linkscrape.py " + url
 
@@ -25,14 +31,14 @@ func ScrapeFromUrl(url string, host string, port string, timeout time.Duration) 
 	}
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		slog.Error("[Webscrape] ScrapeFromUrl: Error marshalling payload:", err)
+		slog.Error("[Webscrape] ScrapeFromUrl: Error marshalling payload:", "error", err)
 		return nil, err
 	}
 
 	client := &http.Client{Timeout: timeout}
 	resp, err := client.Post(host+":"+port+"/execute_command", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		slog.Error("[Webscrape] ScrapeFromUrl: Error sending POST request:", err)
+		slog.Error("[Webscrape] ScrapeFromUrl: Error sending POST request:", "error", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -40,7 +46,7 @@ func ScrapeFromUrl(url string, host string, port string, timeout time.Duration) 
 	// Open the JSON file
 	file, err := os.Open("../pipeline/webscrape/webscrape/spiders/output.json")
 	if err != nil {
-		slog.Error("[Webscrape] ScrapeFromUrl: Error opening output.json:", err)
+		slog.Error("[Webscrape] ScrapeFromUrl: Error opening output.json:", "error", err)
 		return nil, err
 	}
 	defer file.Close()
@@ -48,7 +54,7 @@ func ScrapeFromUrl(url string, host string, port string, timeout time.Duration) 
 	// Read the file content
 	content, err := io.ReadAll(file)
 	if err != nil {
-		slog.Error("[Webscrape] ScrapeFromUrl: Error reading output.json:", err)
+		slog.Error("[Webscrape] ScrapeFromUrl: Error reading output.json:", "error", err)
 		return nil, err
 	}
 
@@ -56,19 +62,13 @@ func ScrapeFromUrl(url string, host string, port string, timeout time.Duration) 
 	var articles []*models.ScrapedArticle
 	//err = json.NewDecoder(resp.Body).Decode(&articles)
 	//if err != nil {
-	//	slog.Error("[Webscrape] ScrapeFromUrl:", err)
+	//	slog.Error("[Webscrape] ScrapeFromUrl:", "error", err)
 	//	return nil, err
 	//}
 
 	err = json.Unmarshal(content, &articles)
 	if err != nil {
-		slog.Error("[Webscrape] ScrapeFromUrl: Error unmarshalling output.json:", err)
-		return nil, err
-	}
-
-	publisherName, err := getPublisherNameFromSubdomainsAndDomain(url)
-	if err != nil {
-		slog.Error("[Webscrape] ScrapeFromUrl:", err)
+		slog.Error("[Webscrape] ScrapeFromUrl: Error unmarshalling output.json:", "error", err)
 		return nil, err
 	}
 	for _, article := range articles {
@@ -82,21 +82,21 @@ func CheckAndCompilePublisher(url string, timeout time.Duration) (*domain.Publis
 	client := &http.Client{Timeout: timeout}
 	resp, err := client.Get(url)
 	if err != nil {
-		slog.Error("[Webscrape] CheckAndCompilePublisher: URL does not respond:", err)
+		slog.Error("[Webscrape] CheckAndCompilePublisher: URL does not respond:", "error", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
-		slog.Info("[Webscrape] CheckAndCompilePublisher: URL is reachable")
+		slog.Info("[Webscrape] CheckAndCompilePublisher: URL is reachable", "url", url)
 	} else {
-		slog.Info("[Webscrape] CheckAndCompilePublisher: URL is not reachable. Status code:", resp.StatusCode)
+		slog.Info("[Webscrape] CheckAndCompilePublisher: URL is not reachable", "url", url, "status code", resp.StatusCode)
 		return nil, errors.New("URL is not reachable")
 	}
 
 	publisherName, err := getPublisherNameFromSubdomainsAndDomain(url)
 	if err != nil {
-		slog.Error("[Webscrape] CheckAndCompilePublisher: Error parsing URL:", err)
+		slog.Error("[Webscrape] CheckAndCompilePublisher: Error parsing URL:", "error", err)
 		return nil, err
 	}
 	return &domain.Publisher{

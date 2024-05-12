@@ -77,6 +77,11 @@ WHERE title ILIKE '%' || @query || '%'
 ORDER BY publish_date DESC
 LIMIT $1 OFFSET $2;
 
+-- name: CreateArticle :one
+INSERT INTO post (title, publish_date, url, source_id)
+VALUES ($1, $2, $3, $4)
+RETURNING post.*;
+
 
 -------------------------------------------------
 -- BOOKMARK LIST REPOSITORY
@@ -145,6 +150,11 @@ WHERE id = $1;
 SELECT *
 FROM source
 WHERE name ILIKE '%' || $1 || '%';
+
+-- name: CreatePublisher :one
+INSERT INTO source (name, url, avatar)
+VALUES ($1, $2, $3)
+RETURNING source.*;
 
 
 -------------------------------------------------

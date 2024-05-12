@@ -21,6 +21,7 @@ type Env struct {
 	LlmApiKey              string `mapstructure:"LLM_API_KEY"`
 	WebscrapeHost          string `mapstructure:"WEBSCRAPE_HOST"`
 	WebscrapePort          string `mapstructure:"WEBSCRAPE_PORT"`
+	PElementThreshold      int    `mapstructure:"P_ELEMENT_THRESHOLD"`
 }
 
 func NewEnv() *Env {
@@ -29,18 +30,18 @@ func NewEnv() *Env {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		slog.Error("[Env] Can't find the file .env:", err)
+		slog.Error("[Env] Can't find the file .env:", "error", err)
 		panic(err)
 	}
 
 	err = viper.Unmarshal(&env)
 	if err != nil {
-		slog.Error("[Env] Environment cannot be loaded:", err)
+		slog.Error("[Env] Environment cannot be loaded:", "error", err)
 		panic(err)
 	}
 
 	if env.AppEnv == "development" {
-		slog.Info("[Env] Environment mode loaded: %s", env.AppEnv)
+		slog.Info("[Env] Environment mode loaded:", "env", env.AppEnv)
 	}
 
 	return &env
