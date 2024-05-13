@@ -1,22 +1,13 @@
 from qdrant_client import QdrantClient, models
 import json
 import numpy as np
-qdrant = QdrantClient("http://localhost:6333")
-
-file_path = '1k_sample_bs4_vectorized_data.json'
-with open(file_path, 'r', encoding='utf-8') as file:
-    data = json.load(file)
-# Upsert the data
-# Create the collection
-qdrant.create_collection(collection_name="news_collection", vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE))
-for item in data:
-    qdrant.upsert(collection_name="news_collection", points =
-              [models.PointStruct(id=data.index(item), payload= {"url": item["filename"]},vector=item["vec"],),],)
-    
-result = qdrant.search(
-    collection_name="news_collection",
-    query_vector=data[260]['vec'],
-    with_vectors=True,
-    with_payload=True,
+import recommended_helper_functions
+qdrant = QdrantClient(
+    url="https://511bd411-4d9b-433a-9a9b-e16cd30b84ff.us-east4-0.gcp.cloud.qdrant.io:6333", 
+    api_key="vPFMrOT0Mbjh5UMy_HeBJPdvdqV66IUa6L9S2mUezs8C_aGX5Yk20Q",
 )
-print(result[1][0])
+index = qdrant.count(
+        collection_name="news_collection",
+        exact=True,
+            )
+print(int(index.count))
