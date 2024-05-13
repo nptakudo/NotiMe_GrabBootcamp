@@ -226,33 +226,64 @@ services:
       - ./minio/data:/data
 
   
-  # spark-master:
-  #   image: spark-image 
-  #   container_name: spark-master
-  #   entrypoint: ['./entrypoint.sh', 'master']
-  #   build:
-  #     context: ./data-processing-spark/1-lab-setup/containers/spark
-  #     dockerfile: Dockerfile 
-  #   ports:
-  #     - "4040:4040"
-  #     - "9090:8080"
-  #     - "7077:7077"
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./capstone:/opt/spark/work-dir/capstone
-  #     - ./data-processing-spark:/opt/spark/work-dir/data-processing-spark
-  #     - ./etl:/opt/spark/work-dir/etl
-  #     - spark-logs:/opt/spark/spark-events
-  #     - tpch-data:/opt/spark/tpch-dbgen
-    # environment:
-    #   UPSTREAM_DRIVERNAME: postgresql
-    #   UPSTREAM_HOST: upstream
-    #   UPSTREAM_PORT: '5432'
-    #   UPSTREAM_USERNAME: sdeuser
-    #   UPSTREAM_PASSWORD: sdepassword
-    #   UPSTREAM_DATABASE: upstreamdb
-    # env_file:
-    #   - .env.spark
+  spark-master:
+    image: spark-image 
+    container_name: spark-master
+    entrypoint: ['./entrypoint.sh', 'master']
+    build:
+      context: ./containers/spark
+      dockerfile: Dockerfile 
+    ports:
+      - "4040:4040"
+      - "9090:8080"
+      - "7077:7077"
+      - "3000:3000"
+    volumes:
+      - ./capstone:/opt/spark/work-dir/capstone
+      - ./data-processing-spark:/opt/spark/work-dir/data-processing-spark
+      - ./etl:/opt/spark/work-dir/etl
+      - spark-logs:/opt/spark/spark-events
+      # - tpch-data:/opt/spark/tpch-dbgen
+    environment:
+      UPSTREAM_DRIVERNAME: postgresql
+      UPSTREAM_HOST: postgres
+      UPSTREAM_PORT: '5432'
+      UPSTREAM_USERNAME: airflow
+      UPSTREAM_PASSWORD: airflow
+      UPSTREAM_DATABASE: airflow
+    env_file:
+      - .env.spark
+
+  spark-history-server:
+    container_name: spark-history
+    image: spark-image
+    entrypoint: ['./entrypoint.sh', 'history']
+    depends_on:
+      - spark-master
+    env_file:
+      - .env.spark
+    volumes:
+      - spark-logs:/opt/spark/spark-events
+    ports:
+      - '18080:18080'
+
+  spark-worker:
+    image: spark-image
+    entrypoint: ['./entrypoint.sh', 'worker']
+    volumes:
+      - ./capstone:/opt/spark/work-dir/capstone
+      - ./data-processing-spark:/opt/spark/work-dir/data-processing-spark
+      - spark-logs:/opt/spark/spark-events
+      # - tpch-data:/opt/spark/tpch-dbgen
+    env_file:
+      - .env.spark
+    environment:
+      UPSTREAM_DRIVERNAME: postgresql
+      UPSTREAM_HOST: postgres
+      UPSTREAM_PORT: '5432'
+      UPSTREAM_USERNAME: airflow
+      UPSTREAM_PASSWORD: airflow
+      UPSTREAM_DATABASE: airflow
 
 # services:
 #   db:
@@ -288,4 +319,5 @@ services:
 volumes:
   postgres-db-volume:
   minio-data-volume:
+  spark-logs:
 
