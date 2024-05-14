@@ -93,53 +93,16 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Home",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Colors.topBarContainer
-                ),
-                actions = {
-                    Row {
-                        IconButton(
-                            onClick = onSearchIconClick,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Search,
-                                contentDescription = "search for articles",
-                            )
-                        }
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.MoreVert,
-                                contentDescription = "more options",
-                            )
-                        }
-                    }
-                }
+    Column(
+        modifier = modifier
+            .padding(
+                start = UiConfig.sideScreenPadding,
+                end = UiConfig.sideScreenPadding,
+                top = 8.dp,
             )
-        },
-        bottomBar = {
-            NavBar(
-                currentRoute = Route.Home,
-                navigateToBottomBarRoute = onNavigateNavBar
-            )
-        }
     ) {
         Box(
             modifier = Modifier
-                .padding(it)
                 .fillMaxSize()
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {

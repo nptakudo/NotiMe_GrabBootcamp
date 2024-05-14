@@ -58,34 +58,16 @@ fun SubscriptionScreen (
         }
     }
 
-    Scaffold(
+    Column(
         modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Subscribed Publishers",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Colors.topBarContainer
-                ),
-                actions = {}
-            )
-        },
-        bottomBar = {
-            NavBar(
-                currentRoute = Route.Following,
-                navigateToBottomBarRoute = onNavigateNavBar
-            )
-        }
     ) {
         Box(
             modifier = Modifier
-                .padding(it)
+                .padding(
+                    start = UiConfig.sideScreenPadding,
+                    end = UiConfig.sideScreenPadding,
+                    top = 8.dp,
+                )
                 .fillMaxSize()
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {

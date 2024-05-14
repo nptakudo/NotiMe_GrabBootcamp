@@ -1,11 +1,13 @@
 package com.example.frontend.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,10 +48,10 @@ enum class NavBarTab(
 @Composable
 fun NavBar(
     tabs: Array<NavBarTab> = NavBarTab.entries.toTypedArray(),
-    currentRoute: Route,
+    currentRoute: String,
     navigateToBottomBarRoute: (route: Route) -> Unit,
 ) {
-    val currentTab = tabs.first { it.route == currentRoute }
+    val currentTab = tabs.first { it.route.route == currentRoute }
     BottomBarLayout(
         containerColor = Colors.navBarContainer,
     ) {
@@ -69,7 +71,9 @@ fun NavBar(
                 ) {
                     Icon(
                         imageVector = tab.imageVector,
-                        contentDescription = tab.title
+                        contentDescription = tab.title,
+                        modifier = Modifier
+                            .padding(end = 4.dp)
                     )
                     Text(
                         text = tab.title,

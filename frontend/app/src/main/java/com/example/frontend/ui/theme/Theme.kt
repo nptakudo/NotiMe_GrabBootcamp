@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
 object UiConfig {
-    val sideScreenPadding = 24.dp
+    val sideScreenPadding = 12.dp
 }
 
 private val DarkColorScheme = darkColorScheme(
