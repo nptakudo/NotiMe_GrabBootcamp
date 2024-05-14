@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.frontend.ui.screens.home.HomeRoute
+import com.example.frontend.ui.screens.reader.ReaderRoute
 import com.example.frontend.ui.screens.subscription.SubscriptionRoute
 
 @Composable
@@ -35,7 +36,9 @@ private fun NavGraphBuilder.showHome(navController: NavController) {
     composable(Route.Home.route) {
         HomeRoute(
             viewModel = hiltViewModel(),
-            onArticleClick = {},
+            onArticleClick = {
+                navController.navigate(Route.Reader.route + "/$it")
+            },
             onNavigateNavBar = {},
             onAboutClick = { /*TODO*/ },
             onLogOutClick = { /*TODO*/ }
@@ -50,8 +53,15 @@ private fun NavGraphBuilder.showExplore(navController: NavController) {
 }
 
 private fun NavGraphBuilder.showReader(navController: NavController) {
-    composable(Route.Reader.route) {
-
+    composable(Route.Reader.route + "/{articleId}") {
+        val articleId = it.arguments?.getString("articleId")
+        if (articleId != null) {
+            ReaderRoute(
+                viewModel = hiltViewModel(),
+                onReadAnotherArticle = {},
+                onBack = { navController.navigateUp()}
+            )
+        }
     }
 }
 
