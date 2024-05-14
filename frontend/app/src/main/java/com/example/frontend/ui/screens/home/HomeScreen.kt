@@ -1,6 +1,7 @@
 package com.example.frontend.ui.screens.home
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,7 +48,6 @@ import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.BigArticleCard
 import com.example.frontend.ui.component.BottomSheetBookmarkContent
 import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
-import com.example.frontend.ui.component.NavBar
 import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
@@ -93,17 +92,49 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = modifier
-            .padding(
-                start = UiConfig.sideScreenPadding,
-                end = UiConfig.sideScreenPadding,
-                top = 8.dp,
-            )
-    ) {
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Home",
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                    },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Colors.topBarContainer
+            ),
+            actions = {
+                Row {
+                    IconButton(
+                        onClick = onSearchIconClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Search,
+                            contentDescription = "search for articles"
+                        )
+                    }
+                    IconButton(
+                        onClick = { /*TODO*/ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.MoreVert,
+                            contentDescription = "more options"
+                        )
+                    }
+                }
+            }
+        )
         Box(
             modifier = Modifier
+                .weight(1f)
                 .fillMaxSize()
+                .padding(
+                    start = UiConfig.sideScreenPadding,
+                    end = UiConfig.sideScreenPadding
+                )
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {
             if (!refreshState.isRefreshing) {
@@ -119,7 +150,9 @@ fun HomeScreen(
             }
             PullToRefreshContainer(
                 state = refreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier
+                    .align(Alignment.TopCenter),
+                containerColor = Colors.topBarContainer
             )
         }
     }

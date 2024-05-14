@@ -58,28 +58,47 @@ fun SubscriptionScreen (
         }
     }
 
-    Column(
-        modifier = modifier,
-    ) {
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        // PullToRefreshContainer at the back layer
+        PullToRefreshContainer(
+            state = refreshState,
             modifier = Modifier
-                .padding(
-                    start = UiConfig.sideScreenPadding,
-                    end = UiConfig.sideScreenPadding,
-                    top = 8.dp,
-                )
-                .fillMaxSize()
-                .nestedScroll(refreshState.nestedScrollConnection)
-        ) {
-            if (!refreshState.isRefreshing) {
-                SubscriptionScreenContent(
-                    subscriptions = uiState.subscriptions
-                )
-            }
-            PullToRefreshContainer(
-                state = refreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
+                .align(Alignment.TopCenter),
+            containerColor = Colors.topBarContainer
+        )
+
+        // Column for the TopAppBar and main content
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Subscribed Publishers",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Colors.topBarContainer
+                ),
+                actions = {}
             )
+
+            Box(
+                modifier = Modifier
+                    .padding(
+                        start = UiConfig.sideScreenPadding,
+                        end = UiConfig.sideScreenPadding,
+                    )
+                    .fillMaxSize()
+                    .nestedScroll(refreshState.nestedScrollConnection)
+            ) {
+                if (!refreshState.isRefreshing) {
+                    SubscriptionScreenContent(
+                        subscriptions = uiState.subscriptions
+                    )
+                }
+            }
         }
     }
 }
