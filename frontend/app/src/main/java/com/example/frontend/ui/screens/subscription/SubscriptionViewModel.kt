@@ -17,7 +17,6 @@ import javax.inject.Inject
 
 object SubscriptionConfig {
     const val LOG_TAG = "SubscribedListViewModel"
-    const val PAGE_SIZE = 10
 }
 enum class State {
     Idle,

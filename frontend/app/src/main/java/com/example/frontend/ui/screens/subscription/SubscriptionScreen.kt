@@ -40,6 +40,7 @@ import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.NavBar
 import com.example.frontend.ui.component.PublisherCard
 import com.example.frontend.ui.component.SubscriptionCard
+import com.example.frontend.ui.screens.home.Divider
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import kotlinx.coroutines.launch
@@ -64,15 +65,6 @@ fun SubscriptionScreen (
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        // PullToRefreshContainer at the back layer
-        PullToRefreshContainer(
-            state = refreshState,
-            modifier = Modifier
-                .align(Alignment.TopCenter),
-            containerColor = Colors.topBarContainer
-        )
-
-        // Column for the TopAppBar and main content
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = {
@@ -127,12 +119,10 @@ fun SubscriptionScreenContent(
 ) {
 
     if (subscriptions.isNotEmpty()) {
-        val scrollState = rememberScrollState()
-
         Column (
             modifier = modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
+                .verticalScroll(rememberScrollState())
                 .padding(
                     start = UiConfig.sideScreenPadding,
                     end = UiConfig.sideScreenPadding,
@@ -154,6 +144,7 @@ fun SubscriptionScreenContent(
                             isFollowing.value = !isFollowing.value
                         }
                     )
+                    Divider()
                 }
             }
         }

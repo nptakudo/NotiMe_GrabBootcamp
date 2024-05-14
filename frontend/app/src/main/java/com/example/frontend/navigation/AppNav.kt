@@ -10,8 +10,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.screens.reader.ReaderRoute
+import com.example.frontend.ui.screens.search.SearchResultRoute
 import com.example.frontend.ui.screens.search.SearchScreen
 import com.example.frontend.ui.screens.subscription.SubscriptionRoute
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun AppNavGraph(
@@ -26,6 +30,7 @@ fun AppNavGraph(
         showBookmarkListDetail(navController)
         showSubscription(navController)
         showSearch(navController)
+        showSearchResult(navController)
     }
 }
 
@@ -94,8 +99,24 @@ private fun NavGraphBuilder.showSearch(navController: NavController) {
         SearchScreen(
             onBack = { navController.navigateUp() },
             onSearch = {
-                Log.i("AppNavGraph", "Search for $it")
+                val query = if (it.contains("/")) {
+                    URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
+                } else {
+                    it
+                }
+                navController.navigate(Route.SearchResult.route + "/$query")
             }
+        )
+    }
+}
+private fun NavGraphBuilder.showSearchResult(navController: NavController) {
+    composable(Route.SearchResult.route + "/{query}") { it ->
+        val encodedQuery = it.arguments?.getString("query")
+        val query = encodedQuery?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+        SearchResultRoute(
+            viewModel = hiltViewModel(),
+            query = query ?: "",
+            obBack = { navController.navigateUp() }
         )
     }
 }
