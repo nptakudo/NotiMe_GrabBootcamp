@@ -9,7 +9,8 @@ import com.example.frontend.navigation.Route
 @Composable
 fun SubscriptionRoute (
     viewModel: SubscriptionViewModel,
-    onNavigateNavBar: (route: Route) -> Unit
+    onNavigateNavBar: (route: Route) -> Unit,
+    onSearchIconClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     if (uiState.subscriptions.isEmpty()) {
@@ -21,7 +22,7 @@ fun SubscriptionRoute (
     SubscriptionScreen(
         uiState = uiState,
         onRefresh = { viewModel.loadSources() },
-        onSearchIconClick = { /* TODO */ },
+        onSearchIconClick = onSearchIconClick,
         onNavigateNavBar = onNavigateNavBar
     )
 }

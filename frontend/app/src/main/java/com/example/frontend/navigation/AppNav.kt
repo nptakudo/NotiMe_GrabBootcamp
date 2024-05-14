@@ -1,5 +1,6 @@
 package com.example.frontend.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -9,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.screens.reader.ReaderRoute
+import com.example.frontend.ui.screens.search.SearchScreen
 import com.example.frontend.ui.screens.subscription.SubscriptionRoute
 
 @Composable
@@ -23,6 +25,7 @@ fun AppNavGraph(
         showBookmarkList(navController)
         showBookmarkListDetail(navController)
         showSubscription(navController)
+        showSearch(navController)
     }
 }
 
@@ -82,6 +85,17 @@ private fun NavGraphBuilder.showSubscription(navController: NavController) {
         SubscriptionRoute(
             viewModel = hiltViewModel(),
             onNavigateNavBar = {},
+            onSearchIconClick = {navController.navigate(Route.Search.route)}
+        )
+    }
+}
+private fun NavGraphBuilder.showSearch(navController: NavController) {
+    composable(Route.Search.route) {
+        SearchScreen(
+            onBack = { navController.navigateUp() },
+            onSearch = {
+                Log.i("AppNavGraph", "Search for $it")
+            }
         )
     }
 }

@@ -98,7 +98,7 @@ fun ReaderScreen(
     onToBrowser: () -> Unit,
     onRelatedArticleClick: (articleId: BigInteger) -> Unit,
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
-    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
     onBack: () -> Unit,
@@ -214,7 +214,7 @@ fun ReaderScreen(
                     onUnfollow = onUnfollow,
                     onArticleClick = onRelatedArticleClick,
                     onBookmark = onBookmark,
-                    onUnbookmark = onUnbookmark,
+                    onUnBookmark = onUnBookmark,
                     onNewBookmark = onNewBookmark,
                     onLoadMoreRelatedArticles = onLoadMoreRelatedArticles,
                     onToBrowser = onToBrowser,
@@ -243,7 +243,7 @@ fun ReaderScreenContent(
     onUnfollow: () -> Unit,
     onArticleClick: (articleId: BigInteger) -> Unit,
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
-    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
     onToBrowser: () -> Unit,
@@ -423,7 +423,7 @@ fun ReaderScreenContent(
                             }
                         },
                         onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
-                        onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                        onUnBookmark = { onUnBookmark(bottomSheetBookmarkArticleId, it) },
                         onClose = { onClose {} },
                     )
                 } else if (bottomSheetContent == ReaderUiConfig.BottomSheetContentType.NEW_BOOKMARK) {

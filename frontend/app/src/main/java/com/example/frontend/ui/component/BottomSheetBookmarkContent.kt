@@ -30,7 +30,7 @@ fun BottomSheetBookmarkContent(
     bookmarkLists: List<BookmarkList>,
     onNewBookmarkList: () -> Unit,
     onBookmark: (bookmarkId: BigInteger) -> Unit,
-    onUnbookmark: (bookmarkId: BigInteger) -> Unit,
+    onUnBookmark: (bookmarkId: BigInteger) -> Unit,
     onClose: () -> Unit,
 ) {
     Column(
@@ -83,7 +83,7 @@ fun BottomSheetBookmarkContent(
                         if (it) {
                             onBookmark(bookmarkList.id)
                         } else {
-                            onUnbookmark(bookmarkList.id)
+                            onUnBookmark(bookmarkList.id)
                         }
                     }
                 )

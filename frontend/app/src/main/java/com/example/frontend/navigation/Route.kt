@@ -11,4 +11,5 @@ sealed class Route(
     data object BookmarkList : Route("bookmark_list")
     data object BookmarkListDetail : Route("bookmark_detail")
     data object Following : Route("following")
+    data object Search : Route("search")
 }

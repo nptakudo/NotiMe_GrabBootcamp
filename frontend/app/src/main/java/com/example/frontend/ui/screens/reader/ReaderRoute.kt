@@ -28,7 +28,7 @@ fun ReaderRoute(
         onToBrowser = { /* TODO */ },
         onRelatedArticleClick = onReadAnotherArticle,
         onBookmark = viewModel::onBookmarkRelatedArticle,
-        onUnbookmark = viewModel::onUnbookmarkRelatedArticle,
+        onUnBookmark = viewModel::onUnbookmarkRelatedArticle,
         onNewBookmark = viewModel::onCreateNewBookmark,
         onLoadMoreRelatedArticles = { /* TODO */ },
         onBack = onBack,

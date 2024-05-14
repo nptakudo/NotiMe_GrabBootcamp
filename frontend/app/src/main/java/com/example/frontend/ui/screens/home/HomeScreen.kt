@@ -282,7 +282,7 @@ fun HomeScreenContentSortByDate(
                                 }
                             },
                             onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
-                            onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                            onUnBookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
                             onClose = { onClose {} },
                         )
                     } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
