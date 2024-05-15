@@ -2,12 +2,10 @@ import json
 import requests
 import numpy as np
 import time
-url = 'https://5927-115-73-212-141.ngrok-free.app/text_vectorization'
+url = 'https://36a5-2401-d800-5b19-49af-341e-839d-6652-ab6f.ngrok-free.app/suggest_on_url'
 start_time = time.time()
-with open('1kmock.json') as file:
-    data = json.load(file)
 
-respone = requests.post(url, json=data[0])
+respone = requests.post(url, json={'url':'https://bandcamptech.wordpress.com/2015/04/28/be-careful-how-you-rsyslog/'})
 
 print(respone.text)
 end_time=time.time()

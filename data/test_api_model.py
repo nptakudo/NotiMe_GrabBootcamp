@@ -26,7 +26,7 @@ def vectorize_text(input: Url):
         must=[
             models.FieldCondition(
                 key="url",
-                match=models.MatchValue(value="https://bandcamptech.wordpress.com/2010/02/"),
+                match=models.MatchValue(value=input.url),
             )
         ]
     ),
