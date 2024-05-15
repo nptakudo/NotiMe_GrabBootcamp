@@ -31,17 +31,20 @@ def vectorize_text(input: Url):
         ]
     ),
     with_vectors=True,
-    )[0][0].vector
-    result = qdrant.search(
-    collection_name="news_collection",
-    query_vector=vec,
-    with_vectors=True,
-    with_payload=True,
-    )
-    if result[0].payload['url']==input.url:
-        return [r.payload['url'] for r in result[1:6]]
+    )[0]
+    if vec == []:
+        return []
     else:
-        return [r.payload['url'] for r in result[0:5]]
+        result = qdrant.search(
+        collection_name="news_collection",
+        query_vector=vec[0].vector,
+        with_vectors=True,
+        with_payload=True,
+        )
+        if result[0].payload['url']==input.url:
+            return [r.payload['url'] for r in result[1:6]]
+        else:
+            return [r.payload['url'] for r in result[0:5]]
 public_url = ngrok.connect(8000)
 print('Public URL:', public_url.public_url)
 nest_asyncio.apply()

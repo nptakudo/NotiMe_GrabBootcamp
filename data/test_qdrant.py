@@ -11,7 +11,7 @@ output = qdrant.scroll(
         must=[
             models.FieldCondition(
                 key="url",
-                match=models.MatchValue(value="https://bandcamptech.wordpress.com/2010/02/"),
+                match=models.MatchValue(value="123456"),
             )
         ]
     ),
@@ -19,4 +19,4 @@ output = qdrant.scroll(
 )
 
 
-print(output[0][0].vector)
+print(output)
