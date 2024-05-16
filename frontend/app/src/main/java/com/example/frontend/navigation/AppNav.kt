@@ -8,6 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.frontend.ui.screens.bookmark.BookmarkRoute
 import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.screens.login.LoginRoute
 import com.example.frontend.ui.screens.reader.ReaderRoute
@@ -22,7 +23,7 @@ import java.nio.charset.StandardCharsets
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = Route.Login.route) {
+    NavHost(navController = navController, startDestination = Route.Home.route) {
         showLogin(navController)
         showHome(navController)
         showExplore(navController)
@@ -79,12 +80,17 @@ private fun NavGraphBuilder.showReader(navController: NavController) {
 
 private fun NavGraphBuilder.showBookmarkList(navController: NavController) {
     composable(Route.BookmarkList.route) {
-
+        BookmarkRoute(
+            viewModel = hiltViewModel(),
+            onBookmarkDetail = {
+                navController.navigate(Route.BookmarkListDetail.route + "/$it")
+            }
+        )
     }
 }
 
 private fun NavGraphBuilder.showBookmarkListDetail(navController: NavController) {
-    composable(Route.BookmarkListDetail.route) {
+    composable(Route.BookmarkListDetail.route + "/{bookmarkListId}") {
 
     }
 }
