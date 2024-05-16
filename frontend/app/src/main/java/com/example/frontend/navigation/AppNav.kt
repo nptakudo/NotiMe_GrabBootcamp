@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.frontend.ui.screens.home.HomeRoute
+import com.example.frontend.ui.screens.login.LoginRoute
 import com.example.frontend.ui.screens.reader.ReaderRoute
 import com.example.frontend.ui.screens.search.SearchResultRoute
 import com.example.frontend.ui.screens.search.SearchScreen
@@ -21,7 +22,7 @@ import java.nio.charset.StandardCharsets
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = Route.Home.route) {
+    NavHost(navController = navController, startDestination = Route.Login.route) {
         showLogin(navController)
         showHome(navController)
         showExplore(navController)
@@ -31,12 +32,15 @@ fun AppNavGraph(
         showSubscription(navController)
         showSearch(navController)
         showSearchResult(navController)
+        showLogin(navController)
     }
 }
 
 private fun NavGraphBuilder.showLogin(navController: NavController) {
     composable(Route.Login.route) {
-
+        LoginRoute(
+            viewModel = hiltViewModel(),
+        )
     }
 }
 
