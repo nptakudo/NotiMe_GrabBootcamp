@@ -5,11 +5,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.frontend.navigation.Route
+import java.math.BigInteger
 
 @Composable
 fun SubscriptionRoute (
     viewModel: SubscriptionViewModel,
-    onNavigateNavBar: (route: Route) -> Unit,
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit,
     onSearchIconClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -23,6 +24,6 @@ fun SubscriptionRoute (
         uiState = uiState,
         onRefresh = { viewModel.loadSources() },
         onSearchIconClick = onSearchIconClick,
-        onNavigateNavBar = onNavigateNavBar
+        onSubscriptionClick = onSubscriptionClick
     )
 }

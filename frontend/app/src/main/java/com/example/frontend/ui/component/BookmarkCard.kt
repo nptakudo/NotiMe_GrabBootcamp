@@ -42,12 +42,12 @@ fun BookmarkCard (
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp),
+            .height(72.dp)
+            .clickable { onBookmarkClick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
-            Modifier.clickable { onBookmarkClick() },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {

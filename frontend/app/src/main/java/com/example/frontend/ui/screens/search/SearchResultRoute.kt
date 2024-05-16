@@ -4,12 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.math.BigInteger
 
 @Composable
 fun SearchResultRoute (
     viewModel: SearchResultViewModel,
     query: String,
-    obBack: () -> Unit
+    obBack: () -> Unit,
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -18,6 +20,7 @@ fun SearchResultRoute (
     SearchResultScreen(
         uiState = uiState,
         onBack = obBack,
-        query = query
+        query = query,
+        onSubscriptionClick = onSubscriptionClick
     )
 }

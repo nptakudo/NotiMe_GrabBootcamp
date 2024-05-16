@@ -8,6 +8,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.frontend.ui.screens.article_list.ArticleListRoute
+import com.example.frontend.ui.screens.article_list.ArticleType
 import com.example.frontend.ui.screens.bookmark.BookmarkRoute
 import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.screens.login.LoginRoute
@@ -15,6 +17,7 @@ import com.example.frontend.ui.screens.reader.ReaderRoute
 import com.example.frontend.ui.screens.search.SearchResultRoute
 import com.example.frontend.ui.screens.search.SearchScreen
 import com.example.frontend.ui.screens.subscription.SubscriptionRoute
+import java.math.BigInteger
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -31,6 +34,7 @@ fun AppNavGraph(
         showBookmarkList(navController)
         showBookmarkListDetail(navController)
         showSubscription(navController)
+        showSubscriptionDetail(navController)
         showSearch(navController)
         showSearchResult(navController)
         showLogin(navController)
@@ -91,16 +95,40 @@ private fun NavGraphBuilder.showBookmarkList(navController: NavController) {
 
 private fun NavGraphBuilder.showBookmarkListDetail(navController: NavController) {
     composable(Route.BookmarkListDetail.route + "/{bookmarkListId}") {
-
+        val bookmarkListId = it.arguments?.getString("bookmarkListId")
+        ArticleListRoute(
+            viewModel = hiltViewModel(),
+            articleType = ArticleType.BOOKMARK,
+            id = BigInteger(bookmarkListId ?: "0"),
+            onBack = { navController.navigateUp() },
+            onArticleClick = {
+                navController.navigate(Route.Reader.route + "/$it")
+            }
+        )
     }
 }
-
 private fun NavGraphBuilder.showSubscription(navController: NavController) {
     composable(Route.Following.route) {
         SubscriptionRoute(
             viewModel = hiltViewModel(),
-            onNavigateNavBar = {},
+            onSubscriptionClick = {
+                navController.navigate(Route.SubscriptionDetail.route + "/$it")
+            },
             onSearchIconClick = {navController.navigate(Route.Search.route)}
+        )
+    }
+}
+private fun NavGraphBuilder.showSubscriptionDetail(navController: NavController) {
+    composable(Route.SubscriptionDetail.route + "/{publisherId}") {
+        val publisherId = it.arguments?.getString("publisherId")
+        ArticleListRoute(
+            viewModel = hiltViewModel(),
+            articleType = ArticleType.PUBLISHER,
+            id = BigInteger(publisherId ?: "0"),
+            onBack = { navController.navigateUp() },
+            onArticleClick = {
+                navController.navigate(Route.Reader.route + "/$it")
+            }
         )
     }
 }
@@ -126,7 +154,10 @@ private fun NavGraphBuilder.showSearchResult(navController: NavController) {
         SearchResultRoute(
             viewModel = hiltViewModel(),
             query = query ?: "",
-            obBack = { navController.navigateUp() }
+            obBack = { navController.navigateUp() },
+            onSubscriptionClick = {
+                navController.navigate(Route.SubscriptionDetail.route + "/$it")
+            },
         )
     }
 }

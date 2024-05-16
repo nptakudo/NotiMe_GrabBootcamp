@@ -41,6 +41,8 @@ import com.example.frontend.ui.screens.subscription.SubscriptionScreenContent
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringAgoFormat
+import com.example.frontend.utils.dateToStringExactDateFormat
+import java.math.BigInteger
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +50,7 @@ fun SearchResultScreen (
     modifier: Modifier = Modifier,
     uiState: SearchResultUiState,
     onBack: () -> Unit,
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit,
     query: String
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -86,7 +89,8 @@ fun SearchResultScreen (
             when (uiState.isNewSource) {
                 false -> SearchResultContentForPublishers(
                     modifier = modifier,
-                    subscriptions = uiState.subscriptions
+                    subscriptions = uiState.subscriptions,
+                    onSubscriptionClick = onSubscriptionClick
                 )
                 true -> SearchResultContentForArticles(
                     modifier = modifier,
@@ -101,6 +105,7 @@ fun SearchResultScreen (
 fun SearchResultContentForPublishers (
     modifier: Modifier,
     subscriptions: List<Publisher>,
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit
 ) {
     if (subscriptions.isNotEmpty()) {
         Column (
@@ -125,6 +130,9 @@ fun SearchResultContentForPublishers (
                         isFollowing = isFollowing,
                         onFollowClick = {
                             isFollowing.value = !isFollowing.value
+                        },
+                        onClick = {
+                            onSubscriptionClick(publisher.id)
                         }
                     )
                     Divider()
@@ -202,7 +210,7 @@ fun SearchResultContentForArticles (
                         articleImageUrl = blog.articleImageUrl,
                         title = blog.title,
                         publisher = blog.publisher.name,
-                        date = dateToStringAgoFormat(blog.date),
+                        date = dateToStringExactDateFormat(blog.date),
                         onClick = {}
                     )
                     Divider()

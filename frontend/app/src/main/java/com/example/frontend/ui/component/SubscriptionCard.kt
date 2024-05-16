@@ -1,6 +1,7 @@
 package com.example.frontend.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import java.math.BigInteger
 
 @Composable
 fun SubscriptionCard(
@@ -38,11 +40,13 @@ fun SubscriptionCard(
     url: String?,
     isFollowing: MutableState<Boolean>,
     onFollowClick: (isFollowing: Boolean) -> Unit,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp),
+            .height(72.dp)
+            .clickable { onClick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -130,6 +134,7 @@ fun SubscriptionCardPreview() {
         avatarUrl = "https://findingtom.com/images/uploads/medium-logo/article-image-00.jpeg",
         url = "Publisher description",
         isFollowing = isFollowing,
-        onFollowClick = {}
+        onFollowClick = {},
+        onClick = {}
     )
 }
