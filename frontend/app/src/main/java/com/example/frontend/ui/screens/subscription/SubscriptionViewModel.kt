@@ -19,10 +19,12 @@ object SubscriptionConfig {
     const val LOG_TAG = "SubscribedListViewModel"
     const val PAGE_SIZE = 10
 }
+
 enum class State {
     Idle,
     Loading,
 }
+
 data class SubscriptionUiState(
     val subscriptions: List<Publisher> = emptyList(),
     val state: State
@@ -34,6 +36,7 @@ data class SubscriptionUiState(
         )
     }
 }
+
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository
@@ -52,6 +55,7 @@ class SubscriptionViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             SubscriptionUiState.empty
         )
+
     fun onSubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
@@ -61,6 +65,7 @@ class SubscriptionViewModel @Inject constructor(
             }
         }
     }
+
     fun onUnsubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
@@ -70,6 +75,7 @@ class SubscriptionViewModel @Inject constructor(
             }
         }
     }
+
     init {
         loadSources()
     }

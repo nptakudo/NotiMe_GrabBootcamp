@@ -7,7 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.frontend.navigation.Route
 
 @Composable
-fun SubscriptionRoute (
+fun SubscriptionRoute(
     viewModel: SubscriptionViewModel,
     onNavigateNavBar: (route: Route) -> Unit
 ) {

@@ -17,8 +17,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -26,23 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.NavBar
-import com.example.frontend.ui.component.PublisherCard
 import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import kotlinx.coroutines.launch
-import java.math.BigInteger
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubscriptionScreen (
+fun SubscriptionScreen(
     modifier: Modifier = Modifier,
     uiState: SubscriptionUiState,
     onRefresh: () -> Unit,
@@ -112,7 +106,7 @@ fun SubscriptionScreenContent(
     if (subscriptions.isNotEmpty()) {
         val scrollState = rememberScrollState()
 
-        Column (
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
@@ -123,7 +117,7 @@ fun SubscriptionScreenContent(
                 ),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Column (
+            Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 subscriptions.forEach { publisher ->
