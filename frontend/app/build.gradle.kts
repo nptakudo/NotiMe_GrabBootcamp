@@ -24,11 +24,19 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BACKEND_SERVER_URL", project.properties["BACKEND_SERVER_URL"].toString())
+            buildConfigField(
+                "String",
+                "BACKEND_SERVER_URL",
+                project.properties["BACKEND_SERVER_URL"].toString()
+            )
         }
         release {
             // TODO
-            buildConfigField("String", "BACKEND_SERVER_URL", project.properties["BACKEND_SERVER_URL"].toString())
+            buildConfigField(
+                "String",
+                "BACKEND_SERVER_URL",
+                project.properties["BACKEND_SERVER_URL"].toString()
+            )
 
             isMinifyEnabled = false
             proguardFiles(

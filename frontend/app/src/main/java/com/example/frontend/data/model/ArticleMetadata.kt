@@ -10,5 +10,5 @@ data class ArticleMetadata(
     val publisher: Publisher,
     val date: Date,
     val isBookmarked: Boolean,
-    val articleImageUrl: String?,
+    val imageUrl: String?,
 )

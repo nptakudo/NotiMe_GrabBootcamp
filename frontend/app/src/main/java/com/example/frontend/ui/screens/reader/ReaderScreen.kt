@@ -70,6 +70,7 @@ import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.theme.ReaderTextStyle
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringAgoFormat
+import com.example.frontend.utils.isValidUrl
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import java.math.BigInteger
@@ -191,9 +192,9 @@ fun ReaderScreen(
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {
             if (!refreshState.isRefreshing) {
-                if (uiState.article.metadata.articleImageUrl != null) {
+                if (isValidUrl(uiState.article.metadata.imageUrl)) {
                     ImageFromUrl(
-                        url = uiState.article.metadata.articleImageUrl,
+                        url = uiState.article.metadata.imageUrl!!,
                         contentDescription = "article image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -203,7 +204,7 @@ fun ReaderScreen(
                     )
                 }
                 ReaderScreenContent(
-                    firstSpacerHeight = if (uiState.article.metadata.articleImageUrl == null) {
+                    firstSpacerHeight = if (!isValidUrl(uiState.article.metadata.imageUrl)) {
                         0.dp
                     } else {
                         ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp
@@ -381,7 +382,7 @@ fun ReaderScreenContent(
                 )
                 relatedArticles.forEach { article ->
                     SmallArticleCard(
-                        articleImageUrl = article.articleImageUrl,
+                        articleImageUrl = article.imageUrl,
                         title = article.title,
                         publisher = article.publisher.name,
                         date = dateToStringAgoFormat(article.date),

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.frontend.utils.isValidUrl
 
 @Composable
 fun PublisherCard(
@@ -33,9 +34,9 @@ fun PublisherCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (avatarUrl != null) {
+            if (isValidUrl(avatarUrl)) {
                 ImageFromUrl(
-                    url = avatarUrl,
+                    url = avatarUrl!!,
                     contentDescription = "Avatar of $name",
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.small)

@@ -204,7 +204,7 @@ fun HomeScreenContentSortByDate(
                     end = UiConfig.sideScreenPadding,
                     top = 16.dp
                 ),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = "Latest news",
@@ -214,7 +214,7 @@ fun HomeScreenContentSortByDate(
             )
             BigArticleCard(
                 publisherAvatarUrl = bigArticle.publisher.avatarUrl,
-                articleImageUrl = bigArticle.articleImageUrl,
+                articleImageUrl = bigArticle.imageUrl,
                 title = bigArticle.title,
                 publisher = bigArticle.publisher.name,
                 date = dateToStringAgoFormat(bigArticle.date),
@@ -233,36 +233,40 @@ fun HomeScreenContentSortByDate(
                     expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
                 },
             )
-            Divider()
-            Text(
-                text = "Yesterday",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.inverseOnSurface
-                ),
-            )
-            ArticleColumn(
-                articles = yesterdayArticles,
-                onArticleClick = onArticleClick,
-                onBookmarkClick = {
-                    bottomSheetBookmarkArticleId = it
-                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
-                },
-            )
-            Divider()
-            Text(
-                text = "A few days ago...",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.inverseOnSurface
-                ),
-            )
-            ArticleColumn(
-                articles = olderArticles,
-                onArticleClick = onArticleClick,
-                onBookmarkClick = {
-                    bottomSheetBookmarkArticleId = it
-                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
-                },
-            )
+            if (yesterdayArticles.isNotEmpty()) {
+                Divider()
+                Text(
+                    text = "Yesterday",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                    ),
+                )
+                ArticleColumn(
+                    articles = yesterdayArticles,
+                    onArticleClick = onArticleClick,
+                    onBookmarkClick = {
+                        bottomSheetBookmarkArticleId = it
+                        expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                    },
+                )
+            }
+            if (olderArticles.isNotEmpty()) {
+                Divider()
+                Text(
+                    text = "A few days ago...",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                    ),
+                )
+                ArticleColumn(
+                    articles = olderArticles,
+                    onArticleClick = onArticleClick,
+                    onBookmarkClick = {
+                        bottomSheetBookmarkArticleId = it
+                        expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                    },
+                )
+            }
             if (bottomSheetContent != HomeUiConfig.BottomSheetContentType.NONE) {
                 val onClose: (() -> Unit) -> Unit = { afterClose ->
                     bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
@@ -356,7 +360,7 @@ fun ArticleColumn(
 ) {
     articles.forEach { article ->
         SmallArticleCard(
-            articleImageUrl = article.articleImageUrl,
+            articleImageUrl = article.imageUrl,
             title = article.title,
             publisher = article.publisher.name,
             date = dateToStringAgoFormat(article.date),

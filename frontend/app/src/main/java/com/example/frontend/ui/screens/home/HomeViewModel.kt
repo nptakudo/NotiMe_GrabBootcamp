@@ -158,108 +158,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun refreshUiState(offset: Int = 0, count: Int = HomeConfig.LOAD_COUNT) {
-        // TODO
-//        _uiState.update { it.copy(state = State.Loading) }
-//        _articles.update {
-//            // mock data
-//            listOf(
-//                ArticleMetadata(
-//                    id = BigInteger.ONE,
-//                    title = "Article 1",
-//                    url = "https://picsum.photos/200",
-//                    publisher = Publisher(
-//                        id = BigInteger.ONE,
-//                        name = "Publisher 1",
-//                        url = "https://example.com/publisher1",
-//                        avatarUrl = "https://picsum.photos/200",
-//                        isSubscribed = false
-//                    ),
-//                    date = Date(),
-//                    isBookmarked = false,
-//                    articleImageUrl = "https://picsum.photos/200",
-//                ),
-//                ArticleMetadata(
-//                    id = BigInteger.valueOf(2),
-//                    title = "ArticleArticleArticle 2Article 2Article 2Article 2Article 2",
-//                    url = "https://picsum.photos/200",
-//                    publisher = Publisher(
-//                        id = BigInteger.valueOf(2),
-//                        name = "Publisher 2",
-//                        url = "https://example.com/publisher2",
-//                        avatarUrl = "https://picsum.photos/200",
-//                        isSubscribed = false
-//                    ),
-//                    date = Date(),
-//                    isBookmarked = true,
-//                    articleImageUrl = "https://picsum.photos/200",
-//                ),
-//                ArticleMetadata(
-//                    id = BigInteger.valueOf(3),
-//                    title = "Article 3",
-//                    url = "https://picsum.photos/200",
-//                    publisher = Publisher(
-//                        id = BigInteger.valueOf(2),
-//                        name = "Publisher 2",
-//                        url = "https://example.com/publisher2",
-//                        avatarUrl = "https://picsum.photos/200",
-//                        isSubscribed = false
-//                    ),
-//                    // yesterday
-//                    date = Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000),
-//                    isBookmarked = true,
-//                    articleImageUrl = "https://picsum.photos/200",
-//                ),
-//                ArticleMetadata(
-//                    id = BigInteger.valueOf(4),
-//                    title = "Article 4",
-//                    url = "https://picsum.photos/200",
-//                    publisher = Publisher(
-//                        id = BigInteger.valueOf(2),
-//                        name = "Publisher 2",
-//                        url = "https://example.com/publisher2",
-//                        avatarUrl = "https://picsum.photos/200",
-//                        isSubscribed = false
-//                    ),
-//                    // yesterday
-//                    date = Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000),
-//                    isBookmarked = true,
-//                    articleImageUrl = "https://picsum.photos/200",
-//                ),
-//                ArticleMetadata(
-//                    id = BigInteger.valueOf(5),
-//                    title = "Article 5",
-//                    url = "https://picsum.photos/200",
-//                    publisher = Publisher(
-//                        id = BigInteger.valueOf(2),
-//                        name = "Publisher 2",
-//                        url = "https://example.com/publisher2",
-//                        avatarUrl = "https://picsum.photos/200",
-//                        isSubscribed = false
-//                    ),
-//                    // before yesterday
-//                    date = Date(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000),
-//                    isBookmarked = true,
-//                    articleImageUrl = "https://picsum.photos/200",
-//                ),
-//                ArticleMetadata(
-//                    id = BigInteger.valueOf(6),
-//                    title = "Article 6",
-//                    url = "https://picsum.photos/200",
-//                    publisher = Publisher(
-//                        id = BigInteger.valueOf(2),
-//                        name = "Publisher 2",
-//                        url = "https://example.com/publisher2",
-//                        avatarUrl = "https://picsum.photos/200",
-//                        isSubscribed = false
-//                    ),
-//                    // before yesterday
-//                    date = Date(System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000),
-//                    isBookmarked = true,
-//                    articleImageUrl = "https://picsum.photos/200",
-//                ),
-//            )
-//        }
-//        _uiState.update { it.copy(state = State.Idle) }
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.Loading) }
             try {
@@ -273,6 +171,10 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
+                Log.i(
+                    HomeConfig.LOG_TAG,
+                    "Successfully loaded latest subscribed articles, offset: $offset, count: ${_articles.value.size}"
+                )
                 _bookmarks.update { bookmarkRepository.getBookmarkLists() }
             } catch (e: Exception) {
                 Log.e(

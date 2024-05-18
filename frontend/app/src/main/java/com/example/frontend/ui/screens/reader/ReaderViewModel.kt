@@ -60,7 +60,7 @@ class ReaderViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository
 ) : ViewModel() {
     // TODO
-    val articleId = BigInteger.ONE
+    val articleId = BigInteger.valueOf(9)
     private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
     private var _article = MutableStateFlow(dummyArticle())
     private var _relatedArticles = MutableStateFlow(emptyList<ArticleMetadata>())
@@ -198,178 +198,31 @@ class ReaderViewModel @Inject constructor(
 
     fun refreshUiState(offset: Int = 0, count: Int = ReaderConfig.RELATED_ARTICLE_COUNT) {
         viewModelScope.launch {
-            // TODO
-            val title =
-                "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil"
-            val summary =
-                "Ukrainian President Volodymyr Zelensky has accused European countries that continue to buy Russian oil of \"earning their money in other people's blood\"."
-            val content =
-                "## First\n### Second\nUkrainian President Volodymyr Zelensky has accused European countries that continue to buy Russian oil of \"earning their money in other people's blood\".\n\n" +
-                        "In an interview with the BBC, President Zelensky singled out Germany and Hungary, accusing them of blocking efforts to embargo energy sales, from which Russia stands to make up to £250bn (\$326bn) this year.\n\n" +
-                        "There has been a growing frustration among Ukraine's leadership with Berlin, which has backed some sanctions against Russia but so far resisted calls to back tougher action on oil sales.\n\n" +
-                        "Ukrainian President Volodymyr Zelensky has accused European countries that continue to buy Russian oil of \"earning their money in other people's blood\".\n\n" +
-                        "In an interview with the BBC, President Zelensky singled out Germany and Hungary, accusing them of blocking efforts to embargo energy sales, from which Russia stands to make up to £250bn (\$326bn) this year.\n\n" +
-                        "There has been a growing frustration among Ukraine's leadership with Berlin, which has backed some sanctions against Russia but so far resisted calls to back tougher action on oil sales.\n\n" +
-                        "Ukrainian President Volodymyr Zelensky has accused European countries that continue to buy Russian oil of \"earning their money in other people's blood\".\n\n" +
-                        "In an interview with the BBC, President Zelensky singled out Germany and Hungary, accusing them of blocking efforts to embargo energy sales, from which Russia stands to make up to £250bn (\$326bn) this year.\n\n" +
-                        "There has been a growing frustration among Ukraine's leadership with Berlin, which has backed some sanctions against Russia but so far resisted calls to back tougher action on oil sales."
-            val publisherName = "BBC News"
-            val publisherAvatarUrl = "https://picsum.photos/200"
-            val articleImageUrl = "https://picsum.photos/400"
-            _article.update {
-                Article(
-                    metadata = ArticleMetadata(
-                        id = BigInteger.ONE,
-                        title = title,
-                        url = "",
-                        date = Date(),
-                        publisher = Publisher(
-                            id = BigInteger.ONE,
-                            name = publisherName,
-                            url = "",
-                            avatarUrl = publisherAvatarUrl,
-                            isSubscribed = true
-                        ),
-                        isBookmarked = true,
-                        articleImageUrl = articleImageUrl,
-                    ),
-                    content = ArticleContent(
-                        id = BigInteger.ONE,
-                        content = content,
-                        imageUrl = articleImageUrl
-                    ),
-                    summary = summary
+            _uiState.update { it.copy(state = State.Loading) }
+            try {
+                _article.update {
+                    articleRepository.getArticleMetadataAndContentById(articleId)
+                }
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                _relatedArticles.update {
+                    it
+                    if (offset == 0) {
+                        recsysRepository.getRelatedArticles(articleId, count, offset)
+                    } else {
+                        it.subList(0, offset) + recsysRepository.getRelatedArticles(
+                            articleId,
+                            count,
+                            offset
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(
+                    ReaderConfig.LOG_TAG,
+                    "Failed to refresh ui state. Error: ${e.message}"
                 )
             }
-            _relatedArticles.update {
-                listOf(
-                    ArticleMetadata(
-                        id = BigInteger.ONE,
-                        title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                        url = "",
-                        date = Date(),
-                        publisher = Publisher(
-                            id = BigInteger.ONE,
-                            name = "BBC News",
-                            url = "",
-                            avatarUrl = "https://picsum.photos/200",
-                            isSubscribed = false
-                        ),
-                        isBookmarked = true,
-                        articleImageUrl = "https://picsum.photos/400",
-                    ),
-                    ArticleMetadata(
-                        id = BigInteger.ONE,
-                        title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                        url = "",
-                        date = Date(),
-                        publisher = Publisher(
-                            id = BigInteger.ONE,
-                            name = "BBC News",
-                            url = "",
-                            avatarUrl = "https://picsum.photos/200",
-                            isSubscribed = false
-                        ),
-                        isBookmarked = true,
-                        articleImageUrl = "https://picsum.photos/400",
-                    ),
-                    ArticleMetadata(
-                        id = BigInteger.ONE,
-                        title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                        url = "",
-                        date = Date(),
-                        publisher = Publisher(
-                            id = BigInteger.ONE,
-                            name = "BBC News",
-                            url = "",
-                            avatarUrl = "https://picsum.photos/200",
-                            isSubscribed = false
-                        ),
-                        isBookmarked = true,
-                        articleImageUrl = "https://picsum.photos/400",
-                    ),
-                    ArticleMetadata(
-                        id = BigInteger.ONE,
-                        title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                        url = "",
-                        date = Date(),
-                        publisher = Publisher(
-                            id = BigInteger.ONE,
-                            name = "BBC News",
-                            url = "",
-                            avatarUrl = "https://picsum.photos/200",
-                            isSubscribed = false
-                        ),
-                        isBookmarked = true,
-                        articleImageUrl = "https://picsum.photos/400",
-                    ),
-                    ArticleMetadata(
-                        id = BigInteger.ONE,
-                        title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                        url = "",
-                        date = Date(),
-                        publisher = Publisher(
-                            id = BigInteger.ONE,
-                            name = "BBC News",
-                            url = "",
-                            avatarUrl = "https://picsum.photos/200",
-                            isSubscribed = false
-                        ),
-                        isBookmarked = true,
-                        articleImageUrl = "https://picsum.photos/400",
-                    ),
-                )
-            }
-            _bookmarks.update {
-                listOf(
-                    BookmarkList(
-                        id = BigInteger.ONE,
-                        name = "Bookmark 1",
-                        articles = emptyList(),
-                        isSaved = true,
-                        ownerId = BigInteger.ONE
-                    ),
-                    BookmarkList(
-                        id = BigInteger.ONE,
-                        name = "Bookmark 2",
-                        articles = emptyList(),
-                        isSaved = true,
-                        ownerId = BigInteger.ONE
-                    ),
-                    BookmarkList(
-                        id = BigInteger.ONE,
-                        name = "Bookmark 3",
-                        articles = emptyList(),
-                        isSaved = true,
-                        ownerId = BigInteger.ONE
-                    ),
-                )
-            }
-//            _uiState.update { it.copy(state = State.Loading) }
-//            try {
-//                _article.update {
-//                    articleRepository.getArticleMetadataAndContentById(articleId)
-//                }
-//                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
-//                _relatedArticles.update {
-//                    it
-//                    if (offset == 0) {
-//                        recsysRepository.getRelatedArticles(articleId, count, offset)
-//                    } else {
-//                        it.subList(0, offset) + recsysRepository.getRelatedArticles(
-//                            articleId,
-//                            count,
-//                            offset
-//                        )
-//                    }
-//                }
-//            } catch (e: Exception) {
-//                Log.e(
-//                    ReaderConfig.LOG_TAG,
-//                    "Failed to refresh ui state.Error: ${e.message}"
-//                )
-//            }
-//            _uiState.update { it.copy(state = State.Idle) }
+            _uiState.update { it.copy(state = State.Idle) }
         }
     }
 }
@@ -389,12 +242,11 @@ fun dummyArticle(): Article {
                 isSubscribed = false
             ),
             isBookmarked = false,
-            articleImageUrl = null,
+            imageUrl = null,
         ),
         content = ArticleContent(
             id = BigInteger.ZERO,
             content = "",
-            imageUrl = ""
         ),
         summary = ""
     )

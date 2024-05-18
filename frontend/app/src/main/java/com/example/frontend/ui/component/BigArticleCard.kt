@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.frontend.utils.isValidUrl
 
 @Composable
 fun BigArticleCard(
@@ -51,9 +53,9 @@ fun BigArticleCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (articleImageUrl != null) {
+            if (isValidUrl(articleImageUrl)) {
                 ImageFromUrl(
-                    url = articleImageUrl,
+                    url = articleImageUrl!!,
                     contentDescription = "Article Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -74,6 +76,8 @@ fun BigArticleCard(
                     style = MaterialTheme.typography.headlineLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(

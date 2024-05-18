@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.frontend.utils.isValidUrl
 
 @Composable
 fun SmallArticleCard(
@@ -46,7 +47,7 @@ fun SmallArticleCard(
             containerColor = Color.Transparent,
         ),
         shape = MaterialTheme.shapes.large,
-        modifier = modifier.requiredHeight(80.dp)
+        modifier = modifier.heightIn(max = 80.dp)
     ) {
         Row(
             modifier = Modifier
@@ -111,10 +112,10 @@ fun SmallArticleCard(
                     )
                 }
             }
-            if (articleImageUrl != null) {
+            if (isValidUrl(articleImageUrl)) {
                 Spacer(modifier = Modifier.width(24.dp))
                 ImageFromUrl(
-                    url = articleImageUrl,
+                    url = articleImageUrl!!,
                     contentDescription = "Article Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
