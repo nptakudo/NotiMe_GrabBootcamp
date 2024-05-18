@@ -34,6 +34,14 @@ interface ApiService {
         @Query("offset") offset: Int
     ): Response<List<ArticleMetadata>>
 
+    @GET("home/search/{query}/")
+    suspend fun searchArticles(
+        @Path("query") query: String,
+        @Query("count") count: Int,
+        @Query("offset") offset: Int
+    ): Response<List<ArticleMetadata>>
+
+    // ---------------- EXPLORE ---------------
     @GET("home/explore_articles/")
     suspend fun getExploreArticles(
         @Query("count") count: Int,

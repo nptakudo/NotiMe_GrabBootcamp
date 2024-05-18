@@ -21,4 +21,7 @@ func NewHomeRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queries
 	// Get latest articles from unsubscribed publishers
 	// Query params: count, offset
 	group.GET("/explore_articles", homeController.GetExploreArticles)
+	// Search articles from query
+	// Query params: count, offset
+	group.GET("/search/:query", homeController.Search)
 }

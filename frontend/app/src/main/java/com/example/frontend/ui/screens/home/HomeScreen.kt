@@ -1,19 +1,26 @@
 package com.example.frontend.ui.screens.home
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -21,6 +28,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,7 +44,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +74,7 @@ object HomeUiConfig {
         NONE(1),
         BOOKMARK(2),
         NEW_BOOKMARK(3),
+        TOP_RIGHT_OPTIONS(4),
     }
 }
 
@@ -79,84 +92,148 @@ fun HomeScreen(
     onUnsubscribePublisher: (publisherId: BigInteger) -> Unit,
     onRefresh: () -> Unit,
     onSearchIconClick: () -> Unit,
+    onSearchSubmit: (query: String) -> Unit,
+    onSearchCancel: () -> Unit,
     onArticleClick: (articleId: BigInteger) -> Unit,
     onNavigateNavBar: (route: Route) -> Unit,
     onAboutClick: () -> Unit,
     onLogOutClick: () -> Unit
 ) {
-    val refreshScope = rememberCoroutineScope()
-    val refreshState = rememberPullToRefreshState()
-    if (refreshState.isRefreshing) {
-        refreshScope.launch {
-            onRefresh()
-            refreshState.endRefresh()
+    if (uiState.state == State.MainLoading || uiState.state == State.MainIdle) {
+        val refreshScope = rememberCoroutineScope()
+        val refreshState = rememberPullToRefreshState()
+        if (refreshState.isRefreshing) {
+            refreshScope.launch {
+                onRefresh()
+                refreshState.endRefresh()
+            }
+        }
+
+        var requestingTopRightOptions by rememberSaveable { mutableStateOf(false) }
+
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = if (uiState.screen == Screen.Home) "Home" else "Explore",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Colors.topBarContainer
+                    ),
+                    actions = {
+                        Row {
+                            IconButton(
+                                onClick = onSearchIconClick,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Search,
+                                    contentDescription = "search for articles",
+                                )
+                            }
+                            IconButton(
+                                onClick = { requestingTopRightOptions = true },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.MoreVert,
+                                    contentDescription = "more options",
+                                )
+                            }
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                NavBar(
+                    currentRoute = Route.Home,
+                    navigateToBottomBarRoute = onNavigateNavBar
+                )
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize()
+                    .nestedScroll(refreshState.nestedScrollConnection)
+            ) {
+                if (!refreshState.isRefreshing) {
+                    HomeScreenContentSortByDate(
+                        articles = uiState.articles,
+                        onArticleClick = onArticleClick,
+                        bookmarks = uiState.bookmarks,
+                        onBookmark = onBookmark,
+                        onUnbookmark = onUnbookmark,
+                        onNewBookmark = onNewBookmark,
+                        requestingTopRightOptions = requestingTopRightOptions,
+                        onTopRightOptionsClose = { requestingTopRightOptions = false },
+                        onToExplore = { onNavigateNavBar(Route.Explore) },
+                        onLogout = {
+                            requestingTopRightOptions = false
+                            onLogOutClick()
+                        }
+                    )
+                }
+                PullToRefreshContainer(
+                    state = refreshState,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
+            }
         }
     }
-
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Home",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Colors.topBarContainer
-                ),
-                actions = {
-                    Row {
-                        IconButton(
-                            onClick = onSearchIconClick,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Search,
-                                contentDescription = "search for articles",
+    if (uiState.state == State.Searching) {
+        Scaffold(
+            modifier = modifier
+        ) {
+            SearchEnterScreen(
+                modifier = Modifier.padding(it),
+                onSearch = onSearchSubmit,
+                onCancel = onSearchCancel,
+            )
+        }
+    }
+    if (uiState.state == State.ShowSearchResults) {
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Search results",
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.SemiBold
                             )
-                        }
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
+                    navigationIcon = {
                         IconButton(
-                            onClick = { /*TODO*/ },
+                            onClick = onSearchCancel,
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.MoreVert,
-                                contentDescription = "more options",
+                                imageVector = Icons.Outlined.ArrowBackIosNew,
+                                contentDescription = "back to home",
                             )
                         }
                     }
-                }
-            )
-        },
-        bottomBar = {
-            NavBar(
-                currentRoute = Route.Home,
-                navigateToBottomBarRoute = onNavigateNavBar
-            )
-        }
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
-                .nestedScroll(refreshState.nestedScrollConnection)
-        ) {
-            if (!refreshState.isRefreshing) {
-                HomeScreenContentSortByDate(
-                    articles = uiState.articles,
-                    onArticleClick = onArticleClick,
-                    bookmarks = uiState.bookmarks,
-                    onBookmark = onBookmark,
-                    onUnbookmark = onUnbookmark,
-                    onNewBookmark = onNewBookmark,
-                    onToExplore = { onNavigateNavBar(Route.Explore) }
                 )
-            }
-            PullToRefreshContainer(
-                state = refreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
+            },
+        ) {
+            ShowSearchResults(
+                modifier = Modifier.padding(it),
+                searchResults = uiState.searchResults,
+                onArticleClick = onArticleClick,
+                bookmarks = uiState.bookmarks,
+                onBookmark = onBookmark,
+                onUnbookmark = onUnbookmark,
+                onNewBookmark = onNewBookmark,
             )
         }
     }
@@ -172,7 +249,10 @@ fun HomeScreenContentSortByDate(
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
+    requestingTopRightOptions: Boolean,
+    onTopRightOptionsClose: () -> Unit,
     onToExplore: () -> Unit,
+    onLogout: () -> Unit
 ) {
     if (articles.isNotEmpty()) {
         val bigArticle = articles.first()
@@ -192,6 +272,9 @@ fun HomeScreenContentSortByDate(
         val expandBottomSheet: (HomeUiConfig.BottomSheetContentType) -> Unit = {
             bottomSheetContent = it
             bottomSheetScope.launch { bottomSheetState.show() }
+        }
+        if (requestingTopRightOptions) {
+            expandBottomSheet(HomeUiConfig.BottomSheetContentType.TOP_RIGHT_OPTIONS)
         }
 
         val scrollState = rememberScrollState()
@@ -267,11 +350,16 @@ fun HomeScreenContentSortByDate(
                     },
                 )
             }
+            Spacer(modifier = Modifier.requiredHeight(25.dp))
+
             if (bottomSheetContent != HomeUiConfig.BottomSheetContentType.NONE) {
                 val onClose: (() -> Unit) -> Unit = { afterClose ->
                     bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
                         if (!bottomSheetState.isVisible) {
                             bottomSheetContent = HomeUiConfig.BottomSheetContentType.NONE
+                        }
+                        if (requestingTopRightOptions) {
+                            onTopRightOptionsClose()
                         }
                         afterClose()
                     }
@@ -301,6 +389,31 @@ fun HomeScreenContentSortByDate(
                             },
                             onClose = { onClose {} },
                         )
+                    } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.TOP_RIGHT_OPTIONS) {
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = UiConfig.sideScreenPadding)
+                                .padding(bottom = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.small)
+                                    .clickable { onLogout() }
+                                    .padding(5.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Logout,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    contentDescription = "New bookmark"
+                                )
+                                Text(
+                                    text = "Logout",
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        color = MaterialTheme.colorScheme.error,
+                                    ),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -347,6 +460,129 @@ fun HomeScreenContentSortByDate(
                     }
                 }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchEnterScreen(
+    modifier: Modifier = Modifier,
+    onSearch: (query: String) -> Unit,
+    onCancel: () -> Unit
+) {
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .requiredHeight(100.dp)
+            .padding(horizontal = UiConfig.sideScreenPadding),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        SearchBar(
+            query = searchQuery,
+            onQueryChange = { searchQuery = it },
+            onSearch = { onSearch(searchQuery) },
+            active = true,
+            onActiveChange = {},
+            placeholder = { Text("Search for articles") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            colors = SearchBarDefaults.colors(
+                containerColor = Color.Transparent,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(3f)
+        ) {}
+        ClickableText(
+            text = AnnotatedString("Cancel"),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.End
+            ),
+            onClick = { onCancel() },
+            modifier = Modifier
+                .weight(1f),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowSearchResults(
+    modifier: Modifier = Modifier,
+    searchResults: List<ArticleMetadata>,
+    bookmarks: List<BookmarkList>,
+    onArticleClick: (articleId: BigInteger) -> Unit,
+    onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
+) {
+    val bottomSheetState = rememberModalBottomSheetState()
+    val bottomSheetScope = rememberCoroutineScope()
+    var bottomSheetContent by rememberSaveable {
+        mutableStateOf(HomeUiConfig.BottomSheetContentType.NONE)
+    }
+    var bottomSheetBookmarkArticleId by rememberSaveable {
+        mutableStateOf(BigInteger.ZERO)
+    }
+    val expandBottomSheet: (HomeUiConfig.BottomSheetContentType) -> Unit = {
+        bottomSheetContent = it
+        bottomSheetScope.launch { bottomSheetState.show() }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = UiConfig.sideScreenPadding),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        ArticleColumn(
+            articles = searchResults,
+            onArticleClick = onArticleClick,
+            onBookmarkClick = {
+                bottomSheetBookmarkArticleId = it
+                expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+            },
+        )
+        if (bottomSheetContent != HomeUiConfig.BottomSheetContentType.NONE) {
+            val onClose: (() -> Unit) -> Unit = { afterClose ->
+                bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                    if (!bottomSheetState.isVisible) {
+                        bottomSheetContent = HomeUiConfig.BottomSheetContentType.NONE
+                    }
+                    afterClose()
+                }
+            }
+            ModalBottomSheet(
+                onDismissRequest = { onClose {} },
+                sheetState = bottomSheetState
+            ) {
+                if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.BOOKMARK) {
+                    BottomSheetBookmarkContent(
+                        articleId = bottomSheetBookmarkArticleId,
+                        bookmarkLists = bookmarks,
+                        onNewBookmarkList = {
+                            onClose {
+                                expandBottomSheet(HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK)
+                            }
+                        },
+                        onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
+                        onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                        onClose = { onClose {} },
+                    )
+                } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
+                    BottomSheetNewBookmarkContent(
+                        onCreateNewBookmark = { name ->
+                            onNewBookmark(name, bottomSheetBookmarkArticleId)
+                            onClose {}
+                        },
+                        onClose = { onClose {} },
+                    )
+                }
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ data class ReaderUiState(
             article = dummyArticle(),
             relatedArticles = emptyList(),
             bookmarks = emptyList(),
-            state = State.Idle
+            state = State.MainIdle
         )
     }
 }
@@ -177,10 +177,6 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    init {
-        refreshUiState()
-    }
-
     private fun updateBookmarkedState(articleId: BigInteger? = null) {
         _relatedArticles.update { articleList ->
             articleList.map { article ->
@@ -198,7 +194,7 @@ class ReaderViewModel @Inject constructor(
 
     fun refreshUiState(offset: Int = 0, count: Int = ReaderConfig.RELATED_ARTICLE_COUNT) {
         viewModelScope.launch {
-            _uiState.update { it.copy(state = State.Loading) }
+            _uiState.update { it.copy(state = State.MainLoading) }
             try {
                 _article.update {
                     articleRepository.getArticleMetadataAndContentById(articleId)
@@ -222,7 +218,7 @@ class ReaderViewModel @Inject constructor(
                     "Failed to refresh ui state. Error: ${e.message}"
                 )
             }
-            _uiState.update { it.copy(state = State.Idle) }
+            _uiState.update { it.copy(state = State.MainIdle) }
         }
     }
 }

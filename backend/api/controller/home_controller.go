@@ -79,7 +79,7 @@ func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 }
 
 func (controller *HomeController) Search(ctx *gin.Context) {
-	reqQuery := ctx.DefaultQuery("query", "")
+	reqQuery := ctx.Param("query")
 	reqCount, err := strconv.Atoi(ctx.DefaultQuery("count", "-1"))
 	reqOffset, err := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
 	if err != nil {

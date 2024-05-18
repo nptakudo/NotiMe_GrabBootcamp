@@ -2,6 +2,7 @@ package com.example.frontend.data.repository
 
 import com.example.frontend.data.datasource.RemoteArticleDataSource
 import com.example.frontend.data.model.Article
+import com.example.frontend.data.model.ArticleMetadata
 import java.math.BigInteger
 import javax.inject.Inject
 
@@ -10,4 +11,7 @@ class ArticleRepository @Inject constructor(
 ) {
     suspend fun getArticleMetadataAndContentById(articleId: BigInteger): Article =
         remoteArticleDataSource.getArticleMetadataAndContentById(articleId)
+
+    suspend fun search(query: String, count: Int, offset: Int): List<ArticleMetadata> =
+        remoteArticleDataSource.search(query, count, offset)
 }

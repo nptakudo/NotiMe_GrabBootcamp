@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
+import com.example.frontend.data.repository.ArticleRepository
 import com.example.frontend.data.repository.BookmarkRepository
 import com.example.frontend.data.repository.RecsysRepository
 import com.example.frontend.data.repository.SubscriptionRepository
@@ -24,33 +25,55 @@ object HomeConfig {
 }
 
 data class HomeUiState(
+    val screen: Screen,
     val articles: List<ArticleMetadata>,
+    val searchResults: List<ArticleMetadata>,
     val bookmarks: List<BookmarkList>,
     val state: State,
-) {
+
+    ) {
     companion object {
-        val empty = HomeUiState(
+        val emptyHome = HomeUiState(
+            screen = Screen.Home,
             articles = emptyList(),
+            searchResults = emptyList(),
             bookmarks = emptyList(),
-            state = State.Idle
+            state = State.MainIdle
+        )
+        val emptyExplore = HomeUiState(
+            screen = Screen.Explore,
+            articles = emptyList(),
+            searchResults = emptyList(),
+            bookmarks = emptyList(),
+            state = State.MainIdle
         )
     }
 }
 
 enum class State {
-    Idle,
-    Loading,
+    MainIdle,
+    MainLoading,
+    Searching,
+    ShowSearchResults,
 }
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val recsysRepository: RecsysRepository,
-    private val bookmarkRepository: BookmarkRepository,
-    private val subscriptionRepository: SubscriptionRepository
+enum class Screen {
+    Home,
+    Explore,
+}
+
+abstract class BaseHomeViewModel(
+    protected val screenType: Screen,
+    protected val recsysRepository: RecsysRepository,
+    protected val bookmarkRepository: BookmarkRepository,
+    protected val subscriptionRepository: SubscriptionRepository,
+    protected val articleRepository: ArticleRepository,
 ) : ViewModel() {
-    private var _articles = MutableStateFlow(emptyList<ArticleMetadata>())
-    private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
-    private var _uiState = MutableStateFlow(HomeUiState.empty)
+    protected var _articles = MutableStateFlow(emptyList<ArticleMetadata>())
+    protected var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
+    protected var _uiState = MutableStateFlow(
+        if (screenType == Screen.Home) HomeUiState.emptyHome else HomeUiState.emptyExplore
+    )
 
     val uiState = _uiState.combine(_articles) { uiState, articles ->
         uiState.copy(
@@ -63,7 +86,7 @@ class HomeViewModel @Inject constructor(
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        HomeUiState.empty,
+        if (screenType == Screen.Home) HomeUiState.emptyHome else HomeUiState.emptyExplore
     )
 
     fun onBookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
@@ -115,17 +138,7 @@ class HomeViewModel @Inject constructor(
             try {
                 val bookmarkId = bookmarkRepository.createBookmarkList(name)
                 bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
-                // TODO
                 _bookmarks.update { bookmarkRepository.getBookmarkLists() }
-//                _bookmarks.update {
-//                    it + BookmarkList(
-//                        id = bookmarkId,
-//                        name = name,
-//                        articles = emptyList(),
-//                        isSaved = true,
-//                        ownerId = BigInteger.ONE
-//                    )
-//                }
                 updateBookmarkedState(articleId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to create new bookmark")
@@ -153,13 +166,59 @@ class HomeViewModel @Inject constructor(
         refreshUiState(offset, HomeConfig.LOAD_COUNT)
     }
 
-    init {
-        refreshUiState()
+    fun onStartSearch() {
+        _uiState.update {
+            it.copy(
+                state = State.Searching,
+                searchResults = emptyList()
+            )
+        }
     }
 
-    fun refreshUiState(offset: Int = 0, count: Int = HomeConfig.LOAD_COUNT) {
+    fun onCancelSearch() {
+        _uiState.update {
+            it.copy(
+                state = State.MainIdle,
+                searchResults = emptyList()
+            )
+        }
+    }
+
+    fun onSearchSubmit(query: String, offset: Int = 0, count: Int = HomeConfig.LOAD_COUNT) {
         viewModelScope.launch {
-            _uiState.update { it.copy(state = State.Loading) }
+            try {
+                val searchResults = articleRepository.search(query, count, offset)
+                _uiState.update {
+                    it.copy(
+                        searchResults = searchResults,
+                        state = State.ShowSearchResults
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(HomeConfig.LOG_TAG, "Failed to search articles")
+            }
+        }
+    }
+
+    abstract fun refreshUiState(offset: Int = 0, count: Int = HomeConfig.LOAD_COUNT)
+}
+
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    recsysRepository: RecsysRepository,
+    bookmarkRepository: BookmarkRepository,
+    subscriptionRepository: SubscriptionRepository,
+    articleRepository: ArticleRepository,
+) : BaseHomeViewModel(
+    Screen.Home,
+    recsysRepository,
+    bookmarkRepository,
+    subscriptionRepository,
+    articleRepository,
+) {
+    override fun refreshUiState(offset: Int, count: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(state = State.MainLoading) }
             try {
                 _articles.update {
                     if (offset == 0) {
@@ -182,7 +241,47 @@ class HomeViewModel @Inject constructor(
                     "Failed to get latest subscribed articles, offset: $offset, count: $count. Error: ${e.message}"
                 )
             }
-            _uiState.update { it.copy(state = State.Idle) }
+            _uiState.update { it.copy(state = State.MainIdle) }
+        }
+    }
+}
+
+@HiltViewModel
+class ExploreViewModel @Inject constructor(
+    recsysRepository: RecsysRepository,
+    bookmarkRepository: BookmarkRepository,
+    subscriptionRepository: SubscriptionRepository,
+    articleRepository: ArticleRepository,
+) : BaseHomeViewModel(
+    Screen.Explore,
+    recsysRepository,
+    bookmarkRepository,
+    subscriptionRepository,
+    articleRepository,
+) {
+    override fun refreshUiState(offset: Int, count: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(state = State.MainLoading) }
+            try {
+                _articles.update {
+                    if (offset == 0) {
+                        recsysRepository.getExploreArticles(count, offset)
+                    } else {
+                        it.subList(0, offset) + recsysRepository.getExploreArticles(count, offset)
+                    }
+                }
+                Log.i(
+                    HomeConfig.LOG_TAG,
+                    "Successfully loaded explore articles, offset: $offset, count: ${_articles.value.size}"
+                )
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+            } catch (e: Exception) {
+                Log.e(
+                    HomeConfig.LOG_TAG,
+                    "Failed to get explore articles, offset: $offset, count: $count. Error: ${e.message}"
+                )
+            }
+            _uiState.update { it.copy(state = State.MainIdle) }
         }
     }
 }

@@ -98,7 +98,7 @@ dependencies {
 
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
-    
+
     // Webview
     implementation("androidx.browser:browser:1.5.0")
 

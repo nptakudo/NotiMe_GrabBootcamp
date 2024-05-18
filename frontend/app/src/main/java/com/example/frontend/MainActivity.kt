@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.frontend.ui.screens.reader.ReaderRoute
+import com.example.frontend.ui.screens.home.ExploreRoute
 import com.example.frontend.ui.theme.FrontendTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -30,11 +30,18 @@ class MainActivity : ComponentActivity() {
 //                        onAboutClick = {},
 //                        onLogOutClick = {}
 //                    )
-                    ReaderRoute(
+                    ExploreRoute(
                         viewModel = hiltViewModel(),
-                        onReadAnotherArticle = {},
-                        onBack = {}
+                        onArticleClick = {},
+                        onNavigateNavBar = {},
+                        onAboutClick = {},
+                        onLogOutClick = {}
                     )
+//                    ReaderRoute(
+//                        viewModel = hiltViewModel(),
+//                        onReadAnotherArticle = {},
+//                        onBack = {}
+//                    )
 //                    SubscriptionRoute(
 //                        viewModel = hiltViewModel(),
 //                        onNavigateNavBar = {},

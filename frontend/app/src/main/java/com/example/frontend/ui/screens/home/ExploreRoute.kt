@@ -8,8 +8,8 @@ import com.example.frontend.navigation.Route
 import java.math.BigInteger
 
 @Composable
-fun HomeRoute(
-    viewModel: HomeViewModel,
+fun ExploreRoute(
+    viewModel: ExploreViewModel,
     onArticleClick: (BigInteger) -> Unit,
     onNavigateNavBar: (route: Route) -> Unit,
     onAboutClick: () -> Unit,
