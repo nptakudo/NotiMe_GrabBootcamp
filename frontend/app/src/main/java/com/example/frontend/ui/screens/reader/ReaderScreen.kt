@@ -1,6 +1,7 @@
 package com.example.frontend.ui.screens.reader
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,6 +55,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -94,8 +96,8 @@ fun ReaderScreen(
     onRefresh: () -> Unit,
     onFollow: () -> Unit,
     onUnfollow: () -> Unit,
-    onShare: () -> Unit,
-    onToBrowser: () -> Unit,
+    onShare: (ctx: Context) -> Unit,
+    onToBrowser: (ctx: Context) -> Unit,
     onRelatedArticleClick: (articleId: BigInteger) -> Unit,
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
@@ -164,8 +166,9 @@ fun ReaderScreen(
                                 )
                             }
                         }
+                        val currentCtx = LocalContext.current
                         IconButton(
-                            onClick = onShare,
+                            onClick = { onShare(currentCtx) },
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Share,
@@ -173,7 +176,7 @@ fun ReaderScreen(
                             )
                         }
                         IconButton(
-                            onClick = onToBrowser,
+                            onClick = { onToBrowser(currentCtx) },
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.OpenInBrowser,
@@ -245,7 +248,7 @@ fun ReaderScreenContent(
     onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
-    onToBrowser: () -> Unit,
+    onToBrowser: (ctx: Context) -> Unit,
     currentArticleBookmarkRequest: Boolean,
     onCurrentArticleBookmarkRequestCompleted: () -> Unit,
 ) {
@@ -356,6 +359,7 @@ fun ReaderScreenContent(
 
                         append(".")
                     }
+                    val currentCtx = LocalContext.current
                     ClickableText(
                         text = annotatedString,
                         style = MaterialTheme.typography.bodyLarge.copy(
@@ -370,7 +374,7 @@ fun ReaderScreenContent(
                                 start = offset,
                                 end = offset
                             ).firstOrNull()?.let {
-                                onToBrowser()
+                                onToBrowser(currentCtx)
                             }
                         }
                     )
