@@ -16,12 +16,8 @@ def execute_command():
     try:
         # Execute the Bash command using subprocess
         subprocess.call(bash_command, shell=True)
-
-        # Read the contents of output.json file
-        with open('output.json', 'r') as file:
-            output_data = json.load(file)
+        return jsonify({'message': 'Command executed successfully'}), 200
         
-        return jsonify(output_data), 200
     except Exception as e:
         return jsonify({'error': f'Command execution failed: {str(e)}'}), 500
 
