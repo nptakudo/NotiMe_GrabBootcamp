@@ -5,9 +5,18 @@ import (
 	"log/slog"
 	"notime/bootstrap"
 	"notime/domain"
+	"notime/external/recsys_engine"
 	"notime/external/sql/store"
-	"notime/external/webscrape"
+	"notime/utils/htmlutils"
 )
+
+type RecsysEngine interface {
+	GetRelatedArticleUrlsFromUrl(url string) ([]string, error)
+}
+
+func NewRecsysEngine(host string, port string) RecsysEngine {
+	return &recsys_engine.RecsysEngineImpl{Host: host, Port: port}
+}
 
 type RecsysRepository interface {
 	GetLatestArticlesFromSubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error)
@@ -16,17 +25,19 @@ type RecsysRepository interface {
 	GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error)
 }
 
-// RecsysRepositoryImpl TODO
 type RecsysRepositoryImpl struct {
-	q   *store.Queries
-	env *bootstrap.Env
+	q      *store.Queries
+	env    *bootstrap.Env
+	engine RecsysEngine
 	UtilitiesRepository
 }
 
 func NewRecsysRepository(env *bootstrap.Env, q *store.Queries) RecsysRepository {
+	engine := NewRecsysEngine(env.RecsysHost, env.RecsysPort)
 	return &RecsysRepositoryImpl{
 		q:                   q,
 		env:                 env,
+		engine:              engine,
 		UtilitiesRepository: UtilitiesRepository{q: q},
 	}
 }
@@ -41,7 +52,7 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(ctx context.Conte
 	var dmArticles []*domain.ArticleMetadata
 	for _, dbArticle := range dbArticles {
 		// Check if url is actually of an article
-		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+		isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
 		if err != nil {
 			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 			continue
@@ -62,13 +73,92 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(ctx context.Conte
 }
 
 func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
-	return r.GetLatestArticlesFromSubscribed(ctx, userId, count, offset)
+	dbSubscribedPublishers, err := r.q.GetSubscribedPublishersByUserId(ctx, userId)
+	if err != nil {
+		slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed query:", "error", err)
+		return nil, err
+	}
+
+	var dmArticles []*domain.ArticleMetadata
+	for _, dbPublisher := range dbSubscribedPublishers {
+		articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(dbPublisher.Url)
+		if err != nil {
+			slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed engine:", "error", err)
+			continue
+		}
+
+		for _, articleUrl := range articleUrls {
+			// Check if url is actually of an article
+			isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
+			if err != nil {
+				slog.Error("[Article Repository] GetLatestArticlesFromUnsubscribed validate url as article:", "error", err)
+				continue
+			}
+			if !isArticle {
+				slog.Warn("[Article Repository] GetLatestArticlesFromUnsubscribed: Skipping potential article: url is not an article:", "url", articleUrl)
+				continue
+			}
+
+			dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
+			if err != nil {
+				slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed query:", "error", err)
+				continue
+			}
+			dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+			if err != nil {
+				slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed convert:", "error", err)
+				continue
+			}
+			dmArticles = append(dmArticles, dmArticle)
+		}
+	}
+	return dmArticles, nil
 }
 
 func (r *RecsysRepositoryImpl) GetLatestArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
-	return r.GetLatestArticlesFromSubscribed(ctx, userId, count, offset)
+	// TODO
+	return nil, nil
 }
 
 func (r *RecsysRepositoryImpl) GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
-	return r.GetLatestArticlesFromSubscribed(ctx, userId, count, offset)
+	thisArticle, err := r.q.GetArticleById(ctx, articleId)
+	if err != nil {
+		slog.Error("[Recsys Repository] GetRelatedArticles query:", "error", err)
+		return nil, err
+	}
+	thisArticleUrl := thisArticle.Url
+
+	articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(thisArticleUrl)
+	if err != nil {
+		slog.Error("[Recsys Repository] GetRelatedArticles engine:", "error", err)
+		return nil, err
+	}
+
+	var dmArticles []*domain.ArticleMetadata
+	for _, articleUrl := range articleUrls {
+		// Check if url is actually of an article
+		isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
+		if err != nil {
+			slog.Error("[Article Repository] GetRelatedArticles validate url as article:", "error", err)
+			continue
+		}
+		if !isArticle {
+			slog.Warn("[Article Repository] GetRelatedArticles: Skipping potential article: url is not an article:", "url", articleUrl)
+			continue
+		}
+
+		dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
+		if err != nil {
+			slog.Error("[Recsys Repository] GetRelatedArticles query:", "error", err)
+			continue
+		}
+		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+		if err != nil {
+			slog.Error("[Recsys Repository] GetRelatedArticles convert:", "error", err)
+			continue
+		}
+		dmArticles = append(dmArticles, dmArticle)
+	}
+
+	return dmArticles, nil
 }

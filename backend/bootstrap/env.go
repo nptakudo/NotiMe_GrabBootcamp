@@ -23,6 +23,8 @@ type Env struct {
 	WebscrapePort          string `mapstructure:"WEBSCRAPE_PORT"`
 	PElementThreshold      int    `mapstructure:"P_ELEMENT_THRESHOLD"`
 	PElementCharCount      int    `mapstructure:"P_ELEMENT_CHAR_COUNT"`
+	RecsysHost             string `mapstructure:"RECSYS_HOST"`
+	RecsysPort             string `mapstructure:"RECSYS_PORT"`
 }
 
 func NewEnv() *Env {

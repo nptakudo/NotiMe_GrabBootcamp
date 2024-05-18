@@ -246,6 +246,25 @@ func (q *Queries) GetArticleById(ctx context.Context, id int64) (Post, error) {
 	return i, err
 }
 
+const getArticleByUrl = `-- name: GetArticleByUrl :one
+SELECT id, title, publish_date, url, source_id
+FROM post
+WHERE url = $1
+`
+
+func (q *Queries) GetArticleByUrl(ctx context.Context, url string) (Post, error) {
+	row := q.db.QueryRow(ctx, getArticleByUrl, url)
+	var i Post
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.PublishDate,
+		&i.Url,
+		&i.SourceID,
+	)
+	return i, err
+}
+
 const getArticlesByPublisherId = `-- name: GetArticlesByPublisherId :many
 SELECT id, title, publish_date, url, source_id
 FROM post
@@ -467,18 +486,14 @@ func (q *Queries) GetSubscribedPublishersByUserId(ctx context.Context, userID in
 const isArticleInAnyBookmarkList = `-- name: IsArticleInAnyBookmarkList :one
 SELECT list_post.list_id, list_post.post_id
 FROM list_post
-WHERE list_post.post_id = $1 AND EXISTS (
-    SELECT 1
-    FROM reading_list
-    WHERE reading_list.id = list_post.list_id
-      AND reading_list.owner = $2
-)
-   OR EXISTS (
-    SELECT 1
-    FROM list_sharing
-    WHERE list_sharing.list_id = list_post.list_id
-      AND list_sharing.user_id = $2
-)
+WHERE list_post.post_id = $1 AND EXISTS (SELECT 1
+                                                  FROM reading_list
+                                                  WHERE reading_list.id = list_post.list_id
+                                                    AND reading_list.owner = $2)
+   OR EXISTS (SELECT 1
+              FROM list_sharing
+              WHERE list_sharing.list_id = list_post.list_id
+                AND list_sharing.user_id = $2)
 `
 
 type IsArticleInAnyBookmarkListParams struct {

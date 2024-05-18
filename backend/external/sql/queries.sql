@@ -59,6 +59,11 @@ SELECT *
 FROM post
 WHERE id = @id;
 
+-- name: GetArticleByUrl :one
+SELECT *
+FROM post
+WHERE url = @url;
+
 -- name: GetArticlesByPublisherId :many
 -- params: publisherId: number, limit: number, offset: number
 -- behavior: sorted by publish_date desc

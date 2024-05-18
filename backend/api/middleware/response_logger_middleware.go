@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JsonLoggerMiddleware() gin.HandlerFunc {
+func ResponseLoggerMiddleware() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(
 		func(params gin.LogFormatterParams) string {
 			log := make(map[string]interface{})

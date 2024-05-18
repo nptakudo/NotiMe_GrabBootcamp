@@ -5,10 +5,14 @@ import (
 	"errors"
 	md "github.com/JohannesKaufmann/html-to-markdown"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/bobesa/go-domain-util/domainutil"
 	"github.com/microcosm-cc/bluemonday"
 	"log/slog"
 	"net/http"
+	"notime/domain"
 	"strconv"
+	"strings"
+	"time"
 )
 
 var (
@@ -120,4 +124,80 @@ func GetSanitizedHtml(url string) (*bytes.Buffer, error) {
 	html := sanitizer.SanitizeReader(res.Body)
 
 	return html, nil
+}
+
+func ValidateUrlAsArticle(url string, pCharCount int, pElementThreshold int) (bool, error) {
+	html, err := GetSanitizedHtml(url)
+	if err != nil {
+		return false, err
+	}
+
+	// Select <article> from the HTML document
+	doc, err := goquery.NewDocumentFromReader(html)
+	if err != nil {
+		slog.Error("[HTMLUtils] ScrapeAndConvertArticleToMarkdown:", "error", err)
+		return false, errors.New("cannot parse HTML")
+	}
+
+	pCount := 0
+	doc.Find("p").Each(func(i int, s *goquery.Selection) {
+		// Only count <p> elements with more than 300 characters
+		if len(s.Text()) >= pCharCount {
+			pCount++
+		}
+	})
+	return pCount >= pElementThreshold, nil
+}
+
+func CheckAndCompilePublisher(url string, timeout time.Duration) (*domain.Publisher, error) {
+	client := &http.Client{Timeout: timeout}
+	resp, err := client.Get(url)
+	if err != nil {
+		slog.Error("[Webscrape] CheckAndCompilePublisher: URL does not respond:", "error", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		slog.Info("[Webscrape] CheckAndCompilePublisher: URL is reachable", "url", url)
+	} else {
+		slog.Info("[Webscrape] CheckAndCompilePublisher: URL is not reachable", "url", url, "status code", resp.StatusCode)
+		return nil, errors.New("URL is not reachable")
+	}
+
+	publisherName, err := GetPublisherNameFromSubdomainsAndDomain(url)
+	if err != nil {
+		slog.Error("[Webscrape] CheckAndCompilePublisher: Error parsing URL:", "error", err)
+		return nil, err
+	}
+	return &domain.Publisher{
+		Id:        -1,
+		Name:      publisherName,
+		Url:       url,
+		AvatarUrl: "",
+	}, nil
+}
+
+func GetPublisherNameFromSubdomainsAndDomain(urlStr string) (string, error) {
+	domain := domainutil.Domain(urlStr)
+	domainSuffix := domainutil.DomainSuffix(urlStr)
+	subdomain := domainutil.Subdomain(urlStr)
+	if domain == "" {
+		return "", errors.New("invalid URL")
+	}
+
+	// Remove the suffix from the domain
+	if domainSuffix != "" {
+		domain = domain[:len(domain)-len(domainSuffix)-1]
+	}
+	// If there are many subdomains, only keep the lowest subdomain
+	if strings.Contains(subdomain, ".") {
+		subdomain = strings.Split(subdomain, ".")[0]
+	}
+
+	publisherName := domain
+	if subdomain != "" && subdomain != "www" {
+		publisherName = subdomain + "@" + domain
+	}
+	return publisherName, nil
 }

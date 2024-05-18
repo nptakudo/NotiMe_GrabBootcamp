@@ -10,7 +10,7 @@ import (
 )
 
 func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gin.Engine) {
-	gin.Use(middleware.JsonLoggerMiddleware())
+	gin.Use(middleware.ResponseLoggerMiddleware())
 
 	publicRouter := gin.Group("")
 	// TODO

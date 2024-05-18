@@ -7,7 +7,7 @@ import (
 	"notime/bootstrap"
 	"notime/domain"
 	"notime/external/sql/store"
-	"notime/external/webscrape"
+	"notime/utils/htmlutils"
 	"time"
 )
 
@@ -54,7 +54,7 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 	var dmArticles []*domain.ArticleMetadata
 	for _, dbArticle := range dbArticles {
 		// Check if url is actually of an article
-		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+		isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
 		if err != nil {
 			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 			continue
@@ -88,7 +88,7 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 	var dmArticles []*domain.ArticleMetadata
 	for _, dbArticle := range dbArticles {
 		// Check if url is actually of an article
-		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+		isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
 		if err != nil {
 			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 			continue

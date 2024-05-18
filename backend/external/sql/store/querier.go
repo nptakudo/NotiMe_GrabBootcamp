@@ -72,6 +72,7 @@ type Querier interface {
 	// ARTICLE REPOSITORY
 	//-----------------------------------------------
 	GetArticleById(ctx context.Context, id int64) (Post, error)
+	GetArticleByUrl(ctx context.Context, url string) (Post, error)
 	// params: publisherId: number, limit: number, offset: number
 	// behavior: sorted by publish_date desc
 	GetArticlesByPublisherId(ctx context.Context, arg GetArticlesByPublisherIdParams) ([]Post, error)
