@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"log/slog"
 	"net/http"
 	"notime/api"
 	"notime/api/messages"
@@ -15,7 +16,7 @@ type ReaderController struct {
 
 type ReaderUsecase interface {
 	GetArticleById(ctx context.Context, id int64, userId int32) (*messages.ArticleResponse, error)
-	GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) (*messages.RelatedArticlesResponse, error)
+	GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
 }
 
 func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
@@ -50,5 +51,6 @@ func (controller *ReaderController) GetRelatedArticles(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[ReaderController] GetRelatedArticles: respond with:", "length", len(articles))
 	ctx.JSON(http.StatusOK, articles)
 }

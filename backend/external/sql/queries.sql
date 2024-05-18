@@ -57,29 +57,35 @@
 -- name: GetArticleById :one
 SELECT *
 FROM post
-WHERE id = $1;
+WHERE id = @id;
 
 -- name: GetArticlesByPublisherId :many
 -- params: publisherId: number, limit: number, offset: number
 -- behavior: sorted by publish_date desc
 SELECT *
 FROM post
-WHERE source_id = $1
+WHERE source_id = @publisher_id
 ORDER BY publish_date DESC
-LIMIT $2 OFFSET $3;
+LIMIT @count OFFSET $1;
+
+-- name: GetAllArticles :many
+-- behavior: sorted by publish_date desc
+SELECT *
+FROM post
+ORDER BY publish_date DESC;
 
 -- name: SearchArticlesByName :many
--- params: name: string, limit: number, offset: number
+-- params: query: string, limit: number, offset: number
 -- behavior: sorted by publish_date desc
 SELECT *
 FROM post
 WHERE title ILIKE '%' || @query || '%'
 ORDER BY publish_date DESC
-LIMIT $1 OFFSET $2;
+LIMIT @count OFFSET $1;
 
 -- name: CreateArticle :one
 INSERT INTO post (title, publish_date, url, source_id)
-VALUES ($1, $2, $3, $4)
+VALUES (@title, @publish_date, @url, @publisher_id)
 RETURNING post.*;
 
 
@@ -90,50 +96,64 @@ RETURNING post.*;
 -- name: GetBookmarkListById :one
 SELECT *
 FROM reading_list
-WHERE id = $1;
+WHERE id = @id;
 
 -- name: GetBookmarkListsOwnByUserId :many
 SELECT *
 FROM reading_list
-WHERE owner = $1;
+WHERE owner = @owner_id;
 
 -- name: GetBookmarkListsSharedWithUserId :many
 SELECT DISTINCT reading_list.*
 FROM reading_list
          JOIN list_sharing ON reading_list.id = list_sharing.list_id
-WHERE list_sharing.user_id = $1;
+WHERE list_sharing.user_id = @user_id;
 
 -- name: GetArticlesInBookmarkList :many
 SELECT post.*
 FROM post
          JOIN list_post ON post.id = list_post.post_id
-WHERE list_post.list_id = $1;
+WHERE list_post.list_id = @list_id;
 
 -- name: IsArticleInBookmarkList :one
 SELECT *
 FROM list_post
-WHERE list_id = $1
-  AND post_id = $2;
+WHERE list_id = @list_id
+  AND post_id = @article_id;
+
+-- name: IsArticleInAnyBookmarkList :one
+-- params: articleId: number, userId: number
+-- behavior: check if the article is in any bookmark list that the user owns, or in any shared list with the user
+SELECT list_post.*
+FROM list_post
+WHERE list_post.post_id = @article_id AND EXISTS (SELECT 1
+                                                  FROM reading_list
+                                                  WHERE reading_list.id = list_post.list_id
+                                                    AND reading_list.owner = @user_id)
+   OR EXISTS (SELECT 1
+              FROM list_sharing
+              WHERE list_sharing.list_id = list_post.list_id
+                AND list_sharing.user_id = @user_id);
 
 -- name: AddArticleToBookmarkList :exec
 INSERT INTO list_post (list_id, post_id)
-VALUES ($1, $2);
+VALUES (@list_id, @article_id);
 
 -- name: RemoveArticleFromBookmarkList :exec
 DELETE
 FROM list_post
-WHERE list_id = $1
-  AND post_id = $2;
+WHERE list_id = @list_id
+  AND post_id = @article_id;
 
 -- name: CreateBookmarkList :one
 INSERT INTO reading_list (list_name, owner, is_saved)
-VALUES ($1, $2, $3)
+VALUES (@name, @owner_id, @is_saved)
 RETURNING *;
 
 -- name: DeleteBookmarkList :one
 DELETE
 FROM reading_list
-WHERE id = $1
+WHERE id = @id
 RETURNING *;
 
 
@@ -144,16 +164,16 @@ RETURNING *;
 -- name: GetPublisherById :one
 SELECT *
 FROM source
-WHERE id = $1;
+WHERE id = @id;
 
 -- name: SearchPublishersByName :many
 SELECT *
 FROM source
-WHERE name ILIKE '%' || $1 || '%';
+WHERE name ILIKE '%' || @query || '%';
 
 -- name: CreatePublisher :one
 INSERT INTO source (name, url, avatar)
-VALUES ($1, $2, $3)
+VALUES (@name, @url, @avatar_url)
 RETURNING source.*;
 
 
@@ -165,20 +185,20 @@ RETURNING source.*;
 SELECT DISTINCT source.*
 FROM source
          JOIN subscription ON source.id = subscription.source_id
-WHERE subscription.user_id = $1;
+WHERE subscription.user_id = @user_id;
 
 -- name: IsPublisherSubscribedByUserId :one
 SELECT *
 FROM subscription
-WHERE user_id = $1
-  AND source_id = $2;
+WHERE user_id = @user_id
+  AND source_id = @publisher_id;
 
 -- name: SubscribePublisher :exec
 INSERT INTO subscription (user_id, source_id)
-VALUES ($1, $2);
+VALUES (@user_id, @publisher_id);
 
 -- name: UnsubscribePublisher :exec
 DELETE
 FROM subscription
-WHERE user_id = $1
-  AND source_id = $2;
+WHERE user_id = @user_id
+  AND source_id = @publisher_id;

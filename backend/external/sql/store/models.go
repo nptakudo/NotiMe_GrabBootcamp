@@ -5,6 +5,7 @@
 package store
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -34,10 +35,10 @@ type ReadingList struct {
 }
 
 type Source struct {
-	ID     int32  `json:"id"`
-	Name   string `json:"name"`
-	Url    string `json:"url"`
-	Avatar string `json:"avatar"`
+	ID     int32          `json:"id"`
+	Name   string         `json:"name"`
+	Url    string         `json:"url"`
+	Avatar sql.NullString `json:"avatar"`
 }
 
 type Subscription struct {

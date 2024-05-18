@@ -22,7 +22,7 @@ type ReaderUsecaseImpl struct {
 
 func NewReaderUsecase(env *bootstrap.Env, db *store.Queries) controller.ReaderUsecase {
 	bookmarkListRepository := repository.NewBookmarkListRepository(db)
-	recsysRepository := repository.NewRecsysRepository()
+	recsysRepository := repository.NewRecsysRepository(env, db)
 
 	return &ReaderUsecaseImpl{
 		env:                    env,
@@ -38,16 +38,11 @@ func (uc *ReaderUsecaseImpl) GetArticleById(ctx context.Context, id int64, userI
 		return nil, err
 	}
 
-	// Scrape article content & primary image
+	// Scrape article content
 	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(metadata.Url)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
 		body = ""
-	}
-	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(metadata.Url)
-	if err != nil {
-		slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
-		imgSrc = ""
 	}
 
 	// Generate article summary
@@ -60,15 +55,14 @@ func (uc *ReaderUsecaseImpl) GetArticleById(ctx context.Context, id int64, userI
 	return &messages.ArticleResponse{
 		Metadata: metadata,
 		Content: &messages.ArticleContent{
-			Id:       metadata.Id,
-			Content:  body,
-			ImageUrl: imgSrc,
+			Id:      metadata.Id,
+			Content: body,
 		},
 		Summary: summary,
 	}, nil
 }
 
-func (uc *ReaderUsecaseImpl) GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) (*messages.RelatedArticlesResponse, error) {
+func (uc *ReaderUsecaseImpl) GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error) {
 	relatedArticlesDm, err := uc.RecsysRepository.GetRelatedArticles(ctx, articleId, userId, count, offset)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetRelatedArticles:", "error", err)
@@ -79,5 +73,5 @@ func (uc *ReaderUsecaseImpl) GetRelatedArticles(ctx context.Context, articleId i
 		slog.Error("[ReaderUsecase] GetRelatedArticles:", "error", err)
 		return nil, ErrInternal
 	}
-	return &messages.RelatedArticlesResponse{Articles: relatedArticlesApi}, nil
+	return relatedArticlesApi, nil
 }

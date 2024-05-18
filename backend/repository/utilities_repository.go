@@ -4,6 +4,7 @@ import (
 	"context"
 	"notime/domain"
 	"notime/external/sql/store"
+	"notime/utils/htmlutils"
 )
 
 type UtilitiesRepository struct {
@@ -16,10 +17,16 @@ func (r *UtilitiesRepository) completeDmArticleFromDb(ctx context.Context, dbArt
 		return nil, err
 	}
 
-	dmArticle, err := convertDbArticleToDm(dbArticle, &dbPublisher)
+	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(dbArticle.Url)
+	if err != nil {
+		imgSrc = ""
+	}
+
+	dmArticle, err := convertDbArticleToDm(dbArticle, &dbPublisher, imgSrc)
 	if err != nil {
 		return nil, err
 	}
+
 	return dmArticle, nil
 }
 

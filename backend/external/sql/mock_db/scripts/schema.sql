@@ -18,7 +18,7 @@ CREATE TABLE source
     id     SERIAL PRIMARY KEY,
     "name" VARCHAR(255)        NOT NULL,
     "url"  VARCHAR(255) UNIQUE NOT NULL,
-    avatar VARCHAR(255)        NOT NULL -- consider how to store the image
+    avatar VARCHAR(255) -- consider how to store the image
 );
 
 CREATE TABLE post

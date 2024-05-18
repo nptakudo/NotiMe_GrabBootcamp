@@ -7,7 +7,7 @@ import (
 	"notime/utils/htmlutils"
 )
 
-func ValidateUrlAsArticle(url string, pElementThreshold int) (bool, error) {
+func ValidateUrlAsArticle(url string, pCharCount int, pElementThreshold int) (bool, error) {
 	html, err := htmlutils.GetSanitizedHtml(url)
 	if err != nil {
 		return false, err
@@ -19,6 +19,13 @@ func ValidateUrlAsArticle(url string, pElementThreshold int) (bool, error) {
 		slog.Error("[HTMLUtils] ScrapeAndConvertArticleToMarkdown:", "error", err)
 		return false, errors.New("cannot parse HTML")
 	}
-	pElements := doc.Find("p")
-	return pElements.Length() >= pElementThreshold, nil
+
+	pCount := 0
+	doc.Find("p").Each(func(i int, s *goquery.Selection) {
+		// Only count <p> elements with more than 300 characters
+		if len(s.Text()) >= pCharCount {
+			pCount++
+		}
+	})
+	return pCount >= pElementThreshold, nil
 }

@@ -37,7 +37,7 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 	dmArticles := make([]*domain.ArticleMetadata, 0)
 	for _, article := range scrapedArticles {
 		// Check if url is actually of an article
-		isArticle, err := webscrape.ValidateUrlAsArticle(article.Url, repo.env.PElementThreshold)
+		isArticle, err := webscrape.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold)
 		if err != nil {
 			slog.Error("[Webscrape Repository] ScrapeFromUrl validate url as article:", "error", err)
 			continue

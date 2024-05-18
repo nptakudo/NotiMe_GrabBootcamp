@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"log/slog"
 	"net/http"
 	"notime/api"
 	"notime/api/messages"
@@ -35,6 +36,7 @@ func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) 
 		return
 	}
 
+	slog.Info("[HomeController] GetLatestSubscribedArticles: respond with:", "length", len(articles))
 	ctx.JSON(http.StatusOK, articles)
 }
 
@@ -53,6 +55,7 @@ func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gi
 		return
 	}
 
+	slog.Info("[HomeController] GetLatestSubscribedArticlesByPublisher: respond with:", "length", len(articles))
 	ctx.JSON(http.StatusOK, articles)
 }
 
@@ -71,6 +74,7 @@ func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[HomeController] GetExploreArticles: respond with:", "length", len(articles))
 	ctx.JSON(http.StatusOK, articles)
 }
 
@@ -90,5 +94,6 @@ func (controller *HomeController) Search(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[HomeController] Search: respond with:", "length", len(articles))
 	ctx.JSON(http.StatusOK, articles)
 }

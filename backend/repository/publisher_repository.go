@@ -48,11 +48,11 @@ func (r *PublisherRepositoryImpl) Search(ctx context.Context, name string) ([]*d
 	return dmPublishers, nil
 }
 
-func (r *PublisherRepositoryImpl) Create(ctx context.Context, name string, url string, avatarPath string) (*domain.Publisher, error) {
+func (r *PublisherRepositoryImpl) Create(ctx context.Context, name string, url string, avatarUrl string) (*domain.Publisher, error) {
 	dbPublisher, err := r.q.CreatePublisher(ctx, store.CreatePublisherParams{
-		Name:   name,
-		Url:    url,
-		Avatar: avatarPath,
+		Name:      name,
+		Url:       url,
+		AvatarUrl: sql.NullString{avatarUrl, avatarUrl != ""},
 	})
 	if err != nil {
 		slog.Error("[Publisher Repository] Create:", "error", err)

@@ -34,8 +34,8 @@ func (r *SubscribeListRepositoryImpl) GetByUserId(ctx context.Context, userId in
 
 func (r *SubscribeListRepositoryImpl) IsSubscribed(ctx context.Context, publisherId int32, userId int32) (bool, error) {
 	_, err := r.q.IsPublisherSubscribedByUserId(ctx, store.IsPublisherSubscribedByUserIdParams{
-		SourceID: publisherId,
-		UserID:   userId,
+		PublisherID: publisherId,
+		UserID:      userId,
 	})
 	if err != nil {
 		slog.Error("[SubscribeList Repository] IsSubscribed:", "error", err)
@@ -46,8 +46,8 @@ func (r *SubscribeListRepositoryImpl) IsSubscribed(ctx context.Context, publishe
 
 func (r *SubscribeListRepositoryImpl) AddToSubscribeList(ctx context.Context, publisherId int32, userId int32) error {
 	err := r.q.SubscribePublisher(ctx, store.SubscribePublisherParams{
-		SourceID: publisherId,
-		UserID:   userId,
+		PublisherID: publisherId,
+		UserID:      userId,
 	})
 	if err != nil {
 		slog.Error("[SubscribeList Repository] AddToSubscribeList:", "error", err)
@@ -58,8 +58,8 @@ func (r *SubscribeListRepositoryImpl) AddToSubscribeList(ctx context.Context, pu
 
 func (r *SubscribeListRepositoryImpl) RemoveFromSubscribeList(ctx context.Context, publisherId int32, userId int32) error {
 	err := r.q.UnsubscribePublisher(ctx, store.UnsubscribePublisherParams{
-		SourceID: publisherId,
-		UserID:   userId,
+		PublisherID: publisherId,
+		UserID:      userId,
 	})
 	if err != nil {
 		slog.Error("[SubscribeList Repository] RemoveFromSubscribeList:", "error", err)

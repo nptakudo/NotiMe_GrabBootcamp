@@ -5,7 +5,7 @@ type ArticleRequest struct {
 }
 
 type ArticleResponse struct {
-	Metadata *ArticleMetadata `json:"article"`
+	Metadata *ArticleMetadata `json:"metadata"`
 	Content  *ArticleContent  `json:"content"`
 	Summary  string           `json:"summary"`
 }
@@ -13,8 +13,4 @@ type ArticleResponse struct {
 type RelatedArticlesRequest struct {
 	ArticleId int64 `uri:"article_id" binding:"required"`
 	Count     int   `form:"count" binding:"required"`
-}
-
-type RelatedArticlesResponse struct {
-	Articles []*ArticleMetadata `json:"articles"`
 }

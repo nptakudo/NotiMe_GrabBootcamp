@@ -28,16 +28,11 @@ func GetLargestImageUrlFromArticle(url string) (string, error) {
 		slog.Error("[HTMLUtils] GetLargestImageUrlFromArticle:", "error", err)
 		return "", ErrCannotParse
 	}
-	article := doc.Find("article").First()
-	if article == nil {
-		slog.Error("[HTMLUtils] GetLargestImageUrlFromArticle: element <article> not found")
-		return "", ErrCannotParse
-	}
 
-	// Select the first image in the article
+	// Select the biggest image in the article, with a minimum width of 300px
 	imageUrl := ""
 	imageWidth := 0
-	article.Find("img").Each(func(i int, s *goquery.Selection) {
+	doc.Find("img").Each(func(i int, s *goquery.Selection) {
 		url, urlExists := s.Attr("src")
 		if !urlExists {
 			return

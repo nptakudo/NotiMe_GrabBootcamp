@@ -73,7 +73,7 @@ func ScrapeFromUrl(url string, host string, port string, timeout time.Duration) 
 	}
 	for _, article := range articles {
 		article.PublisherName = publisherName
-		article.Date = time.Now()
+		article.Date = time.Now().UTC()
 	}
 	return articles, nil
 }
@@ -100,10 +100,10 @@ func CheckAndCompilePublisher(url string, timeout time.Duration) (*domain.Publis
 		return nil, err
 	}
 	return &domain.Publisher{
-		Id:         -1,
-		Name:       publisherName,
-		Url:        url,
-		AvatarPath: "",
+		Id:        -1,
+		Name:      publisherName,
+		Url:       url,
+		AvatarUrl: "",
 	}, nil
 }
 

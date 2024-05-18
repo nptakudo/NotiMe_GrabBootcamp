@@ -17,10 +17,12 @@ func main() {
 	defer app.CloseDBConnection()
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
-	gin := gin.Default()
-	route.Setup(env, app.Database.Queries, timeout, gin)
+	sv := gin.Default()
+	sv.Use(gin.Logger())
+	sv.Use(gin.Recovery())
+	route.Setup(env, app.Database.Queries, timeout, sv)
 
-	err := gin.Run(env.ServerAddress)
+	err := sv.Run(env.ServerAddress)
 	if err != nil {
 		slog.Error("Failed to run server:", "error", err)
 	}

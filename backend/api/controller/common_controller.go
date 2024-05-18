@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"log/slog"
 	"net/http"
 	"notime/api"
 	"notime/api/messages"
@@ -71,6 +72,7 @@ func (controller *CommonController) GetBookmarkLists(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[CommonController] GetBookmarkLists: respond with:", "length", len(bookmarkLists))
 	ctx.JSON(http.StatusOK, bookmarkLists)
 }
 
@@ -99,6 +101,7 @@ func (controller *CommonController) GetSubscriptions(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[CommonController] GetSubscriptions: respond with:", "length", len(subscriptions))
 	ctx.JSON(http.StatusOK, subscriptions)
 }
 
@@ -116,6 +119,7 @@ func (controller *CommonController) IsBookmarked(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[CommonController] IsBookmarked: respond with:", "isBookmarked", isBookmarked)
 	ctx.JSON(http.StatusOK, messages.SimpleResponse{Message: strconv.FormatBool(isBookmarked)})
 }
 
@@ -133,6 +137,7 @@ func (controller *CommonController) IsSubscribed(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("[CommonController] IsSubscribed: respond with:", "isSubscribed", isSubscribed)
 	ctx.JSON(http.StatusOK, messages.SimpleResponse{Message: strconv.FormatBool(isSubscribed)})
 }
 

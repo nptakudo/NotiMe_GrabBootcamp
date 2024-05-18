@@ -23,7 +23,7 @@ func NewHomeUsecase(env *bootstrap.Env, db *store.Queries) controller.HomeUsecas
 	articleRepository := repository.NewArticleRepository(env, db)
 	bookmarkListRepository := repository.NewBookmarkListRepository(db)
 	subscribeListRepository := repository.NewSubscribeListRepository(db)
-	recsysRepository := repository.NewRecsysRepository()
+	recsysRepository := repository.NewRecsysRepository(env, db)
 
 	return &HomeUsecaseImpl{
 		ArticleRepository:       articleRepository,

@@ -8,9 +8,8 @@ type ArticleMetadata struct {
 }
 
 type ArticleContent struct {
-	Id       int64  `json:"id"`
-	Content  string `json:"content"`
-	ImageUrl string `json:"image_url"`
+	Id      int64  `json:"id"`
+	Content string `json:"content"`
 }
 
 type Publisher struct {

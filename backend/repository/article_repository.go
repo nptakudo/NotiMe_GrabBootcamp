@@ -42,9 +42,9 @@ func (r *ArticleRepositoryImpl) GetById(ctx context.Context, id int64) (*domain.
 
 func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	dbArticles, err := r.q.GetArticlesByPublisherId(ctx, store.GetArticlesByPublisherIdParams{
-		SourceID: publisherId,
-		Limit:    int32(count),
-		Offset:   int32(offset),
+		PublisherID: publisherId,
+		Count:       int32(count),
+		Offset:      int32(offset),
 	})
 	if err != nil {
 		slog.Error("[Article Repository] GetByPublisher query:", "error", err)
@@ -54,7 +54,7 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 	var dmArticles []*domain.ArticleMetadata
 	for _, dbArticle := range dbArticles {
 		// Check if url is actually of an article
-		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementThreshold)
+		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
 		if err != nil {
 			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 			continue
@@ -77,7 +77,7 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count int, offset int) ([]*domain.ArticleMetadata, error) {
 	dbArticles, err := r.q.SearchArticlesByName(ctx, store.SearchArticlesByNameParams{
 		Query:  sql.NullString{String: query, Valid: true},
-		Limit:  int32(count),
+		Count:  int32(count),
 		Offset: int32(offset),
 	})
 	if err != nil {
@@ -88,7 +88,7 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 	var dmArticles []*domain.ArticleMetadata
 	for _, dbArticle := range dbArticles {
 		// Check if url is actually of an article
-		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementThreshold)
+		isArticle, err := webscrape.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
 		if err != nil {
 			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 			continue
@@ -113,7 +113,7 @@ func (r *ArticleRepositoryImpl) Create(ctx context.Context, title string, publis
 		Title:       title,
 		PublishDate: publishDate,
 		Url:         url,
-		SourceID:    publisherId,
+		PublisherID: publisherId,
 	})
 	if err != nil {
 		slog.Error("[Article Repository] Create:", "error", err)

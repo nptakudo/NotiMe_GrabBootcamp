@@ -11,6 +11,7 @@ type ArticleMetadata struct {
 	Publisher *Publisher `json:"publisher"`
 	Date      time.Time  `json:"date"`
 	Url       string     `json:"url"`
+	ImageUrl  string     `json:"image_url"`
 }
 
 type ArticleRepository interface {

@@ -35,7 +35,7 @@ func Populate(ctx context.Context, env *bootstrap.Env, db *store.Queries) {
 			continue
 		}
 
-		dmPublisher, err := publisher_repo.Create(ctx, publisher.Name, publisher.Url, publisher.AvatarPath)
+		dmPublisher, err := publisher_repo.Create(ctx, publisher.Name, publisher.Url, publisher.AvatarUrl)
 		if err != nil {
 			slog.Error("[Populate] Failed to create publisher:", "error", err)
 			continue

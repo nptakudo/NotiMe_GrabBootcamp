@@ -38,7 +38,7 @@ func (uc *CommonUsecaseImpl) GetArticleMetadataById(ctx context.Context, id int6
 		slog.Error("[HomeUsecase] GetArticleMetadataById:", "error", err)
 		return nil, ErrInternal
 	}
-	isBookmarked, err := uc.BookmarkListRepository.IsInBookmarkList(ctx, id, userId)
+	isBookmarked, err := uc.BookmarkListRepository.IsInAnyBookmarkList(ctx, id, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetArticleMetadataById:", "error", err)
 		return nil, ErrInternal

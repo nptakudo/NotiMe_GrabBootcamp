@@ -22,6 +22,7 @@ type Env struct {
 	WebscrapeHost          string `mapstructure:"WEBSCRAPE_HOST"`
 	WebscrapePort          string `mapstructure:"WEBSCRAPE_PORT"`
 	PElementThreshold      int    `mapstructure:"P_ELEMENT_THRESHOLD"`
+	PElementCharCount      int    `mapstructure:"P_ELEMENT_CHAR_COUNT"`
 }
 
 func NewEnv() *Env {

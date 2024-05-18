@@ -11,7 +11,7 @@ var (
 	ErrPublisherIdMismatch = errors.New("publisher id mismatch")
 )
 
-func convertDbArticleToDm(dbArticle *store.Post, dbPublisher *store.Source) (*domain.ArticleMetadata, error) {
+func convertDbArticleToDm(dbArticle *store.Post, dbPublisher *store.Source, imageUrl string) (*domain.ArticleMetadata, error) {
 	if dbPublisher == nil || dbArticle == nil {
 		return nil, ErrInstanceIsNil
 	}
@@ -29,6 +29,7 @@ func convertDbArticleToDm(dbArticle *store.Post, dbPublisher *store.Source) (*do
 		Publisher: dmPublisher,
 		Url:       dbArticle.Url,
 		Date:      dbArticle.PublishDate,
+		ImageUrl:  imageUrl,
 	}, nil
 }
 
@@ -51,11 +52,15 @@ func convertDbPublisherToDm(dbPublisher *store.Source) (*domain.Publisher, error
 		return nil, ErrInstanceIsNil
 	}
 
+	avatarUrl := ""
+	if dbPublisher.Avatar.Valid {
+		avatarUrl = dbPublisher.Avatar.String
+	}
 	return &domain.Publisher{
-		Id:         dbPublisher.ID,
-		Name:       dbPublisher.Name,
-		Url:        dbPublisher.Url,
-		AvatarPath: dbPublisher.Avatar,
+		Id:        dbPublisher.ID,
+		Name:      dbPublisher.Name,
+		Url:       dbPublisher.Url,
+		AvatarUrl: avatarUrl,
 	}, nil
 }
 

@@ -2,9 +2,13 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	"log/slog"
 	"notime/domain"
 	"notime/external/sql/store"
+	"slices"
 )
 
 type BookmarkListRepositoryImpl struct {
@@ -71,8 +75,8 @@ func (r *BookmarkListRepositoryImpl) GetSharedWithUser(ctx context.Context, user
 
 func (r *BookmarkListRepositoryImpl) IsInBookmarkList(ctx context.Context, articleId int64, bookmarkListId int32) (bool, error) {
 	_, err := r.q.IsArticleInBookmarkList(ctx, store.IsArticleInBookmarkListParams{
-		ListID: bookmarkListId,
-		PostID: articleId,
+		ListID:    bookmarkListId,
+		ArticleID: articleId,
 	})
 	if err != nil {
 		slog.Error("[BookmarkList Repository] IsInBookmarkList query:", "error", err)
@@ -81,10 +85,33 @@ func (r *BookmarkListRepositoryImpl) IsInBookmarkList(ctx context.Context, artic
 	return true, nil
 }
 
+func (r *BookmarkListRepositoryImpl) IsInAnyBookmarkList(ctx context.Context, articleId int64, userId int32) (bool, error) {
+	_, err := r.q.IsArticleInAnyBookmarkList(ctx, store.IsArticleInAnyBookmarkListParams{
+		ArticleID: articleId,
+		UserID:    userId,
+	})
+	if err != nil {
+		// If the error indicates that article is not in any bookmark list, return false
+		var dbErr *pgconn.PgError
+		if errors.As(err, &dbErr) {
+			if slices.Contains(DbErrCodeNotFound, dbErr.Code) {
+				return false, nil
+			}
+		}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		// Otherwise, log error
+		slog.Error("[BookmarkList Repository] IsInAnyBookmarkList query:", "error", err)
+		return false, err
+	}
+	return true, nil
+}
+
 func (r *BookmarkListRepositoryImpl) AddToBookmarkList(ctx context.Context, articleId int64, bookmarkListId int32) error {
 	err := r.q.AddArticleToBookmarkList(ctx, store.AddArticleToBookmarkListParams{
-		ListID: bookmarkListId,
-		PostID: articleId,
+		ListID:    bookmarkListId,
+		ArticleID: articleId,
 	})
 	if err != nil {
 		slog.Error("[BookmarkList Repository] AddToBookmarkList query:", "error", err)
@@ -95,8 +122,8 @@ func (r *BookmarkListRepositoryImpl) AddToBookmarkList(ctx context.Context, arti
 
 func (r *BookmarkListRepositoryImpl) RemoveFromBookmarkList(ctx context.Context, articleId int64, bookmarkListId int32) error {
 	err := r.q.RemoveArticleFromBookmarkList(ctx, store.RemoveArticleFromBookmarkListParams{
-		ListID: bookmarkListId,
-		PostID: articleId,
+		ListID:    bookmarkListId,
+		ArticleID: articleId,
 	})
 	if err != nil {
 		slog.Error("[BookmarkList Repository] RemoveFromBookmarkList query:", "error", err)
@@ -107,9 +134,9 @@ func (r *BookmarkListRepositoryImpl) RemoveFromBookmarkList(ctx context.Context,
 
 func (r *BookmarkListRepositoryImpl) Create(ctx context.Context, bookmarkListName string, userId int32, isSaved bool) (*domain.BookmarkList, error) {
 	dbBookmarkList, err := r.q.CreateBookmarkList(ctx, store.CreateBookmarkListParams{
-		ListName: bookmarkListName,
-		Owner:    userId,
-		IsSaved:  isSaved,
+		Name:    bookmarkListName,
+		OwnerID: userId,
+		IsSaved: isSaved,
 	})
 	if err != nil {
 		slog.Error("[BookmarkList Repository] Create query:", "error", err)

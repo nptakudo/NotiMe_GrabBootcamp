@@ -15,6 +15,8 @@ type Querier interface {
 	CreateBookmarkList(ctx context.Context, arg CreateBookmarkListParams) (ReadingList, error)
 	CreatePublisher(ctx context.Context, arg CreatePublisherParams) (Source, error)
 	DeleteBookmarkList(ctx context.Context, id int32) (ReadingList, error)
+	// behavior: sorted by publish_date desc
+	GetAllArticles(ctx context.Context) ([]Post, error)
 	// -- DROP SCHEMA public CASCADE;
 	// -- CREATE SCHEMA public;
 	// -- GRANT ALL ON SCHEMA public TO postgres;
@@ -78,7 +80,7 @@ type Querier interface {
 	// BOOKMARK LIST REPOSITORY
 	//-----------------------------------------------
 	GetBookmarkListById(ctx context.Context, id int32) (ReadingList, error)
-	GetBookmarkListsOwnByUserId(ctx context.Context, owner int32) ([]ReadingList, error)
+	GetBookmarkListsOwnByUserId(ctx context.Context, ownerID int32) ([]ReadingList, error)
 	GetBookmarkListsSharedWithUserId(ctx context.Context, userID int32) ([]ReadingList, error)
 	//-----------------------------------------------
 	// PUBLISHER REPOSITORY
@@ -88,13 +90,16 @@ type Querier interface {
 	// SUBSCRIBE LIST REPOSITORY
 	//-----------------------------------------------
 	GetSubscribedPublishersByUserId(ctx context.Context, userID int32) ([]Source, error)
+	// params: articleId: number, userId: number
+	// behavior: check if the article is in any bookmark list that the user owns, or in any shared list with the user
+	IsArticleInAnyBookmarkList(ctx context.Context, arg IsArticleInAnyBookmarkListParams) (ListPost, error)
 	IsArticleInBookmarkList(ctx context.Context, arg IsArticleInBookmarkListParams) (ListPost, error)
 	IsPublisherSubscribedByUserId(ctx context.Context, arg IsPublisherSubscribedByUserIdParams) (Subscription, error)
 	RemoveArticleFromBookmarkList(ctx context.Context, arg RemoveArticleFromBookmarkListParams) error
-	// params: name: string, limit: number, offset: number
+	// params: query: string, limit: number, offset: number
 	// behavior: sorted by publish_date desc
 	SearchArticlesByName(ctx context.Context, arg SearchArticlesByNameParams) ([]Post, error)
-	SearchPublishersByName(ctx context.Context, dollar_1 sql.NullString) ([]Source, error)
+	SearchPublishersByName(ctx context.Context, query sql.NullString) ([]Source, error)
 	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error
 	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error
 }

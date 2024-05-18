@@ -3,16 +3,16 @@ package domain
 import "context"
 
 type Publisher struct {
-	Id         int32  `json:"id"`
-	Name       string `json:"name"`
-	Url        string `json:"url"`
-	AvatarPath string `json:"avatar_path"`
+	Id        int32  `json:"id"`
+	Name      string `json:"name"`
+	Url       string `json:"url"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 type PublisherRepository interface {
 	GetById(ctx context.Context, id int32) (*Publisher, error)
 	Search(ctx context.Context, name string) ([]*Publisher, error)
-	Create(ctx context.Context, name string, url string, avatarPath string) (*Publisher, error)
+	Create(ctx context.Context, name string, url string, avatarUrl string) (*Publisher, error)
 }
 
 type SubscribeListRepository interface {
