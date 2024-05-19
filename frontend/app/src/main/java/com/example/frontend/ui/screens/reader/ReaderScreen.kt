@@ -69,6 +69,7 @@ import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.ImageFromUrl
 import com.example.frontend.ui.component.PublisherCard
 import com.example.frontend.ui.component.SmallArticleCard
+import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.ReaderTextStyle
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringAgoFormat
@@ -100,7 +101,7 @@ fun ReaderScreen(
     onToBrowser: (ctx: Context) -> Unit,
     onRelatedArticleClick: (articleId: BigInteger) -> Unit,
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
-    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
     onBack: () -> Unit,
@@ -116,81 +117,80 @@ fun ReaderScreen(
 
     var currentArticleBookmarkRequest by rememberSaveable { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                modifier = Modifier
-                    .requiredHeight(50.dp)
-                    .shadow(
-                        elevation = 16.dp,
-                        spotColor = Color.DarkGray,
-                    ),
-                title = {},
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            modifier = Modifier
+                .requiredHeight(50.dp)
+                .shadow(
+                    elevation = 16.dp,
+                    spotColor = Color.DarkGray
                 ),
-                navigationIcon = {
+            title = {},
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            navigationIcon = {
+                IconButton(
+                    onClick = onBack
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowBackIosNew,
+                        contentDescription = "back"
+                    )
+                }
+            },
+            actions = {
+                Row {
+                    if (uiState.article.metadata.isBookmarked) {
+                        IconButton(
+                            onClick = {
+                                currentArticleBookmarkRequest = true
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Bookmark,
+                                tint = MaterialTheme.colorScheme.primary,
+                                contentDescription = "unbookmark",
+                            )
+                        }
+                    } else {
+                        IconButton(
+                            onClick = {
+                                currentArticleBookmarkRequest = true
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.BookmarkBorder,
+                                contentDescription = "bookmark",
+                            )
+                        }
+                    }
+                    val currentCtx = LocalContext.current
                     IconButton(
-                        onClick = onBack,
+                        onClick = { onShare(currentCtx) },
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.ArrowBackIosNew,
-                            contentDescription = "back",
+                            imageVector = Icons.Outlined.Share,
+                            contentDescription = "share",
                         )
                     }
-                },
-                actions = {
-                    Row {
-                        if (uiState.article.metadata.isBookmarked) {
-                            IconButton(
-                                onClick = {
-                                    currentArticleBookmarkRequest = true
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Bookmark,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    contentDescription = "unbookmark",
-                                )
-                            }
-                        } else {
-                            IconButton(
-                                onClick = {
-                                    currentArticleBookmarkRequest = true
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.BookmarkBorder,
-                                    contentDescription = "bookmark",
-                                )
-                            }
-                        }
-                        val currentCtx = LocalContext.current
-                        IconButton(
-                            onClick = { onShare(currentCtx) },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Share,
-                                contentDescription = "share",
-                            )
-                        }
-                        IconButton(
-                            onClick = { onToBrowser(currentCtx) },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.OpenInBrowser,
-                                contentDescription = "open in browser",
-                            )
-                        }
+                    IconButton(
+                        onClick = { onToBrowser(currentCtx) },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.OpenInBrowser,
+                            contentDescription = "open in browser",
+                        )
                     }
                 }
-            )
-        },
-    ) {
+            }
+        )
         Box(
             modifier = Modifier
-                .padding(it)
+                .padding(
+                    start = UiConfig.sideScreenPadding,
+                    end = UiConfig.sideScreenPadding
+                )
                 .fillMaxSize()
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {
@@ -217,7 +217,7 @@ fun ReaderScreen(
                     onUnfollow = onUnfollow,
                     onArticleClick = onRelatedArticleClick,
                     onBookmark = onBookmark,
-                    onUnbookmark = onUnbookmark,
+                    onUnBookmark = onUnBookmark,
                     onNewBookmark = onNewBookmark,
                     onLoadMoreRelatedArticles = onLoadMoreRelatedArticles,
                     onToBrowser = onToBrowser,
@@ -230,6 +230,7 @@ fun ReaderScreen(
             PullToRefreshContainer(
                 state = refreshState,
                 modifier = Modifier.align(Alignment.TopCenter),
+                containerColor = Colors.topBarContainer
             )
         }
     }
@@ -245,7 +246,7 @@ fun ReaderScreenContent(
     onUnfollow: () -> Unit,
     onArticleClick: (articleId: BigInteger) -> Unit,
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
-    onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
+    onUnBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
     onLoadMoreRelatedArticles: () -> Unit,
     onToBrowser: (ctx: Context) -> Unit,
@@ -426,7 +427,7 @@ fun ReaderScreenContent(
                             }
                         },
                         onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
-                        onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                        onUnBookmark = { onUnBookmark(bottomSheetBookmarkArticleId, it) },
                         onClose = { onClose {} },
                     )
                 } else if (bottomSheetContent == ReaderUiConfig.BottomSheetContentType.NEW_BOOKMARK) {

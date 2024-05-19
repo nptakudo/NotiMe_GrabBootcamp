@@ -1,4 +1,4 @@
-package com.example.frontend.ui.screens.subscription
+package com.example.frontend.ui.screens.article_list
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -11,45 +11,45 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.frontend.data.model.Publisher
-import com.example.frontend.navigation.Route
-import com.example.frontend.ui.component.NavBar
+import com.example.frontend.data.model.ArticleMetadata
+import com.example.frontend.ui.component.NewArticleCard
 import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.screens.home.Divider
+import com.example.frontend.ui.screens.subscription.SubscriptionScreenContent
+import com.example.frontend.ui.screens.subscription.SubscriptionUiState
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
+import com.example.frontend.utils.dateToStringAgoFormat
+import com.example.frontend.utils.dateToStringExactDateFormat
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubscriptionScreen(
+fun ArticleListScreen (
     modifier: Modifier = Modifier,
-    uiState: SubscriptionUiState,
+    uiState: ArticleListUiState,
     onRefresh: () -> Unit,
-    onSearchIconClick: () -> Unit,
-    onSubscriptionClick: (publisherId: BigInteger) -> Unit
+    onBack: () -> Unit,
+    onArticleClick: (articleId: BigInteger) -> Unit
 ) {
     val refreshScope = rememberCoroutineScope()
     val refreshState = rememberPullToRefreshState()
@@ -59,8 +59,8 @@ fun SubscriptionScreen(
             refreshState.endRefresh()
         }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = modifier.fillMaxSize()) {
             TopAppBar(
                 title = {
                     Text(
@@ -70,23 +70,20 @@ fun SubscriptionScreen(
                         )
                     )
                 },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ArrowBackIosNew,
+                            contentDescription = "back"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Colors.topBarContainer
-                ),
-                actions = {
-                    Row {
-                        IconButton(
-                            onClick = onSearchIconClick
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "search"
-                            )
-                        }
-                    }
-                }
+                )
             )
-
             Box(
                 modifier = Modifier
                     .padding(
@@ -97,25 +94,23 @@ fun SubscriptionScreen(
                     .nestedScroll(refreshState.nestedScrollConnection)
             ) {
                 if (!refreshState.isRefreshing) {
-                    SubscriptionScreenContent(
-                        subscriptions = uiState.subscriptions,
-                        onSubscriptionClick = onSubscriptionClick
+                    ArticleListScreenContent(
+                        modifier = modifier,
+                        articles = uiState.articles,
+                        onArticleClick = onArticleClick
                     )
                 }
             }
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubscriptionScreenContent(
+fun ArticleListScreenContent(
     modifier: Modifier = Modifier,
-    subscriptions: List<Publisher>,
-    onSubscriptionClick: (publisherId: BigInteger) -> Unit
+    articles: List<ArticleMetadata>,
+    onArticleClick: (articleId: BigInteger) -> Unit
 ) {
-
-    if (subscriptions.isNotEmpty()) {
+    if (articles.isNotEmpty()) {
         Column (
             modifier = modifier
                 .fillMaxSize()
@@ -127,22 +122,16 @@ fun SubscriptionScreenContent(
                 ),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Column(
+            Column (
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                subscriptions.forEach { publisher ->
-                    val isFollowing = remember { mutableStateOf(publisher.isSubscribed) }
-                    SubscriptionCard(
-                        name = publisher.name,
-                        avatarUrl = publisher.avatarUrl,
-                        url = publisher.url,
-                        isFollowing = isFollowing,
-                        onFollowClick = {
-                            isFollowing.value = !isFollowing.value
-                        },
-                        onClick = {
-                            onSubscriptionClick(publisher.id)
-                        }
+                articles.forEach { blog ->
+                    NewArticleCard(
+                        articleImageUrl = blog.imageUrl,
+                        title = blog.title,
+                        publisher = blog.publisher.name,
+                        date = dateToStringExactDateFormat(blog.date),
+                        onClick = { onArticleClick(blog.id) }
                     )
                     Divider()
                 }
@@ -156,5 +145,3 @@ fun SubscriptionScreenContent(
         )
     }
 }
-
-

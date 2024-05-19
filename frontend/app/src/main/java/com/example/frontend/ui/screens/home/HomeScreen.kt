@@ -2,6 +2,7 @@ package com.example.frontend.ui.screens.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +61,6 @@ import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.BigArticleCard
 import com.example.frontend.ui.component.BottomSheetBookmarkContent
 import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
-import com.example.frontend.ui.component.NavBar
 import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
@@ -111,55 +111,48 @@ fun HomeScreen(
 
         var requestingTopRightOptions by rememberSaveable { mutableStateOf(false) }
 
-        Scaffold(
-            modifier = modifier,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = if (uiState.screen == Screen.Home) "Home" else "Explore",
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier.padding(start = 10.dp)
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Home",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.SemiBold
                         )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Colors.topBarContainer
-                    ),
-                    actions = {
-                        Row {
-                            IconButton(
-                                onClick = onSearchIconClick,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Search,
-                                    contentDescription = "search for articles",
-                                )
-                            }
-                            IconButton(
-                                onClick = { requestingTopRightOptions = true },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.MoreVert,
-                                    contentDescription = "more options",
-                                )
-                            }
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Colors.topBarContainer
+                ),
+                actions = {
+                    Row {
+                        IconButton(
+                            onClick = onSearchIconClick,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = "search for articles",
+                            )
+                        }
+                        IconButton(
+                            onClick = { requestingTopRightOptions = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoreVert,
+                                contentDescription = "more options",
+                            )
                         }
                     }
-                )
-            },
-            bottomBar = {
-                NavBar(
-                    currentRoute = Route.Home,
-                    navigateToBottomBarRoute = onNavigateNavBar
-                )
-            }
-        ) {
+                }
+            )
             Box(
                 modifier = Modifier
-                    .padding(it)
+                    .weight(1f)
                     .fillMaxSize()
+                    .padding(
+                        start = UiConfig.sideScreenPadding,
+                        end = UiConfig.sideScreenPadding
+                    )
                     .nestedScroll(refreshState.nestedScrollConnection)
             ) {
                 if (!refreshState.isRefreshing) {
@@ -181,7 +174,9 @@ fun HomeScreen(
                 }
                 PullToRefreshContainer(
                     state = refreshState,
-                    modifier = Modifier.align(Alignment.TopCenter),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter),
+                    containerColor = Colors.topBarContainer
                 )
             }
         }
@@ -378,7 +373,7 @@ fun HomeScreenContentSortByDate(
                                 }
                             },
                             onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
-                            onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                            onUnBookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
                             onClose = { onClose {} },
                         )
                     } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
@@ -570,7 +565,7 @@ fun ShowSearchResults(
                             }
                         },
                         onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
-                        onUnbookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                        onUnBookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
                         onClose = { onClose {} },
                     )
                 } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {

@@ -43,7 +43,7 @@ fun ReaderRoute(
         },
         onRelatedArticleClick = onReadAnotherArticle,
         onBookmark = viewModel::onBookmarkRelatedArticle,
-        onUnbookmark = viewModel::onUnbookmarkRelatedArticle,
+        onUnBookmark = viewModel::onUnbookmarkRelatedArticle,
         onNewBookmark = viewModel::onCreateNewBookmark,
         onLoadMoreRelatedArticles = { /* TODO */ },
         onBack = onBack,

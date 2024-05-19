@@ -1,6 +1,5 @@
 package com.example.frontend.ui.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,39 +11,39 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import java.math.BigInteger
 
 @Composable
-fun SubscriptionCard(
+fun BookmarkCard (
     modifier: Modifier = Modifier,
-    name: String,
-    avatarUrl: String?,
-    url: String?,
-    isFollowing: MutableState<Boolean>,
-    onFollowClick: (isFollowing: Boolean) -> Unit,
-    onClick: () -> Unit
+    listName: String,
+    numArticle: Int,
+    imgUrl: String?,
+    onBookmarkClick: () -> Unit,
+    onShare: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(72.dp)
-            .clickable { onClick() },
+            .clickable { onBookmarkClick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -52,12 +51,12 @@ fun SubscriptionCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (avatarUrl != null) {
+            if (imgUrl != null) {
                 AsyncImage(
-                    model = avatarUrl,
+                    model = imgUrl,
                     contentDescription = null,
                     modifier = Modifier
-                        .requiredSize(64.dp)
+                        .requiredSize(72.dp)
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
@@ -69,7 +68,7 @@ fun SubscriptionCard(
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Text(
-                    text = name,
+                    text = listName,
                     maxLines = 1,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
@@ -77,7 +76,7 @@ fun SubscriptionCard(
                     )
                 )
                 Text(
-                    text = url ?: "",
+                    text = "$numArticle articles",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -85,54 +84,24 @@ fun SubscriptionCard(
                 )
             }
         }
-        if (isFollowing.value) {
-            Button(
-                modifier = Modifier
-                    .width(112.dp),
-                onClick = { onFollowClick(false) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.onSecondary
-                )
+        // create a box whwich have two icon buttons
+        Row {
+            IconButton(
+                onClick = onShare
             ) {
-                Text(
-                    text = "Following",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "share"
                 )
             }
-        } else {
-            Button(
-                modifier = Modifier
-                    .width(112.dp),
-                onClick = { onFollowClick(true) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
+            IconButton(
+                onClick = onDelete
             ) {
-                Text(
-                    text = "Follow",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "delete"
                 )
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun SubscriptionCardPreview() {
-    val isFollowing = remember { mutableStateOf(false) }
-    SubscriptionCard(
-        name = "Publisher Name",
-        avatarUrl = "https://findingtom.com/images/uploads/medium-logo/article-image-00.jpeg",
-        url = "Publisher description",
-        isFollowing = isFollowing,
-        onFollowClick = {},
-        onClick = {}
-    )
 }

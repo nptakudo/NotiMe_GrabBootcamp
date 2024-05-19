@@ -3,7 +3,7 @@ dbup:
 dbrm:
 	docker rm -f grab_bootcamp_db && docker rm -f grab_bootcamp_adminer && docker system prune --volumes -f
 scrapeserver:
-	cd pipeline && python3 -m venv my_venv && source my_venv/bin/activate && pip3 install -r requirements.txt && cd webscrape/webscrape/spiders && python3 scrape_api.py
+	cd pipeline && python -m venv my_venv && pip install -r requirements.txt && cd webscrape/webscrape/spiders && python scrape_api.py
 server:
 	cd backend && go run notime
 mockdata:
