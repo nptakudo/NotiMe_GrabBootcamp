@@ -6,6 +6,7 @@ import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.model.request.LoginRequest
 import com.example.frontend.data.model.response.ApiResponse
+import com.example.frontend.data.model.response.LoginResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,8 +19,8 @@ import java.math.BigInteger
 
 interface ApiService {
     // ---------------- USER ----------------
-    @POST("login/")
-    suspend fun login(@Body request: LoginRequest): Response<ApiResponse>
+    @POST("auth/login/")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     // ---------------- HOME ----------------
     @GET("home/latest_subscribed_articles/")

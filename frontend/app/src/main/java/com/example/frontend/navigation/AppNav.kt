@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = Route.Home.route) {
+    NavHost(navController = navController, startDestination = Route.Login.route) {
         showLogin(navController)
         showHome(navController)
         showExplore(navController)
@@ -46,6 +46,9 @@ private fun NavGraphBuilder.showLogin(navController: NavController) {
     composable(Route.Login.route) {
         LoginRoute(
             viewModel = hiltViewModel(),
+            onLoginSuccess = {
+                navController.navigate(Route.Home.route)
+            }
         )
     }
 }

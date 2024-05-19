@@ -82,6 +82,7 @@ fun LoginScreen(
         LoginButton(
             onClick = {
                 Log.i("LoginScreen", "Username: ${username.value}, Password: ${password.value}")
+                onLogin( username.value, password.value )
             }
         )
     }

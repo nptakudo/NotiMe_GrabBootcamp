@@ -16,6 +16,8 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 class SettingDataSource @Inject constructor(@ApplicationContext private val context: Context) {
     private val accessKey = stringPreferencesKey("access")
     private val refreshKey = stringPreferencesKey("refresh")
+    private val username = stringPreferencesKey("username")
+    private val userId = stringPreferencesKey("userId")
 
     fun getAccessToken(): Flow<String> {
         return context.dataStore.data.map {
@@ -45,6 +47,30 @@ class SettingDataSource @Inject constructor(@ApplicationContext private val cont
         context.dataStore.edit {
             it.remove(accessKey)
             it.remove(refreshKey)
+        }
+    }
+
+    suspend fun setUsername(username: String) {
+        context.dataStore.edit {
+            it[this.username] = username
+        }
+    }
+
+    fun getUsername(): Flow<String> {
+        return context.dataStore.data.map {
+            it[username] ?: ""
+        }
+    }
+
+    suspend fun setUserId(id: Int) {
+        context.dataStore.edit {
+            it[this.userId] = id.toString()
+        }
+    }
+
+    fun getUserId(): Flow<Int> {
+        return context.dataStore.data.map {
+            it[userId]?.toInt() ?: 0
         }
     }
 }
