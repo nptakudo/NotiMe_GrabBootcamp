@@ -53,3 +53,12 @@ func fromDmBookmarkListsToApi(bookmarkLists []*domain.BookmarkList) []*messages.
 	}
 	return bookmarkListsApi
 }
+
+func fromDmUserToApi(user *domain.User, token string) *messages.User {
+	return &messages.User{
+		Id:       user.Id,
+		Username: user.Username,
+		Password: user.Password,
+		Token:    token,
+	}
+}

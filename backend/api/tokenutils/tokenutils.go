@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+type TokenUtil struct {
+}
+
 type JwtCustomClaims struct {
 	Name string `json:"name"`
 	Id   string `json:"id"`

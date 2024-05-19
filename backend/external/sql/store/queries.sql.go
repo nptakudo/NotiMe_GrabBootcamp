@@ -669,3 +669,17 @@ func (q *Queries) UnsubscribePublisher(ctx context.Context, arg UnsubscribePubli
 	_, err := q.db.Exec(ctx, unsubscribePublisher, arg.UserID, arg.PublisherID)
 	return err
 }
+
+// For login
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, password
+FROM "user"
+WHERE username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(&i.ID, &i.Username, &i.Password)
+	return i, err
+}

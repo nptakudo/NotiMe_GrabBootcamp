@@ -9,7 +9,5 @@ type User struct {
 }
 
 type UserRepository interface {
-	Create(ctx context.Context, c context.Context, user *User) error
-	GetById(ctx context.Context, c context.Context, id string) (*User, error)
-	GetByUsername(ctx context.Context, c context.Context, username string) (*User, error)
+	GetByUsername(ctx context.Context, username string) (*User, error)
 }

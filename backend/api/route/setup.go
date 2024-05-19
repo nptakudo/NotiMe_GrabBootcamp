@@ -16,6 +16,9 @@ func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gi
 	// TODO
 	NewDebugRouter(publicRouter, env, db)
 
+	authRouter := gin.Group("/auth")
+	NewAuthRouter(authRouter, env, db)
+
 	protectedRouter := gin.Group("")
 	// TODO
 	// Middleware to verify AccessToken

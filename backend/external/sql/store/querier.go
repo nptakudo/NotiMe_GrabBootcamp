@@ -103,6 +103,10 @@ type Querier interface {
 	SearchPublishersByName(ctx context.Context, query sql.NullString) ([]Source, error)
 	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error
 	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error
+	//-----------------------------------------------
+	// USER REPOSITORY
+	//-----------------------------------------------
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

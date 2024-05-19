@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"notime/external/sql/store"
 	"time"
@@ -22,13 +23,14 @@ func NewDatabase(ctx context.Context, env *Env) *DbClient {
 	_, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	dbHost := env.DBHost
-	dbPort := env.DBPort
-	dbUser := env.DBUser
-	dbPass := env.DBPass
-	dbName := env.DBName
+	dbHost := "localhost"
+	dbPort := "5432"
+	dbUser := "postgres"
+	dbPass := "12345678"
+	dbName := "grab_notime"
 
-	pool, err := pgxpool.Connect(ctx, "user="+dbUser+" password="+dbPass+" host="+dbHost+" port="+dbPort+" dbname="+dbName)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort)
+	pool, err := pgxpool.Connect(ctx, dsn)
 	if err != nil {
 		slog.Error("[Database] Unable to connect to database:", "error", err)
 		panic(err)

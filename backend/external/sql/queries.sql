@@ -207,3 +207,11 @@ DELETE
 FROM subscription
 WHERE user_id = @user_id
   AND source_id = @publisher_id;
+
+-------------------------------------------------
+-- USER REPOSITORY
+-------------------------------------------------
+
+-- name: GetUserByUsername: one
+SELECT * FROM "user"
+WHERE username = @username;
