@@ -111,15 +111,28 @@ fun ArticleListScreen(
                     .nestedScroll(refreshState.nestedScrollConnection)
             ) {
                 if (!refreshState.isRefreshing) {
-                    ArticleListScreenContent(
-                        modifier = modifier,
-                        articles = uiState.articles,
-                        onArticleClick = onArticleClick,
-                        bookmarks = uiState.bookmarks,
-                        onBookmark = onBookmark,
-                        onUnbookmark = onUnbookmark,
-                        onNewBookmark = onNewBookmark
-                    )
+                    if (uiState.state == State.Loading) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Loading...",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    } else {
+                        ArticleListScreenContent(
+                            modifier = modifier,
+                            articles = uiState.articles,
+                            onArticleClick = onArticleClick,
+                            bookmarks = uiState.bookmarks,
+                            onBookmark = onBookmark,
+                            onUnbookmark = onUnbookmark,
+                            onNewBookmark = onNewBookmark
+                        )
+                    }
                 }
                 PullToRefreshContainer(
                     state = refreshState,

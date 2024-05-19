@@ -1,5 +1,6 @@
 package com.example.frontend.ui.screens.bookmark
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.math.BigInteger
 import java.util.Date
 import javax.inject.Inject
@@ -55,6 +57,17 @@ class BookmarkViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             BookmarkUiState.empty
         )
+
+    fun onCreateNewBookmark(name: String) {
+        viewModelScope.launch {
+            try {
+                val bookmarkId = bookmarkRepository.createBookmarkList(name)
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+            } catch (e: Exception) {
+                Log.e(BookmarkConfig.LOG_TAG, "Failed to create new bookmark")
+            }
+        }
+    }
 
     fun onLoadBookmark() {
         _uiState.update { it.copy(state = State.Loading) }

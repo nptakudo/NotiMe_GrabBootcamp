@@ -96,10 +96,23 @@ fun SubscriptionScreen(
                     .nestedScroll(refreshState.nestedScrollConnection)
             ) {
                 if (!refreshState.isRefreshing) {
-                    SubscriptionScreenContent(
-                        subscriptions = uiState.subscriptions,
-                        onSubscriptionClick = onSubscriptionClick
-                    )
+                    if (uiState.state == State.Loading) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Loading...",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    } else {
+                        SubscriptionScreenContent(
+                            subscriptions = uiState.subscriptions,
+                            onSubscriptionClick = onSubscriptionClick
+                        )
+                    }
                 }
                 PullToRefreshContainer(
                     state = refreshState,
@@ -112,7 +125,6 @@ fun SubscriptionScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionScreenContent(
     modifier: Modifier = Modifier,

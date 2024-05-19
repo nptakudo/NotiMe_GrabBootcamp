@@ -1,6 +1,5 @@
 package com.example.frontend.data.datasource
 
-import android.util.Log
 import com.example.frontend.data.model.request.LoginRequest
 import com.example.frontend.network.ApiService
 import javax.inject.Inject

@@ -151,22 +151,32 @@ fun HomeScreen(
                     .nestedScroll(refreshState.nestedScrollConnection)
             ) {
                 if (!refreshState.isRefreshing) {
-                    HomeScreenContentSortByDate(
-                        screenType = uiState.screen,
-                        articles = uiState.articles,
-                        onArticleClick = onArticleClick,
-                        bookmarks = uiState.bookmarks,
-                        onBookmark = onBookmark,
-                        onUnbookmark = onUnbookmark,
-                        onNewBookmark = onNewBookmark,
-                        requestingTopRightOptions = requestingTopRightOptions,
-                        onTopRightOptionsClose = { requestingTopRightOptions = false },
-                        onToExplore = { onNavigateNavBar(Route.Explore) },
-                        onLogout = {
-                            requestingTopRightOptions = false
-                            onLogOutClick()
+                    if (uiState.state == State.MainLoading) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Loading...",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
-                    )
+                    } else {
+                        HomeScreenContentSortByDate(
+                            screenType = uiState.screen,
+                            articles = uiState.articles,
+                            bookmarks = uiState.bookmarks,
+                            onArticleClick = onArticleClick,
+                            onBookmark = onBookmark,
+                            onUnbookmark = onUnbookmark,
+                            onNewBookmark = onNewBookmark,
+                            requestingTopRightOptions = requestingTopRightOptions,
+                            onTopRightOptionsClose = { requestingTopRightOptions = false },
+                            onToExplore = { onNavigateNavBar(Route.Explore) },
+                            onLogout = onLogOutClick
+                        )
+                    }
                 }
                 PullToRefreshContainer(
                     state = refreshState,

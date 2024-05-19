@@ -63,16 +63,14 @@ fun LoginScreen(
         )
         Text(
             text = "NotiMe",
-            style = MaterialTheme.typography.headlineLarge.copy(
+            style = MaterialTheme.typography.displayLarge.copy(
                 color = MaterialTheme.colorScheme.primary,
-                fontSize = 48.sp
             )
         )
         Text(
-            text = "Let's make your account",
-            style = MaterialTheme.typography.headlineLarge.copy(
+            text = "Latest news, only a click away!",
+            style = MaterialTheme.typography.headlineSmall.copy(
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 20.sp,
                 fontWeight = FontWeight.Normal
             ),
             modifier = Modifier.padding(vertical = 16.dp)
@@ -82,7 +80,7 @@ fun LoginScreen(
         LoginButton(
             onClick = {
                 Log.i("LoginScreen", "Username: ${username.value}, Password: ${password.value}")
-                onLogin( username.value, password.value )
+                onLogin(username.value, password.value)
             }
         )
     }

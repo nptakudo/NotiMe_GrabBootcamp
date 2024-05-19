@@ -21,8 +21,8 @@ fun BookmarkRoute(
 
     BookmarkScreen(
         uiState = uiState,
-        onRefresh = { viewModel.onLoadBookmark() },
-        onAddNewBookmark = { },
+        onRefresh = viewModel::onLoadBookmark,
+        onAddNewBookmark = viewModel::onCreateNewBookmark,
         onDeleteBookmark = { articleId -> viewModel.onDeleteBookmark(articleId) },
         onShareBoookmark = { articleId -> viewModel.onShareBoookmark(articleId) },
         onBookmarkDetail = onBookmarkDetail
