@@ -27,6 +27,9 @@ fun ArticleListRoute(
     ArticleListScreen(
         articleType = articleType,
         uiState = uiState,
+        onBookmark = viewModel::onBookmarkArticle,
+        onUnbookmark = viewModel::onUnbookmarkArticle,
+        onNewBookmark = viewModel::onCreateNewBookmark,
         onRefresh = {
             when (articleType) {
                 ArticleType.PUBLISHER -> viewModel.onLoadArticlesByPublisher(id)

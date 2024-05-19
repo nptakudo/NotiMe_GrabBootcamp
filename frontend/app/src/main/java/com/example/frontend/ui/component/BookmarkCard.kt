@@ -32,6 +32,7 @@ fun BookmarkCard(
     listName: String,
     numArticle: Int,
     imgUrl: String?,
+    disableDelete: Boolean = false,
     onBookmarkClick: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit
@@ -81,7 +82,7 @@ fun BookmarkCard(
                 )
             }
         }
-        // create a box whwich have two icon buttons
+        // create a box which have two icon buttons
         Row {
             IconButton(
                 onClick = onShare
@@ -91,13 +92,15 @@ fun BookmarkCard(
                     contentDescription = "share"
                 )
             }
-            IconButton(
-                onClick = onDelete
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "delete"
-                )
+            if (!disableDelete) {
+                IconButton(
+                    onClick = onDelete
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "delete"
+                    )
+                }
             }
         }
     }

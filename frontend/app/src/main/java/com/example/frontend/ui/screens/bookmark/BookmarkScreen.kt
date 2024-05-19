@@ -131,7 +131,7 @@ fun BookmarkScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Add new bookmarks list",
+                    text = "Add new bookmark list",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Button(
@@ -155,6 +155,7 @@ fun BookmarkScreenContent(
                     listName = if (bookmark.isSaved) "Saved Posts" else bookmark.name,
                     numArticle = bookmark.articles.size,
                     imgUrl = "https://findingtom.com/images/uploads/medium-logo/article-image-00.jpeg", //get the first article image url from bookmark.articles
+                    disableDelete = bookmark.isSaved,
                     onBookmarkClick = { onBookmarkDetail(bookmark.id) },
                     onShare = { onShareBoookmark(bookmark.id) },
                     onDelete = { onDeleteBookmark(bookmark.id) }

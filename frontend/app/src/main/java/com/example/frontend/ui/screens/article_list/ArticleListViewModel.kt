@@ -1,15 +1,19 @@
 package com.example.frontend.ui.screens.article_list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
+import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.model.Publisher
+import com.example.frontend.data.repository.BookmarkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.math.BigInteger
 import java.util.Date
 import javax.inject.Inject
@@ -25,6 +29,7 @@ enum class State {
 
 data class ArticleListUiState(
     val articles: List<ArticleMetadata> = emptyList(),
+    val bookmarks: List<BookmarkList> = emptyList(),
     val state: State
 ) {
     companion object {
@@ -35,11 +40,14 @@ data class ArticleListUiState(
     }
 }
 
+// TODO: Remember to update bookmarks when refresh!!
 @HiltViewModel
 class ArticleListViewModel @Inject constructor(
+    private val bookmarkRepository: BookmarkRepository,
 //    private val articleListRepository: ArticleListRepository
 ) : ViewModel() {
     private var _articles = MutableStateFlow(emptyList<ArticleMetadata>())
+    private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
     private var _uiState = MutableStateFlow(ArticleListUiState.empty)
 
     val uiState = _uiState
@@ -47,12 +55,67 @@ class ArticleListViewModel @Inject constructor(
             uiState.copy(
                 articles = articles
             )
-        }
-        .stateIn(
+        }.combine(_bookmarks) { uiState, bookmarks ->
+            uiState.copy(
+                bookmarks = bookmarks.sortedBy { it.name }
+            )
+        }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             ArticleListUiState.empty
         )
+
+    fun onBookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                bookmarkRepository.bookmarkArticle(articleId, bookmarkId)
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
+            } catch (e: Exception) {
+                Log.e(ArticleListConfig.LOG_TAG, "Failed to bookmark article")
+            }
+        }
+    }
+
+    fun onUnbookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                bookmarkRepository.unbookmarkArticle(articleId, bookmarkId)
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
+            } catch (e: Exception) {
+                Log.e(ArticleListConfig.LOG_TAG, "Failed to unbookmark article")
+            }
+        }
+    }
+
+    fun onCreateNewBookmark(name: String, articleId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                val bookmarkId = bookmarkRepository.createBookmarkList(name)
+                bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                updateBookmarkedState(articleId)
+            } catch (e: Exception) {
+                Log.e(ArticleListConfig.LOG_TAG, "Failed to create new bookmark")
+            }
+        }
+    }
+
+    private fun updateBookmarkedState(articleId: BigInteger? = null) {
+        _articles.update { articleList ->
+            articleList.map { article ->
+                if (articleId != null && article.id != articleId) {
+                    article
+                } else
+                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles.any { it.id == article.id } }) {
+                        article.copy(isBookmarked = true)
+                    } else {
+                        article.copy(isBookmarked = false)
+                    }
+            }
+        }
+    }
 
     fun onLoadArticlesByPublisher(publisherId: BigInteger) {
         _uiState.update { it.copy(state = State.Loading) }

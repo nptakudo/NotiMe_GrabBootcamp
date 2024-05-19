@@ -28,10 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
-import com.example.frontend.ui.component.NewArticleCard
+import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
@@ -52,9 +53,11 @@ fun SearchResultScreen(
             title = {
                 Text(
                     text = "Results for \"$query\"",
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    )
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -192,21 +195,24 @@ fun SearchResultContentForArticles(
             HorizontalDivider()
             Text(
                 text = "Articles from this publisher",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold
                 )
             )
             Column(
                 modifier = Modifier.padding(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                articles.forEach { blog ->
-                    NewArticleCard(
-                        articleImageUrl = blog.imageUrl,
-                        title = blog.title,
-                        publisher = blog.publisher.name,
-                        date = dateToStringExactDateFormat(blog.date),
-                        onClick = {}
+                articles.forEach { article ->
+                    SmallArticleCard(
+                        articleImageUrl = article.imageUrl,
+                        title = article.title,
+                        publisher = article.publisher.name,
+                        date = dateToStringExactDateFormat(article.date),
+                        onClick = { /* TODO */ },
+                        disableBookmarkButton = true,
+                        onBookmarkClick = {},
+                        isBookmarked = article.isBookmarked
                     )
                     HorizontalDivider()
                 }

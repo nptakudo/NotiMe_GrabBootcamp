@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -39,6 +39,7 @@ fun SmallArticleCard(
     publisher: String,
     date: String,
     onClick: () -> Unit,
+    disableBookmarkButton: Boolean = false,
     onBookmarkClick: (isBookmarked: Boolean) -> Unit,
 ) {
     Card(
@@ -73,24 +74,26 @@ fun SmallArticleCard(
                     horizontalArrangement = Arrangement.spacedBy(3.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (isBookmarked) {
-                        Icon(
-                            imageVector = Icons.Filled.Bookmark,
-                            contentDescription = "Click to unbookmark",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .clickable { onBookmarkClick(true) }
-                                .requiredSize(16.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.Bookmark,
-                            contentDescription = "Click to bookmark",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .clickable { onBookmarkClick(false) }
-                                .requiredSize(16.dp)
-                        )
+                    if (!disableBookmarkButton) {
+                        if (isBookmarked) {
+                            Icon(
+                                imageVector = Icons.Filled.Bookmark,
+                                contentDescription = "Click to unbookmark",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .clickable { onBookmarkClick(true) }
+                                    .requiredSize(16.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.BookmarkBorder,
+                                contentDescription = "Click to bookmark",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .clickable { onBookmarkClick(false) }
+                                    .requiredSize(16.dp)
+                            )
+                        }
                     }
                     Text(
                         text = publisher,

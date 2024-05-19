@@ -192,37 +192,52 @@ fun ReaderScreen(
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {
             if (!refreshState.isRefreshing) {
-                if (isValidUrl(uiState.article.metadata.imageUrl)) {
-                    ImageFromUrl(
-                        url = uiState.article.metadata.imageUrl!!,
-                        contentDescription = "article image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .requiredHeight(ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp + 40.dp)
-                            .align(Alignment.TopCenter),
+                if (uiState.state == State.Loading) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Loading...",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                    }
+                } else {
+                    if (isValidUrl(uiState.article.metadata.imageUrl)) {
+                        ImageFromUrl(
+                            url = uiState.article.metadata.imageUrl!!,
+                            contentDescription = "article image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeight(ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp + 40.dp)
+                                .align(Alignment.TopCenter),
+                        )
+                    }
+                    ReaderScreenContent(
+                        firstSpacerHeight = if (!isValidUrl(uiState.article.metadata.imageUrl)) {
+                            0.dp
+                        } else {
+                            ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp
+                        },
+                        uiState = uiState,
+                        onFollow = onFollow,
+                        onUnfollow = onUnfollow,
+                        onArticleClick = onRelatedArticleClick,
+                        onBookmark = onBookmark,
+                        onUnBookmark = onUnBookmark,
+                        onNewBookmark = onNewBookmark,
+                        onLoadMoreRelatedArticles = onLoadMoreRelatedArticles,
+                        onToBrowser = onToBrowser,
+                        currentArticleBookmarkRequest = currentArticleBookmarkRequest,
+                        onCurrentArticleBookmarkRequestCompleted = {
+                            currentArticleBookmarkRequest = false
+                        },
                     )
                 }
-                ReaderScreenContent(
-                    firstSpacerHeight = if (!isValidUrl(uiState.article.metadata.imageUrl)) {
-                        0.dp
-                    } else {
-                        ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp
-                    },
-                    uiState = uiState,
-                    onFollow = onFollow,
-                    onUnfollow = onUnfollow,
-                    onArticleClick = onRelatedArticleClick,
-                    onBookmark = onBookmark,
-                    onUnBookmark = onUnBookmark,
-                    onNewBookmark = onNewBookmark,
-                    onLoadMoreRelatedArticles = onLoadMoreRelatedArticles,
-                    onToBrowser = onToBrowser,
-                    currentArticleBookmarkRequest = currentArticleBookmarkRequest,
-                    onCurrentArticleBookmarkRequestCompleted = {
-                        currentArticleBookmarkRequest = false
-                    },
-                )
             }
             PullToRefreshContainer(
                 state = refreshState,

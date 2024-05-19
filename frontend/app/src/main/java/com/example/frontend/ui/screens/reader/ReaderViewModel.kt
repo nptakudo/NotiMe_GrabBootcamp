@@ -15,7 +15,6 @@ import com.example.frontend.data.repository.RecsysRepository
 import com.example.frontend.data.repository.SubscriptionRepository
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.screens.home.HomeConfig
-import com.example.frontend.ui.screens.home.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,7 +42,7 @@ data class ReaderUiState(
             article = dummyArticle(),
             relatedArticles = emptyList(),
             bookmarks = emptyList(),
-            state = State.MainIdle
+            state = State.Idle
         )
     }
 }
@@ -200,7 +199,7 @@ class ReaderViewModel @Inject constructor(
 
     fun refreshUiState(offset: Int = 0, count: Int = ReaderConfig.RELATED_ARTICLE_COUNT) {
         viewModelScope.launch {
-            _uiState.update { it.copy(state = State.MainLoading) }
+            _uiState.update { it.copy(state = State.Loading) }
             try {
                 _article.update {
                     articleRepository.getArticleMetadataAndContentById(articleId)
@@ -224,7 +223,7 @@ class ReaderViewModel @Inject constructor(
                     "Failed to refresh ui state. Error: ${e.message}"
                 )
             }
-            _uiState.update { it.copy(state = State.MainIdle) }
+            _uiState.update { it.copy(state = State.Idle) }
         }
     }
 }

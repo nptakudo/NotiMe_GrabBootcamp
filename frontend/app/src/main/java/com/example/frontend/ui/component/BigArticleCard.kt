@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -132,7 +132,7 @@ fun BigArticleCard(
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Outlined.Bookmark,
+                                imageVector = Icons.Outlined.BookmarkBorder,
                                 contentDescription = "Click to bookmark",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
