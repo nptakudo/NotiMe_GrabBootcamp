@@ -3,6 +3,7 @@ package com.example.frontend.ui.screens.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontend.data.datasource.SettingDataSource
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.repository.ArticleRepository
@@ -13,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -68,6 +70,7 @@ abstract class BaseHomeViewModel(
     protected val bookmarkRepository: BookmarkRepository,
     protected val subscriptionRepository: SubscriptionRepository,
     protected val articleRepository: ArticleRepository,
+    protected val settingDataSource: SettingDataSource
 ) : ViewModel() {
     protected var _articles = MutableStateFlow(emptyList<ArticleMetadata>())
     protected var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
@@ -116,7 +119,8 @@ abstract class BaseHomeViewModel(
     fun onSubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                subscriptionRepository.subscribePublisher(publisherId)
+                val userId = settingDataSource.getUserId().first().toBigInteger()
+                subscriptionRepository.subscribePublisher(userId, publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to subscribe publisher")
             }
@@ -126,7 +130,8 @@ abstract class BaseHomeViewModel(
     fun onUnsubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                subscriptionRepository.unsubscribePublisher(publisherId)
+                val userId = settingDataSource.getUserId().first().toBigInteger()
+                subscriptionRepository.unsubscribePublisher(userId, publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to unsubscribe publisher")
             }
@@ -209,12 +214,14 @@ class HomeViewModel @Inject constructor(
     bookmarkRepository: BookmarkRepository,
     subscriptionRepository: SubscriptionRepository,
     articleRepository: ArticleRepository,
+    settingDataSource: SettingDataSource
 ) : BaseHomeViewModel(
     Screen.Home,
     recsysRepository,
     bookmarkRepository,
     subscriptionRepository,
     articleRepository,
+    settingDataSource
 ) {
     init {
         refreshUiState()
@@ -256,12 +263,14 @@ class ExploreViewModel @Inject constructor(
     bookmarkRepository: BookmarkRepository,
     subscriptionRepository: SubscriptionRepository,
     articleRepository: ArticleRepository,
+    settingDataSource: SettingDataSource
 ) : BaseHomeViewModel(
     Screen.Explore,
     recsysRepository,
     bookmarkRepository,
     subscriptionRepository,
     articleRepository,
+    settingDataSource
 ) {
     init {
         refreshUiState()

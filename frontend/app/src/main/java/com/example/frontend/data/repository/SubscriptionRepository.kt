@@ -7,13 +7,13 @@ import javax.inject.Inject
 class SubscriptionRepository @Inject constructor(
     private val remoteSubscriptionDataSource: RemoteSubscriptionDataSource
 ) {
-    suspend fun getSubscriptions() = remoteSubscriptionDataSource.getSubscriptions()
+    suspend fun getSubscriptions(userId: BigInteger) = remoteSubscriptionDataSource.getSubscriptions(userId)
     suspend fun isPublisherSubscribed(publisherId: BigInteger) =
         remoteSubscriptionDataSource.isPublisherSubscribed(publisherId)
 
-    suspend fun subscribePublisher(publisherId: BigInteger) =
-        remoteSubscriptionDataSource.subscribePublisher(publisherId)
+    suspend fun subscribePublisher(userId: BigInteger, publisherId: BigInteger) =
+        remoteSubscriptionDataSource.subscribePublisher(userId, publisherId)
 
-    suspend fun unsubscribePublisher(publisherId: BigInteger) =
-        remoteSubscriptionDataSource.unsubscribePublisher(publisherId)
+    suspend fun unsubscribePublisher(userId: BigInteger, publisherId: BigInteger) =
+        remoteSubscriptionDataSource.unsubscribePublisher(userId, publisherId)
 }

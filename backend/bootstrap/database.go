@@ -22,19 +22,26 @@ func (m *DbClient) Disconnect() {
 func NewDatabase(ctx context.Context, env *Env) *DbClient {
 	_, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
+	//dbHost := "localhost"
+	//dbPort := "5432"
+	//dbUser := "postgres"
+	//dbPass := "12345678"
+	//dbName := "grab_notime"
+	//dbHost := env.DBHost
+	//dbPort := env.DBPort
+	//dbUser := env.DBUser
+	//dbPass := env.DBPass
+	//dbName := env.DBName
+	dbHost := "grabdatabase.cpewwgk0gozq.ap-southeast-1.rds.amazonaws.com"
+	dbPort := "5432"
+	dbUser := "grabbootcamp"
+	dbPass := "verystrongpass2024"
+	dbName := "grabbootcamp"
 
-	dbHost := env.DBHost
-	dbPort := env.DBPort
-	dbUser := env.DBUser
-	dbPass := env.DBPass
-	dbName := env.DBName
-	sslMode := "require"
-	if env.AppEnv == "development" {
-		sslMode = "disable"
-	}
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", dbHost, dbUser, dbPass, dbName, dbPort, sslMode)
+	//dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require", dbHost, dbUser, dbPass, dbName, dbPort)
 	pool, err := pgxpool.Connect(ctx, dsn)
+
 	if err != nil {
 		slog.Error("[Database] Unable to connect to database:", "error", err)
 		panic(err)

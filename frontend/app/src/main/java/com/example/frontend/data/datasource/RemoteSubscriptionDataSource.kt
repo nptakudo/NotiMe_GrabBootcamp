@@ -8,8 +8,8 @@ import javax.inject.Inject
 class RemoteSubscriptionDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getSubscriptions(): List<Publisher> {
-        val res = apiService.getSubscriptions()
+    suspend fun getSubscriptions(userId: BigInteger): List<Publisher> {
+        val res = apiService.getSubscriptions(userId)
         if (!res.isSuccessful) {
             throw Exception("Failed to get subscribed publishers")
         }
@@ -24,15 +24,15 @@ class RemoteSubscriptionDataSource @Inject constructor(
         return res.body()!!.message.toBoolean()
     }
 
-    suspend fun subscribePublisher(publisherId: BigInteger) {
-        val res = apiService.subscribePublisher(publisherId)
+    suspend fun subscribePublisher(userId: BigInteger, publisherId: BigInteger) {
+        val res = apiService.subscribePublisher(userId, publisherId)
         if (!res.isSuccessful) {
             throw Exception("Failed to subscribe publisher")
         }
     }
 
-    suspend fun unsubscribePublisher(publisherId: BigInteger) {
-        val res = apiService.unsubscribePublisher(publisherId)
+    suspend fun unsubscribePublisher(userId: BigInteger, publisherId: BigInteger) {
+        val res = apiService.unsubscribePublisher(userId, publisherId)
         if (!res.isSuccessful) {
             throw Exception("Failed to unsubscribe publisher")
         }

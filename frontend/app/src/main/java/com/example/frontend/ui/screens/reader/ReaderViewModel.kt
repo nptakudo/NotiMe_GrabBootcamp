@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontend.data.datasource.SettingDataSource
 import com.example.frontend.data.model.Article
 import com.example.frontend.data.model.ArticleContent
 import com.example.frontend.data.model.ArticleMetadata
@@ -19,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -58,6 +60,7 @@ class ReaderViewModel @Inject constructor(
     private val recsysRepository: RecsysRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val subscriptionRepository: SubscriptionRepository,
+    private val settingDataSource: SettingDataSource,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val articleId = BigInteger(savedStateHandle.get<String>(Route.Reader.args[0])!!)
@@ -116,7 +119,8 @@ class ReaderViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                subscriptionRepository.subscribePublisher(publisherId)
+                val userId = settingDataSource.getUserId().first().toBigInteger()
+                subscriptionRepository.subscribePublisher(userId, publisherId)
                 _article.update { article ->
                     article.copy(
                         metadata = article.metadata.copy(
@@ -139,7 +143,8 @@ class ReaderViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                subscriptionRepository.unsubscribePublisher(publisherId)
+                val userId = settingDataSource.getUserId().first().toBigInteger()
+                subscriptionRepository.unsubscribePublisher(userId, publisherId)
                 _article.update { article ->
                     article.copy(
                         metadata = article.metadata.copy(

@@ -94,7 +94,12 @@ func (controller *CommonController) GetBookmarkListById(ctx *gin.Context) {
 }
 
 func (controller *CommonController) GetSubscriptions(ctx *gin.Context) {
-	userId := ctx.GetInt64(api.UserIdKey)
+	// get user id from path parameter
+	userId, err := strconv.Atoi(ctx.Param("userId"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
 	subscriptions, err := controller.CommonUsecase.GetSubscriptions(ctx, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -184,7 +189,12 @@ func (controller *CommonController) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId, err := strconv.Atoi(ctx.Param("user_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
 	err = controller.CommonUsecase.Subscribe(ctx, int32(publisherId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -201,7 +211,12 @@ func (controller *CommonController) Unsubscribe(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId, err := strconv.Atoi(ctx.Param("user_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
 	err = controller.CommonUsecase.Unsubscribe(ctx, int32(publisherId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})

@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets
 fun AppNavGraph(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = Route.Login.route) {
+    NavHost(navController = navController, startDestination = Route.Home.route) {
         showLogin(navController)
         showHome(navController)
         showExplore(navController)
