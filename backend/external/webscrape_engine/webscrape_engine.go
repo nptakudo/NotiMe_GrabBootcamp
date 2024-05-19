@@ -25,7 +25,7 @@ func (e *WebscrapeEngineImpl) ScrapeFromUrl(url string, timeout time.Duration) (
 	}
 
 	// Define the command to be executed
-	command := "python linkscrape.py " + url
+	command := "python3 linkscrape.py " + url
 
 	// Create the JSON payload
 	payload := map[string]string{
