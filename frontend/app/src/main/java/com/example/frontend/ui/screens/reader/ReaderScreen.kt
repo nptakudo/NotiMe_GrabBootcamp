@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.frontend.ui.component.BottomSheetBookmarkContent
 import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.ImageFromUrl
@@ -123,7 +124,8 @@ fun ReaderScreen(
                 .shadow(
                     elevation = 16.dp,
                     spotColor = Color.DarkGray
-                ),
+                )
+                .zIndex(1f),
             title = {},
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface
@@ -186,10 +188,6 @@ fun ReaderScreen(
         )
         Box(
             modifier = Modifier
-                .padding(
-                    start = UiConfig.sideScreenPadding,
-                    end = UiConfig.sideScreenPadding
-                )
                 .fillMaxSize()
                 .nestedScroll(refreshState.nestedScrollConnection)
         ) {
@@ -277,17 +275,18 @@ fun ReaderScreenContent(
 
     val scrollState = rememberScrollState()
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState),
     ) {
         Spacer(modifier = Modifier.height(firstSpacerHeight))
         Card(
             modifier = Modifier.fillMaxSize(),
-            shape = RoundedCornerShape(
-                topStart = 32.dp,
-                topEnd = 32.dp,
-            ),
+            shape = if (firstSpacerHeight != 0.dp) {
+                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+            } else {
+                RoundedCornerShape(0.dp)
+            },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
             ),

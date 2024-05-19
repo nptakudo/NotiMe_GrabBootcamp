@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.navigation.Route
@@ -140,7 +141,8 @@ fun HomeScreen(
                             )
                         }
                     }
-                }
+                },
+                modifier = Modifier.zIndex(1f)
             )
             Box(
                 modifier = Modifier
@@ -297,7 +299,7 @@ fun HomeScreenContentSortByDate(
                 },
             )
             if (yesterdayArticles.isNotEmpty()) {
-                Divider()
+                BigDivider()
                 Text(
                     text = "Yesterday",
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -314,7 +316,7 @@ fun HomeScreenContentSortByDate(
                 )
             }
             if (olderArticles.isNotEmpty()) {
-                Divider()
+                BigDivider()
                 Text(
                     text = "A few days ago...",
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -543,14 +545,27 @@ fun ArticleColumn(
             onBookmarkClick = { onBookmarkClick(article.id) },
             modifier = modifier
         )
+        SmallDivider()
     }
 }
 
 @Composable
-fun Divider(
+fun BigDivider(
     modifier: Modifier = Modifier,
 ) {
     HorizontalDivider(
-        modifier = modifier.padding(vertical = 8.dp),
+        modifier = modifier
+            .padding(vertical = 8.dp),
+        thickness = 2.dp
+    )
+}
+
+@Composable
+fun SmallDivider(
+    modifier: Modifier = Modifier,
+) {
+    HorizontalDivider(
+        modifier = modifier,
+        thickness = 0.5.dp
     )
 }

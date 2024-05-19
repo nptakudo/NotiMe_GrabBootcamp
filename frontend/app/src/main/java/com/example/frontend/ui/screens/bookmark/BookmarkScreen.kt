@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,9 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.ui.component.BookmarkCard
-import com.example.frontend.ui.screens.home.Divider
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import kotlinx.coroutines.launch
@@ -53,42 +57,46 @@ fun BookmarkScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Your Bookmarks",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Colors.topBarContainer
+    Column(modifier = modifier.fillMaxSize()) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Your Bookmarks",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.padding(start = 10.dp)
                 )
-            )
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Colors.topBarContainer
+            ),
+            modifier = Modifier.zIndex(1f)
+        )
 
-            Box(
-                modifier = Modifier
-                    .padding(
-                        start = UiConfig.sideScreenPadding,
-                        end = UiConfig.sideScreenPadding,
-                    )
-                    .fillMaxSize()
-                    .nestedScroll(refreshState.nestedScrollConnection)
-            ) {
-                if (!refreshState.isRefreshing) {
-                    BookmarkScreenContent(
-                        bookmarks = uiState.bookmarks,
-                        onAddNewBookmark = onAddNewBookmark,
-                        onDeleteBookmark = onDeleteBookmark,
-                        onShareBoookmark = onShareBoookmark,
-                        onBookmarkDetail = onBookmarkDetail
-                    )
-                }
+        Box(
+            modifier = Modifier
+                .padding(
+                    start = UiConfig.sideScreenPadding,
+                    end = UiConfig.sideScreenPadding,
+                )
+                .fillMaxSize()
+                .nestedScroll(refreshState.nestedScrollConnection)
+        ) {
+            if (!refreshState.isRefreshing) {
+                BookmarkScreenContent(
+                    bookmarks = uiState.bookmarks,
+                    onAddNewBookmark = onAddNewBookmark,
+                    onDeleteBookmark = onDeleteBookmark,
+                    onShareBoookmark = onShareBoookmark,
+                    onBookmarkDetail = onBookmarkDetail
+                )
             }
+            PullToRefreshContainer(
+                state = refreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                containerColor = Colors.topBarContainer
+            )
         }
     }
 }
@@ -103,6 +111,7 @@ fun BookmarkScreenContent(
     onBookmarkDetail: (articleId: BigInteger) -> Unit
 ) {
     if (bookmarks.isNotEmpty()) {
+        val scrollState = rememberScrollState()
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -110,7 +119,8 @@ fun BookmarkScreenContent(
                     start = UiConfig.sideScreenPadding,
                     end = UiConfig.sideScreenPadding,
                     top = 16.dp,
-                ),
+                )
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
@@ -149,7 +159,7 @@ fun BookmarkScreenContent(
                     onShare = { onShareBoookmark(bookmark.id) },
                     onDelete = { onDeleteBookmark(bookmark.id) }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
     } else {

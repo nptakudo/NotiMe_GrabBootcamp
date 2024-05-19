@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +33,6 @@ import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.ui.component.NewArticleCard
 import com.example.frontend.ui.component.SubscriptionCard
-import com.example.frontend.ui.screens.home.Divider
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringExactDateFormat
@@ -130,7 +130,7 @@ fun SearchResultContentForPublishers(
                             onSubscriptionClick(publisher.id)
                         }
                     )
-                    Divider()
+                    HorizontalDivider()
                 }
             }
         }
@@ -189,7 +189,7 @@ fun SearchResultContentForArticles(
                     )
                 }
             }
-            Divider()
+            HorizontalDivider()
             Text(
                 text = "Articles from this publisher",
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -208,11 +208,10 @@ fun SearchResultContentForArticles(
                         date = dateToStringExactDateFormat(blog.date),
                         onClick = {}
                     )
-                    Divider()
+                    HorizontalDivider()
                 }
             }
         }
-
     } else {
         Text(
             text = "Start subscribing to publishers to see articles here! Hop over to Explore to find new publishers.",

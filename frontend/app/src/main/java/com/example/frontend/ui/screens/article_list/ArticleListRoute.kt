@@ -25,6 +25,7 @@ fun ArticleListRoute(
     }
 
     ArticleListScreen(
+        articleType = articleType,
         uiState = uiState,
         onRefresh = {
             when (articleType) {

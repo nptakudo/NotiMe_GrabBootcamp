@@ -1,6 +1,7 @@
 package com.example.frontend.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -78,17 +79,18 @@ private fun NavGraphBuilder.showExplore(navController: NavController) {
 }
 
 private fun NavGraphBuilder.showReader(navController: NavController) {
-    composable(Route.Reader.route + "/{articleId}") {
-        val articleId = it.arguments?.getString("articleId")
-        if (articleId != null) {
-            ReaderRoute(
-                viewModel = hiltViewModel(),
-                onReadAnotherArticle = {
-                    navController.navigate(Route.Reader.route + "/$it")
-                },
-                onBack = { navController.navigateUp() }
-            )
+    val route = Route.Reader.route + "/{${Route.Reader.args[0]}}"
+    composable(route) {
+        val parentEntry = remember(it) {
+            navController.getBackStackEntry(route)
         }
+        ReaderRoute(
+            viewModel = hiltViewModel(parentEntry),
+            onReadAnotherArticle = {
+                navController.navigate(Route.Reader.route + "/$it")
+            },
+            onBack = { navController.navigateUp() }
+        )
     }
 }
 

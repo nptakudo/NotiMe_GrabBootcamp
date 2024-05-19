@@ -1,6 +1,7 @@
 package com.example.frontend.ui.screens.reader
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.Article
@@ -12,6 +13,7 @@ import com.example.frontend.data.repository.ArticleRepository
 import com.example.frontend.data.repository.BookmarkRepository
 import com.example.frontend.data.repository.RecsysRepository
 import com.example.frontend.data.repository.SubscriptionRepository
+import com.example.frontend.navigation.Route
 import com.example.frontend.ui.screens.home.HomeConfig
 import com.example.frontend.ui.screens.home.State
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,14 +55,14 @@ enum class State {
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
-//    val articleId: BigInteger,
     private val articleRepository: ArticleRepository,
     private val recsysRepository: RecsysRepository,
     private val bookmarkRepository: BookmarkRepository,
-    private val subscriptionRepository: SubscriptionRepository
+    private val subscriptionRepository: SubscriptionRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    // TODO
-    val articleId = BigInteger.valueOf(9)
+    val articleId = BigInteger(savedStateHandle.get<String>(Route.Reader.args[0])!!)
+
     private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
     private var _article = MutableStateFlow(dummyArticle())
     private var _relatedArticles = MutableStateFlow(emptyList<ArticleMetadata>())
