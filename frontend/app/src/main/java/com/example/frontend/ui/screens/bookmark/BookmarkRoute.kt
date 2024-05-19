@@ -8,7 +8,7 @@ import java.math.BigInteger
 
 
 @Composable
-fun BookmarkRoute (
+fun BookmarkRoute(
     viewModel: BookmarkViewModel,
     onBookmarkDetail: (articleId: BigInteger) -> Unit
 ) {
@@ -22,7 +22,7 @@ fun BookmarkRoute (
     BookmarkScreen(
         uiState = uiState,
         onRefresh = { viewModel.onLoadBookmark() },
-        onAddNewBookmark = {  },
+        onAddNewBookmark = { },
         onDeleteBookmark = { articleId -> viewModel.onDeleteBookmark(articleId) },
         onShareBoookmark = { articleId -> viewModel.onShareBoookmark(articleId) },
         onBookmarkDetail = onBookmarkDetail

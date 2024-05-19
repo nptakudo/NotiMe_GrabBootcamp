@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -17,11 +16,6 @@ fun ReaderRoute(
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    if (uiState == ReaderUiState.empty) {
-        LaunchedEffect(Unit) {
-            viewModel.refreshUiState()
-        }
-    }
 
     ReaderScreen(
         uiState = uiState,

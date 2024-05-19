@@ -1,7 +1,6 @@
 package com.example.frontend.ui.screens.home
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.frontend.navigation.Route
@@ -16,11 +15,6 @@ fun HomeRoute(
     onLogOutClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    if (uiState.articles.isEmpty()) {
-        LaunchedEffect(Unit) {
-            viewModel.refreshUiState()
-        }
-    }
 
     HomeScreen(
         uiState = uiState,

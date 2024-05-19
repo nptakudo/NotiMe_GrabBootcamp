@@ -192,6 +192,10 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
+    init {
+        refreshUiState()
+    }
+
     fun refreshUiState(offset: Int = 0, count: Int = ReaderConfig.RELATED_ARTICLE_COUNT) {
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.MainLoading) }

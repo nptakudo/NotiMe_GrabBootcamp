@@ -1,6 +1,5 @@
 package com.example.frontend.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -11,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.example.frontend.ui.screens.article_list.ArticleListRoute
 import com.example.frontend.ui.screens.article_list.ArticleType
 import com.example.frontend.ui.screens.bookmark.BookmarkRoute
+import com.example.frontend.ui.screens.home.ExploreRoute
 import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.screens.login.LoginRoute
 import com.example.frontend.ui.screens.reader.ReaderRoute
@@ -56,7 +56,7 @@ private fun NavGraphBuilder.showHome(navController: NavController) {
             onArticleClick = {
                 navController.navigate(Route.Reader.route + "/$it")
             },
-            onNavigateNavBar = {},
+            onNavigateNavBar = { route -> navController.navigate(route.route) },
             onAboutClick = { /*TODO*/ },
             onLogOutClick = { /*TODO*/ }
         )
@@ -65,7 +65,15 @@ private fun NavGraphBuilder.showHome(navController: NavController) {
 
 private fun NavGraphBuilder.showExplore(navController: NavController) {
     composable(Route.Explore.route) {
+        ExploreRoute(
+            viewModel = hiltViewModel(),
+            onArticleClick = {
+                navController.navigate(Route.Reader.route + "/$it")
+            },
+            onNavigateNavBar = { route -> navController.navigate(route.route) },
+            onAboutClick = { /*TODO*/ }) {
 
+        }
     }
 }
 
@@ -75,8 +83,10 @@ private fun NavGraphBuilder.showReader(navController: NavController) {
         if (articleId != null) {
             ReaderRoute(
                 viewModel = hiltViewModel(),
-                onReadAnotherArticle = {},
-                onBack = { navController.navigateUp()}
+                onReadAnotherArticle = {
+                    navController.navigate(Route.Reader.route + "/$it")
+                },
+                onBack = { navController.navigateUp() }
             )
         }
     }
@@ -107,6 +117,7 @@ private fun NavGraphBuilder.showBookmarkListDetail(navController: NavController)
         )
     }
 }
+
 private fun NavGraphBuilder.showSubscription(navController: NavController) {
     composable(Route.Following.route) {
         SubscriptionRoute(
@@ -114,10 +125,11 @@ private fun NavGraphBuilder.showSubscription(navController: NavController) {
             onSubscriptionClick = {
                 navController.navigate(Route.SubscriptionDetail.route + "/$it")
             },
-            onSearchIconClick = {navController.navigate(Route.Search.route)}
+            onSearchIconClick = { navController.navigate(Route.Search.route) }
         )
     }
 }
+
 private fun NavGraphBuilder.showSubscriptionDetail(navController: NavController) {
     composable(Route.SubscriptionDetail.route + "/{publisherId}") {
         val publisherId = it.arguments?.getString("publisherId")
@@ -132,6 +144,7 @@ private fun NavGraphBuilder.showSubscriptionDetail(navController: NavController)
         )
     }
 }
+
 private fun NavGraphBuilder.showSearch(navController: NavController) {
     composable(Route.Search.route) {
         SearchScreen(
@@ -147,6 +160,7 @@ private fun NavGraphBuilder.showSearch(navController: NavController) {
         )
     }
 }
+
 private fun NavGraphBuilder.showSearchResult(navController: NavController) {
     composable(Route.SearchResult.route + "/{query}") { it ->
         val encodedQuery = it.arguments?.getString("query")

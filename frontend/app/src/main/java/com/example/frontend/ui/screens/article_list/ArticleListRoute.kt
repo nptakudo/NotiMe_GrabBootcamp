@@ -7,7 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.math.BigInteger
 
 @Composable
-fun ArticleListRoute (
+fun ArticleListRoute(
     viewModel: ArticleListViewModel,
     articleType: ArticleType,
     id: BigInteger,
@@ -36,6 +36,7 @@ fun ArticleListRoute (
         onArticleClick = onArticleClick
     )
 }
+
 enum class ArticleType {
     PUBLISHER,
     BOOKMARK

@@ -11,29 +11,23 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.frontend.data.model.Publisher
-import com.example.frontend.navigation.Route
-import com.example.frontend.ui.component.NavBar
 import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.screens.home.Divider
 import com.example.frontend.ui.theme.Colors
@@ -64,10 +58,11 @@ fun SubscriptionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Subscribed Publishers",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        text = "Subscribed",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(start = 10.dp)
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -116,7 +111,7 @@ fun SubscriptionScreenContent(
 ) {
 
     if (subscriptions.isNotEmpty()) {
-        Column (
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())

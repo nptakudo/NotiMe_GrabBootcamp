@@ -1,6 +1,5 @@
 package com.example.frontend.ui.screens.search
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
@@ -22,11 +22,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -37,7 +34,7 @@ import com.example.frontend.ui.theme.Colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen (
+fun SearchScreen(
     onSearch: (String) -> Unit,
     onBack: () -> Unit
 ) {
@@ -46,15 +43,15 @@ fun SearchScreen (
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = {
-                    Text(
-                        text = "Search",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
+                Text(
+                    text = "Search",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                )
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Colors.topBarContainer
+                containerColor = Color.Transparent
             ),
             navigationIcon = {
                 IconButton(
@@ -82,6 +79,7 @@ fun SearchScreen (
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
@@ -93,10 +91,27 @@ fun SearchBar(
         onValueChange = {
             searchString.value = it
         },
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch(searchString.value)
+            },
+            onDone = {
+                onSearch(searchString.value)
+            },
+            onGo = {
+                onSearch(searchString.value)
+            },
+            onNext = {
+                onSearch(searchString.value)
+            },
+            onSend = {
+                onSearch(searchString.value)
+            }
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                vertical = 24.dp,
+                vertical = 12.dp,
                 horizontal = 12.dp
             )
             .height(48.dp),
@@ -107,7 +122,8 @@ fun SearchBar(
                     color = Color.Gray,
                     fontSize = 16.sp
                 )
-            ) },
+            )
+        },
         leadingIcon = {
             IconButton(
                 onClick = {

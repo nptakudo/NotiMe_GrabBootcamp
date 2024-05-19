@@ -216,6 +216,10 @@ class HomeViewModel @Inject constructor(
     subscriptionRepository,
     articleRepository,
 ) {
+    init {
+        refreshUiState()
+    }
+
     override fun refreshUiState(offset: Int, count: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.MainLoading) }
@@ -259,6 +263,10 @@ class ExploreViewModel @Inject constructor(
     subscriptionRepository,
     articleRepository,
 ) {
+    init {
+        refreshUiState()
+    }
+
     override fun refreshUiState(offset: Int, count: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.MainLoading) }

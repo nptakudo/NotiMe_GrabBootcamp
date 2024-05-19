@@ -7,7 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.math.BigInteger
 
 @Composable
-fun SearchResultRoute (
+fun SearchResultRoute(
     viewModel: SearchResultViewModel,
     query: String,
     obBack: () -> Unit,

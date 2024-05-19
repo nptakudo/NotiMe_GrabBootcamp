@@ -1,9 +1,7 @@
 package com.example.frontend.ui.screens.search
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.frontend.data.model.Article
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,8 +10,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.math.BigInteger
 import java.util.Date
 import javax.inject.Inject
@@ -72,6 +68,7 @@ class SearchResultViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             SearchResultUiState.empty
         )
+
     fun search(query: String) {
         _uiState.update { it.copy(state = State.Loading) }
         _isNewSource.update { true }
@@ -225,7 +222,8 @@ class SearchResultViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -239,7 +237,8 @@ class SearchResultViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -253,7 +252,8 @@ class SearchResultViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",

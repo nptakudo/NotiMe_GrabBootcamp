@@ -8,21 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -42,19 +41,19 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 @Composable
-fun LoginScreen (
+fun LoginScreen(
     modifier: Modifier = Modifier,
     onLogin: (username: String, password: String) -> Unit
 ) {
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
-    Column (
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AsyncImage (
+        AsyncImage(
             model = "https://img.freepik.com/free-vector/person-writing-love-letter-flat-vector-illustration-pen-human-hand-person-sending-receiving-letter-correspondence-communication-relationship-friendship-concept_74855-24968.jpg?t=st=1715832273~exp=1715835873~hmac=e0adde0e135f7bfdf51af50f2ee71c60ef1195c32449ca336dc255fda4335ee5&w=826",
             contentDescription = null,
             modifier = Modifier
@@ -62,14 +61,14 @@ fun LoginScreen (
                 .height(350.dp)
                 .padding(top = 16.dp)
         )
-        Text (
+        Text(
             text = "NotiMe",
             style = MaterialTheme.typography.headlineLarge.copy(
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 48.sp
             )
         )
-        Text (
+        Text(
             text = "Let's make your account",
             style = MaterialTheme.typography.headlineLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -123,7 +122,11 @@ fun FormField(label: String, fieldValue: MutableState<String>) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 5.dp, horizontal = 0.dp)
-                .border(2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp)),
+                .border(
+                    2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp)
+                ),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
@@ -153,10 +156,10 @@ fun FormField(label: String, fieldValue: MutableState<String>) {
 }
 
 @Composable
-fun LoginButton (
+fun LoginButton(
     onClick: () -> Unit
 ) {
-    Button (
+    Button(
         modifier = Modifier
             .fillMaxWidth()
             .padding(

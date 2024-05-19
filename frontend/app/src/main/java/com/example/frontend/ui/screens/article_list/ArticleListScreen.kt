@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,8 +19,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -30,13 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.ui.component.NewArticleCard
-import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.screens.home.Divider
-import com.example.frontend.ui.screens.subscription.SubscriptionScreenContent
-import com.example.frontend.ui.screens.subscription.SubscriptionUiState
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
-import com.example.frontend.utils.dateToStringAgoFormat
 import com.example.frontend.utils.dateToStringExactDateFormat
 import kotlinx.coroutines.launch
 import java.math.BigInteger
@@ -44,7 +36,7 @@ import java.math.BigInteger
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArticleListScreen (
+fun ArticleListScreen(
     modifier: Modifier = Modifier,
     uiState: ArticleListUiState,
     onRefresh: () -> Unit,
@@ -64,10 +56,10 @@ fun ArticleListScreen (
             TopAppBar(
                 title = {
                     Text(
-                        text = "Subscribed Publishers",
-                        style = MaterialTheme.typography.headlineLarge.copy(
+                        text = "Bookmarks",
+                        style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.SemiBold
-                        )
+                        ),
                     )
                 },
                 navigationIcon = {
@@ -104,6 +96,7 @@ fun ArticleListScreen (
         }
     }
 }
+
 @Composable
 fun ArticleListScreenContent(
     modifier: Modifier = Modifier,
@@ -111,7 +104,7 @@ fun ArticleListScreenContent(
     onArticleClick: (articleId: BigInteger) -> Unit
 ) {
     if (articles.isNotEmpty()) {
-        Column (
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
@@ -122,7 +115,7 @@ fun ArticleListScreenContent(
                 ),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Column (
+            Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 articles.forEach { blog ->

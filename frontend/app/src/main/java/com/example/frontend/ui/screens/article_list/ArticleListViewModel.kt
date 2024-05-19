@@ -17,10 +17,12 @@ import javax.inject.Inject
 object ArticleListConfig {
     const val LOG_TAG = "SubscribedListViewModel"
 }
+
 enum class State {
     Idle,
     Loading,
 }
+
 data class ArticleListUiState(
     val articles: List<ArticleMetadata> = emptyList(),
     val state: State
@@ -32,6 +34,7 @@ data class ArticleListUiState(
         )
     }
 }
+
 @HiltViewModel
 class ArticleListViewModel @Inject constructor(
 //    private val articleListRepository: ArticleListRepository
@@ -50,6 +53,7 @@ class ArticleListViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             ArticleListUiState.empty
         )
+
     fun onLoadArticlesByPublisher(publisherId: BigInteger) {
         _uiState.update { it.copy(state = State.Loading) }
         _articles.update {
@@ -128,7 +132,8 @@ class ArticleListViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -142,7 +147,8 @@ class ArticleListViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -156,7 +162,8 @@ class ArticleListViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -183,6 +190,7 @@ class ArticleListViewModel @Inject constructor(
         //    }
         //}
     }
+
     fun onLoadArticlesByBookmarkList(bookmarkListId: BigInteger) {
         _uiState.update { it.copy(state = State.Loading) }
         _articles.update {
@@ -261,7 +269,8 @@ class ArticleListViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -275,7 +284,8 @@ class ArticleListViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",
@@ -289,7 +299,8 @@ class ArticleListViewModel @Inject constructor(
                     ),
                     isBookmarked = true,
                     imageUrl = "https://picsum.photos/400",
-                ),ArticleMetadata(
+                ),
+                ArticleMetadata(
                     id = BigInteger.ONE,
                     title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
                     url = "",

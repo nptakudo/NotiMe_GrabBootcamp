@@ -9,35 +9,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.ui.component.BookmarkCard
-import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.screens.home.Divider
-import com.example.frontend.ui.screens.subscription.SubscriptionScreenContent
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import kotlinx.coroutines.launch
@@ -46,7 +35,7 @@ import java.math.BigInteger
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookmarkScreen (
+fun BookmarkScreen(
     modifier: Modifier = Modifier,
     uiState: BookmarkUiState,
     onRefresh: () -> Unit,
@@ -70,9 +59,10 @@ fun BookmarkScreen (
                 title = {
                     Text(
                         text = "Your Bookmarks",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(start = 10.dp)
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -102,8 +92,9 @@ fun BookmarkScreen (
         }
     }
 }
+
 @Composable
-fun BookmarkScreenContent (
+fun BookmarkScreenContent(
     modifier: Modifier = Modifier,
     bookmarks: List<BookmarkList>,
     onAddNewBookmark: () -> Unit,
@@ -112,7 +103,7 @@ fun BookmarkScreenContent (
     onBookmarkDetail: (articleId: BigInteger) -> Unit
 ) {
     if (bookmarks.isNotEmpty()) {
-        Column (
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(
@@ -122,19 +113,16 @@ fun BookmarkScreenContent (
                 ),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Row (
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text (
+                Text(
                     text = "Add new bookmarks list",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 20 .sp
-                    )
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Button(
                     modifier = Modifier

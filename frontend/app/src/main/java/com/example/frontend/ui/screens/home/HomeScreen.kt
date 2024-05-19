@@ -2,7 +2,6 @@ package com.example.frontend.ui.screens.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.MoreVert
@@ -28,9 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -62,6 +57,7 @@ import com.example.frontend.ui.component.BigArticleCard
 import com.example.frontend.ui.component.BottomSheetBookmarkContent
 import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.SmallArticleCard
+import com.example.frontend.ui.screens.search.SearchScreen
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateDifferenceFromNow
@@ -111,14 +107,15 @@ fun HomeScreen(
 
         var requestingTopRightOptions by rememberSaveable { mutableStateOf(false) }
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = modifier.fillMaxSize()) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Home",
+                        text = if (uiState.screen == Screen.Home) "Home" else "Explore",
                         style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(start = 10.dp)
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -149,14 +146,11 @@ fun HomeScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxSize()
-                    .padding(
-                        start = UiConfig.sideScreenPadding,
-                        end = UiConfig.sideScreenPadding
-                    )
                     .nestedScroll(refreshState.nestedScrollConnection)
             ) {
                 if (!refreshState.isRefreshing) {
                     HomeScreenContentSortByDate(
+                        screenType = uiState.screen,
                         articles = uiState.articles,
                         onArticleClick = onArticleClick,
                         bookmarks = uiState.bookmarks,
@@ -182,47 +176,37 @@ fun HomeScreen(
         }
     }
     if (uiState.state == State.Searching) {
-        Scaffold(
-            modifier = modifier
-        ) {
-            SearchEnterScreen(
-                modifier = Modifier.padding(it),
-                onSearch = onSearchSubmit,
-                onCancel = onSearchCancel,
-            )
-        }
+        SearchScreen(
+            onSearch = onSearchSubmit,
+            onBack = onSearchCancel
+        )
     }
     if (uiState.state == State.ShowSearchResults) {
-        Scaffold(
-            modifier = modifier,
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = "Search results",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.SemiBold
-                            )
+        Column(modifier = modifier.fillMaxSize()) {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Search results",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.SemiBold
                         )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    ),
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onSearchCancel,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowBackIosNew,
-                                contentDescription = "back to home",
-                            )
-                        }
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                navigationIcon = {
+                    IconButton(
+                        onClick = onSearchCancel,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ArrowBackIosNew,
+                            contentDescription = "back to home",
+                        )
                     }
-                )
-            },
-        ) {
+                }
+            )
             ShowSearchResults(
-                modifier = Modifier.padding(it),
                 searchResults = uiState.searchResults,
                 onArticleClick = onArticleClick,
                 bookmarks = uiState.bookmarks,
@@ -238,6 +222,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContentSortByDate(
     modifier: Modifier = Modifier,
+    screenType: Screen,
     articles: List<ArticleMetadata>,
     bookmarks: List<BookmarkList>,
     onArticleClick: (articleId: BigInteger) -> Unit,
@@ -414,22 +399,25 @@ fun HomeScreenContentSortByDate(
             }
         }
     } else {
-        val annotatedString = buildAnnotatedString {
-            append("Start subscribing to publishers to see articles here! Hop over to ")
+        val annotatedString = if (screenType == Screen.Home)
+            buildAnnotatedString {
+                append("Start subscribing to publishers to see articles here! Hop over to ")
 
-            pushStringAnnotation(tag = "explore", annotation = "explore")
-            withStyle(
-                style = SpanStyle(
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                )
-            ) {
-                append("Explore")
+                pushStringAnnotation(tag = "explore", annotation = "explore")
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                    )
+                ) {
+                    append("Explore")
+                }
+                pop()
+
+                append(" to find new publishers.")
             }
-            pop()
-
-            append(" to find new publishers.")
-        }
+        else
+            AnnotatedString("Wait a bit for us to load some articles for you!")
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -456,51 +444,6 @@ fun HomeScreenContentSortByDate(
                 }
             )
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchEnterScreen(
-    modifier: Modifier = Modifier,
-    onSearch: (query: String) -> Unit,
-    onCancel: () -> Unit
-) {
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .requiredHeight(100.dp)
-            .padding(horizontal = UiConfig.sideScreenPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            onSearch = { onSearch(searchQuery) },
-            active = true,
-            onActiveChange = {},
-            placeholder = { Text("Search for articles") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-            colors = SearchBarDefaults.colors(
-                containerColor = Color.Transparent,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(3f)
-        ) {}
-        ClickableText(
-            text = AnnotatedString("Cancel"),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End
-            ),
-            onClick = { onCancel() },
-            modifier = Modifier
-                .weight(1f),
-        )
     }
 }
 

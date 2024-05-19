@@ -19,14 +19,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.frontend.ui.screens.home.ExploreRoute
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.frontend.navigation.AppNavGraph
 import com.example.frontend.navigation.Route
 import com.example.frontend.ui.component.NavBar
-import com.example.frontend.ui.screens.subscription.SubscriptionRoute
 import com.example.frontend.ui.theme.FrontendTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -61,26 +58,26 @@ fun NotiMeApp() {
         Route.Following.route
     )
 
-    Scaffold (
+    Scaffold(
         bottomBar = {
             Log.d("AppNavGraph", "currentRoute: $currentRoute")
             if (currentRoute in listRoutes) {
                 NavBar(
                     currentRoute = currentRoute!!,
-                    navigateToBottomBarRoute = {
-                        route -> navController.navigate(route.route)
+                    navigateToBottomBarRoute = { route ->
+                        navController.navigate(route.route)
                     }
                 )
             }
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        Box (
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
-             AppNavGraph(navController = navController)
+            AppNavGraph(navController = navController)
         }
 
     }

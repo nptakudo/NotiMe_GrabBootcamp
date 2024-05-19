@@ -1,6 +1,5 @@
 package com.example.frontend.ui.screens.bookmark
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.math.BigInteger
 import java.util.Date
 import javax.inject.Inject
@@ -26,6 +24,7 @@ enum class State {
     Idle,
     Loading,
 }
+
 data class BookmarkUiState(
     val bookmarks: List<BookmarkList> = emptyList(),
     val state: State
@@ -66,7 +65,7 @@ class BookmarkViewModel @Inject constructor(
                     name = "Article 1",
                     ownerId = BigInteger.ONE,
                     isSaved = true,
-                    articles = listOf (
+                    articles = listOf(
                         ArticleMetadata(
                             id = BigInteger.ONE,
                             title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
@@ -124,9 +123,11 @@ class BookmarkViewModel @Inject constructor(
 //            }
 //        }
     }
+
     fun onDeleteBookmark(articleId: BigInteger) {
 
     }
+
     fun onShareBoookmark(articleId: BigInteger) {
 
     }

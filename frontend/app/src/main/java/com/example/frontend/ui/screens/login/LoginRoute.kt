@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun LoginRoute (
+fun LoginRoute(
     viewModel: LoginViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
