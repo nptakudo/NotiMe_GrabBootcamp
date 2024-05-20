@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.frontend.data.model.ArticleMetadata
@@ -235,9 +237,21 @@ fun ArticleListScreenContent(
         }
 
     } else {
-        Text(
-            text = "Start subscribing to publishers to see articles here! Hop over to Explore to find new publishers.",
-            style = MaterialTheme.typography.titleMedium
-        )
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = UiConfig.sideScreenPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Nothing here :-(",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
+            )
+        }
     }
 }

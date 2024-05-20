@@ -483,56 +483,76 @@ fun ShowSearchResults(
         bottomSheetScope.launch { bottomSheetState.show() }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = UiConfig.sideScreenPadding),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        ArticleColumn(
-            articles = searchResults,
-            onArticleClick = onArticleClick,
-            onBookmarkClick = {
-                bottomSheetBookmarkArticleId = it
-                expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
-            },
-        )
-        if (bottomSheetContent != HomeUiConfig.BottomSheetContentType.NONE) {
-            val onClose: (() -> Unit) -> Unit = { afterClose ->
-                bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
-                    if (!bottomSheetState.isVisible) {
-                        bottomSheetContent = HomeUiConfig.BottomSheetContentType.NONE
+    if (searchResults.isNotEmpty()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = UiConfig.sideScreenPadding),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            ArticleColumn(
+                articles = searchResults,
+                onArticleClick = onArticleClick,
+                onBookmarkClick = {
+                    bottomSheetBookmarkArticleId = it
+                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.BOOKMARK)
+                },
+            )
+            if (bottomSheetContent != HomeUiConfig.BottomSheetContentType.NONE) {
+                val onClose: (() -> Unit) -> Unit = { afterClose ->
+                    bottomSheetScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                        if (!bottomSheetState.isVisible) {
+                            bottomSheetContent = HomeUiConfig.BottomSheetContentType.NONE
+                        }
+                        afterClose()
                     }
-                    afterClose()
+                }
+                ModalBottomSheet(
+                    onDismissRequest = { onClose {} },
+                    sheetState = bottomSheetState
+                ) {
+                    if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.BOOKMARK) {
+                        BottomSheetBookmarkContent(
+                            articleId = bottomSheetBookmarkArticleId,
+                            bookmarkLists = bookmarks,
+                            onNewBookmarkList = {
+                                onClose {
+                                    expandBottomSheet(HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK)
+                                }
+                            },
+                            onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
+                            onUnBookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
+                            onClose = { onClose {} },
+                        )
+                    } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
+                        BottomSheetNewBookmarkContent(
+                            onCreateNewBookmark = { name ->
+                                onNewBookmark(name, bottomSheetBookmarkArticleId)
+                                onClose {}
+                            },
+                            onClose = { onClose {} },
+                        )
+                    }
                 }
             }
-            ModalBottomSheet(
-                onDismissRequest = { onClose {} },
-                sheetState = bottomSheetState
-            ) {
-                if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.BOOKMARK) {
-                    BottomSheetBookmarkContent(
-                        articleId = bottomSheetBookmarkArticleId,
-                        bookmarkLists = bookmarks,
-                        onNewBookmarkList = {
-                            onClose {
-                                expandBottomSheet(HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK)
-                            }
-                        },
-                        onBookmark = { onBookmark(bottomSheetBookmarkArticleId, it) },
-                        onUnBookmark = { onUnbookmark(bottomSheetBookmarkArticleId, it) },
-                        onClose = { onClose {} },
-                    )
-                } else if (bottomSheetContent == HomeUiConfig.BottomSheetContentType.NEW_BOOKMARK) {
-                    BottomSheetNewBookmarkContent(
-                        onCreateNewBookmark = { name ->
-                            onNewBookmark(name, bottomSheetBookmarkArticleId)
-                            onClose {}
-                        },
-                        onClose = { onClose {} },
-                    )
-                }
-            }
+        }
+    } else {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = UiConfig.sideScreenPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Nothing here :-(",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp),
+            )
         }
     }
 }

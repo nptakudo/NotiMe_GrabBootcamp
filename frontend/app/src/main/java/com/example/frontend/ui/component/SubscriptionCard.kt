@@ -17,14 +17,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
@@ -51,7 +49,7 @@ fun SubscriptionCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (!avatarUrl.isNullOrEmpty()){
+            if (!avatarUrl.isNullOrEmpty()) {
                 AsyncImage(
                     model = avatarUrl,
                     contentDescription = null,
@@ -70,13 +68,20 @@ fun SubscriptionCard(
                 Text(
                     text = name,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 )
+                var urlStr = url ?: ""
+                if (urlStr.length > 30) {
+                    urlStr = urlStr.take(28) + "..."
+                }
                 Text(
-                    text = url ?: "",
+                    text = urlStr,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

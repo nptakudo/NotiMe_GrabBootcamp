@@ -1,7 +1,6 @@
 package com.example.frontend.ui.screens.subscription
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -41,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.ui.component.SubscriptionCard
-import com.example.frontend.ui.screens.home.Screen
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import kotlinx.coroutines.launch
