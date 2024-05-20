@@ -76,6 +76,9 @@ type Querier interface {
 	// params: publisherId: number, limit: number, offset: number
 	// behavior: sorted by publish_date desc
 	GetArticlesByPublisherId(ctx context.Context, arg GetArticlesByPublisherIdParams) ([]Post, error)
+	// params: userId: number, limit: number, offset: number
+	// behavior: sorted by publish_date desc
+	GetArticlesFromSubscribedPublishers(ctx context.Context, arg GetArticlesFromSubscribedPublishersParams) ([]Post, error)
 	GetArticlesInBookmarkList(ctx context.Context, listID int32) ([]Post, error)
 	//-----------------------------------------------
 	// BOOKMARK LIST REPOSITORY
@@ -91,6 +94,10 @@ type Querier interface {
 	// SUBSCRIBE LIST REPOSITORY
 	//-----------------------------------------------
 	GetSubscribedPublishersByUserId(ctx context.Context, userID int32) ([]Source, error)
+	//-----------------------------------------------
+	// USER REPOSITORY
+	//-----------------------------------------------
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 	// params: articleId: number, userId: number
 	// behavior: check if the article is in any bookmark list that the user owns, or in any shared list with the user
 	IsArticleInAnyBookmarkList(ctx context.Context, arg IsArticleInAnyBookmarkListParams) (ListPost, error)
@@ -103,10 +110,6 @@ type Querier interface {
 	SearchPublishersByName(ctx context.Context, query sql.NullString) ([]Source, error)
 	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error
 	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error
-	//-----------------------------------------------
-	// USER REPOSITORY
-	//-----------------------------------------------
-	GetUserByUsername(ctx context.Context, username string) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

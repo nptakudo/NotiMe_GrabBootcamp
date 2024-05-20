@@ -73,6 +73,16 @@ WHERE source_id = @publisher_id
 ORDER BY publish_date DESC
 LIMIT @count OFFSET $1;
 
+-- name: GetArticlesFromSubscribedPublishers :many
+-- params: userId: number, limit: number, offset: number
+-- behavior: sorted by publish_date desc
+SELECT post.*
+FROM post
+         JOIN subscription ON post.source_id = subscription.source_id
+WHERE subscription.user_id = @user_id
+ORDER BY publish_date DESC
+LIMIT @count OFFSET $1;
+
 -- name: GetAllArticles :many
 -- behavior: sorted by publish_date desc
 SELECT *
@@ -212,6 +222,6 @@ WHERE user_id = @user_id
 -- USER REPOSITORY
 -------------------------------------------------
 
--- name: GetUserByUsername: one
+-- name: GetUserByUsername :one
 SELECT * FROM "user"
 WHERE username = @username;

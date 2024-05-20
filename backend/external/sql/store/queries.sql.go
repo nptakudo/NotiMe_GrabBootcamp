@@ -307,6 +307,49 @@ func (q *Queries) GetArticlesByPublisherId(ctx context.Context, arg GetArticlesB
 	return items, nil
 }
 
+const getArticlesFromSubscribedPublishers = `-- name: GetArticlesFromSubscribedPublishers :many
+SELECT post.id, post.title, post.publish_date, post.url, post.source_id
+FROM post
+         JOIN subscription ON post.source_id = subscription.source_id
+WHERE subscription.user_id = $2
+ORDER BY publish_date DESC
+LIMIT $3 OFFSET $1
+`
+
+type GetArticlesFromSubscribedPublishersParams struct {
+	Offset int32 `json:"offset"`
+	UserID int32 `json:"user_id"`
+	Count  int32 `json:"count"`
+}
+
+// params: userId: number, limit: number, offset: number
+// behavior: sorted by publish_date desc
+func (q *Queries) GetArticlesFromSubscribedPublishers(ctx context.Context, arg GetArticlesFromSubscribedPublishersParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getArticlesFromSubscribedPublishers, arg.Offset, arg.UserID, arg.Count)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Post{}
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.PublishDate,
+			&i.Url,
+			&i.SourceID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getArticlesInBookmarkList = `-- name: GetArticlesInBookmarkList :many
 SELECT post.id, post.title, post.publish_date, post.url, post.source_id
 FROM post
@@ -481,6 +524,22 @@ func (q *Queries) GetSubscribedPublishersByUserId(ctx context.Context, userID in
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+
+SELECT id, username, password FROM "user"
+WHERE username = $1
+`
+
+// -----------------------------------------------
+// USER REPOSITORY
+// -----------------------------------------------
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(&i.ID, &i.Username, &i.Password)
+	return i, err
 }
 
 const isArticleInAnyBookmarkList = `-- name: IsArticleInAnyBookmarkList :one
@@ -668,18 +727,4 @@ type UnsubscribePublisherParams struct {
 func (q *Queries) UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error {
 	_, err := q.db.Exec(ctx, unsubscribePublisher, arg.UserID, arg.PublisherID)
 	return err
-}
-
-// For login
-const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, password
-FROM "user"
-WHERE username = $1
-`
-
-func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByUsername, username)
-	var i User
-	err := row.Scan(&i.ID, &i.Username, &i.Password)
-	return i, err
 }

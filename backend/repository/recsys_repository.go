@@ -8,10 +8,11 @@ import (
 	"notime/external/recsys_engine"
 	"notime/external/sql/store"
 	"notime/utils/htmlutils"
+	"time"
 )
 
 type RecsysEngine interface {
-	GetRelatedArticleUrlsFromUrl(url string) ([]string, error)
+	GetRelatedArticleUrlsFromUrl(url string, timeout time.Duration) ([]string, error)
 }
 
 func NewRecsysEngine(host string, port string) RecsysEngine {
@@ -43,7 +44,11 @@ func NewRecsysRepository(env *bootstrap.Env, q *store.Queries) RecsysRepository 
 }
 
 func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(ctx context.Context, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
-	dbArticles, err := r.q.GetAllArticles(ctx)
+	dbArticles, err := r.q.GetArticlesFromSubscribedPublishers(ctx, store.GetArticlesFromSubscribedPublishersParams{
+		UserID: userId,
+		Count:  int32(count),
+		Offset: int32(offset),
+	})
 	if err != nil {
 		slog.Error("[Recsys Repository] GetLatestArticlesFromSubscribed query:", "error", err)
 		return nil, err
@@ -81,7 +86,7 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 
 	var dmArticles []*domain.ArticleMetadata
 	for _, dbPublisher := range dbSubscribedPublishers {
-		articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(dbPublisher.Url)
+		articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(dbPublisher.Url, time.Duration(r.env.ContextTimeout)*time.Second)
 		if err != nil {
 			slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed engine:", "error", err)
 			continue
@@ -128,7 +133,7 @@ func (r *RecsysRepositoryImpl) GetRelatedArticles(ctx context.Context, articleId
 	}
 	thisArticleUrl := thisArticle.Url
 
-	articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(thisArticleUrl)
+	articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(thisArticleUrl, time.Duration(r.env.ContextTimeout)*time.Second)
 	if err != nil {
 		slog.Error("[Recsys Repository] GetRelatedArticles engine:", "error", err)
 		return nil, err
