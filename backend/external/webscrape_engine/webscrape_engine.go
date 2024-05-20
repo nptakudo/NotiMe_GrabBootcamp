@@ -62,12 +62,6 @@ func (e *WebscrapeEngineImpl) ScrapeFromUrl(url string, timeout time.Duration) (
 
 	// Decode the response
 	var articles []*models.ScrapedArticle
-	//err = json.NewDecoder(resp.Body).Decode(&articles)
-	//if err != nil {
-	//	slog.Error("[Webscrape] ScrapeFromUrl:", "error", err)
-	//	return nil, err
-	//}
-
 	err = json.Unmarshal(content, &articles)
 	if err != nil {
 		slog.Error("[Webscrape] ScrapeFromUrl: Error unmarshalling output.json:", "error", err)
@@ -75,7 +69,7 @@ func (e *WebscrapeEngineImpl) ScrapeFromUrl(url string, timeout time.Duration) (
 	}
 	for _, article := range articles {
 		article.PublisherName = publisherName
-		article.Date = time.Now().UTC()
+		article.SetTime(time.Now().UTC())
 	}
 	return articles, nil
 }

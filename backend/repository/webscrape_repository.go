@@ -62,11 +62,16 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 			continue
 		}
 
+		date, err := article.GetTime()
+		if err != nil {
+			slog.Error("[Webscrape Repository] ScrapeFromUrl get time:", "error", err)
+			continue
+		}
 		dmArticle := &domain.ArticleMetadata{
 			Id:        -1,
 			Title:     article.Title,
 			Url:       article.Url,
-			Date:      article.Date,
+			Date:      date,
 			Publisher: dmPublisher,
 		}
 		dmArticles = append(dmArticles, dmArticle)
