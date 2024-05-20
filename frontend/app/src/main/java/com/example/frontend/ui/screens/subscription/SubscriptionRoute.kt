@@ -10,7 +10,8 @@ import java.math.BigInteger
 fun SubscriptionRoute(
     viewModel: SubscriptionViewModel,
     onSubscriptionClick: (publisherId: BigInteger) -> Unit,
-    onSearchIconClick: () -> Unit
+    onSearchIconClick: () -> Unit,
+    onToExplore: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     if (uiState.subscriptions.isEmpty()) {
@@ -25,6 +26,7 @@ fun SubscriptionRoute(
         onSearchIconClick = onSearchIconClick,
         onSubscriptionClick = onSubscriptionClick,
         onSubscribe = { publisherId -> viewModel.onSubscribePublisher(publisherId) },
-        onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) }
+        onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) },
+        onToExplore = onToExplore
     )
 }

@@ -16,8 +16,6 @@ func Populate(ctx context.Context, env *bootstrap.Env, db *store.Queries) {
 	publisher_repo := repository.NewPublisherRepository(db)
 
 	links := []string{
-		"https://www.bbc.com/business",
-		"https://www.bbc.com/travel",
 		"https://vnexpress.net/so-hoa",
 		"https://thanhnien.vn/cong-nghe-game.htm",
 		"https://www.bloomberg.com/technology",
@@ -37,7 +35,7 @@ func Populate(ctx context.Context, env *bootstrap.Env, db *store.Queries) {
 
 		dmPublisher, err := publisher_repo.Create(ctx, publisher.Name, publisher.Url, publisher.AvatarUrl)
 		if err != nil {
-			slog.Error("[Populate] Failed to create publisher:", "error", err)
+			slog.Error("[Populate] Failed to create publisher:", "url", publisher.Url, "error", err)
 			continue
 		}
 		slog.Info("[Populate] Created publisher:", "publisher name", dmPublisher.Name)

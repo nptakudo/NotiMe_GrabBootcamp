@@ -22,18 +22,18 @@ func (m *DbClient) Disconnect() {
 func NewDatabase(ctx context.Context, env *Env) *DbClient {
 	_, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
+
 	dbHost := env.DBHost
 	dbPort := env.DBPort
 	dbUser := env.DBUser
 	dbPass := env.DBPass
 	dbName := env.DBName
+	sslMode := "require"
+	if env.AppEnv == "development" {
+		sslMode = "disable"
+	}
 
-	// for local
-	//dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort)
-
-	// for rds
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require", dbHost, dbUser, dbPass, dbName, dbPort)
-
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", dbHost, dbUser, dbPass, dbName, dbPort, sslMode)
 	pool, err := pgxpool.Connect(ctx, dsn)
 
 	if err != nil {

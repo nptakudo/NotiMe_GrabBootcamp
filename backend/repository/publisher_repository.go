@@ -31,16 +31,16 @@ func (r *PublisherRepositoryImpl) GetById(ctx context.Context, id int32) (*domai
 }
 
 func (r *PublisherRepositoryImpl) SearchByName(ctx context.Context, name string) ([]*domain.Publisher, error) {
-	dbPublishers, err := r.q.SearchPublishersByName(ctx, name)
+	dbPublishers, err := r.q.SearchPublishersByName(ctx, sql.NullString{String: name, Valid: name != ""})
 	if err != nil {
-		slog.Error("[Publisher Repository] Search:", "error", err)
+		slog.Error("[Publisher Repository] SearchByName:", "error", err)
 		return nil, err
 	}
 	dmPublishers := make([]*domain.Publisher, 0)
 	for _, dbPublisher := range dbPublishers {
 		dmPublisher, err := convertDbPublisherToDm(&dbPublisher)
 		if err != nil {
-			slog.Error("[Publisher Repository] Search:", "error", err)
+			slog.Error("[Publisher Repository] SearchByName:", "error", err)
 			return nil, err
 		}
 		dmPublishers = append(dmPublishers, dmPublisher)
@@ -48,18 +48,18 @@ func (r *PublisherRepositoryImpl) SearchByName(ctx context.Context, name string)
 	return dmPublishers, nil
 }
 func (r *PublisherRepositoryImpl) SearchByUrl(ctx context.Context, url string) (*domain.Publisher, error) {
-	dbPublishers, err := r.q.SearchPublishersByUrl(ctx, url)
+	dbPublishers, err := r.q.SearchPublishersByUrl(ctx, sql.NullString{String: url, Valid: url != ""})
 	if err != nil {
-		slog.Error("[Publisher Repository] Search:", "error", err)
+		slog.Error("[Publisher Repository] SearchByUrl:", "error", err)
 		return nil, err
 	}
 	if len(dbPublishers) == 0 {
-		slog.Error("[Publisher Repository] Search:", "error", "Publisher not found")
+		slog.Error("[Publisher Repository] SearchByUrl:", "error", "Publisher not found")
 		return nil, nil
 	}
 	dmPublisher, err := convertDbPublisherToDm(&dbPublishers[0])
 	if err != nil {
-		slog.Error("[Publisher Repository] Search:", "error", err)
+		slog.Error("[Publisher Repository] SearchByUrl:", "error", err)
 		return nil, err
 	}
 	return dmPublisher, nil
@@ -69,7 +69,7 @@ func (r *PublisherRepositoryImpl) Create(ctx context.Context, name string, url s
 	dbPublisher, err := r.q.CreatePublisher(ctx, store.CreatePublisherParams{
 		Name:      name,
 		Url:       url,
-		AvatarUrl: sql.NullString{avatarUrl, avatarUrl != ""},
+		AvatarUrl: sql.NullString{String: avatarUrl, Valid: avatarUrl != ""},
 	})
 	if err != nil {
 		slog.Error("[Publisher Repository] Create:", "error", err)

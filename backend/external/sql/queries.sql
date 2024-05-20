@@ -181,6 +181,11 @@ SELECT *
 FROM source
 WHERE id = @id;
 
+-- name: SearchPublishersByUrl :many
+SELECT *
+FROM source
+WHERE url ILIKE '%' || @query || '%';
+
 -- name: SearchPublishersByName :many
 SELECT *
 FROM source

@@ -130,7 +130,8 @@ private fun NavGraphBuilder.showSubscription(navController: NavController) {
             onSubscriptionClick = {
                 navController.navigate(Route.SubscriptionDetail.route + "/$it")
             },
-            onSearchIconClick = { navController.navigate(Route.Search.route) }
+            onSearchIconClick = { navController.navigate(Route.Search.route) },
+            onToExplore = { navController.navigate(Route.Explore.route) }
         )
     }
 }

@@ -672,7 +672,7 @@ FROM source
 WHERE name ILIKE '%' || $1 || '%'
 `
 
-func (q *Queries) SearchPublishersByName(ctx context.Context, query string) ([]Source, error) {
+func (q *Queries) SearchPublishersByName(ctx context.Context, query sql.NullString) ([]Source, error) {
 	rows, err := q.db.Query(ctx, searchPublishersByName, query)
 	if err != nil {
 		return nil, err
@@ -700,10 +700,10 @@ func (q *Queries) SearchPublishersByName(ctx context.Context, query string) ([]S
 const searchPublishersByUrl = `-- name: SearchPublishersByUrl :many
 SELECT id, name, url, avatar
 FROM source
-WHERE url LIKE $1
+WHERE url ILIKE '%' || $1 || '%'
 `
 
-func (q *Queries) SearchPublishersByUrl(ctx context.Context, query string) ([]Source, error) {
+func (q *Queries) SearchPublishersByUrl(ctx context.Context, query sql.NullString) ([]Source, error) {
 	rows, err := q.db.Query(ctx, searchPublishersByUrl, query)
 	if err != nil {
 		return nil, err
