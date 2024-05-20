@@ -15,8 +15,9 @@ type Querier interface {
 	CreateBookmarkList(ctx context.Context, arg CreateBookmarkListParams) (ReadingList, error)
 	CreatePublisher(ctx context.Context, arg CreatePublisherParams) (Source, error)
 	DeleteBookmarkList(ctx context.Context, id int32) (ReadingList, error)
+	// params: limit: number, offset: number
 	// behavior: sorted by publish_date desc
-	GetAllArticles(ctx context.Context) ([]Post, error)
+	GetAllArticles(ctx context.Context, arg GetAllArticlesParams) ([]Post, error)
 	// -- DROP SCHEMA public CASCADE;
 	// -- CREATE SCHEMA public;
 	// -- GRANT ALL ON SCHEMA public TO postgres;

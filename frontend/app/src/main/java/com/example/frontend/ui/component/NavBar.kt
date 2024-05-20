@@ -1,5 +1,7 @@
 package com.example.frontend.ui.component
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -56,24 +58,28 @@ fun NavBar(
     ) {
         tabs.forEach { tab ->
             val selected = (tab == currentTab)
-            if (selected) {
-                Button(
-                    onClick = { navigateToBottomBarRoute(tab.route) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                        contentColor = Colors.navBarContainer,
-                    ),
-                    contentPadding = PaddingValues(
-                        vertical = 12.dp,
-                        horizontal = 16.dp
-                    ),
-                ) {
-                    Icon(
-                        imageVector = tab.imageVector,
-                        contentDescription = tab.title,
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                    )
+            Button(
+                modifier = Modifier.animateContentSize(
+                    animationSpec = spring(stiffness = 100f, dampingRatio = 0.5f)
+                ),
+                onClick = { navigateToBottomBarRoute(tab.route) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (selected) MaterialTheme.colorScheme.onSurface else Colors.navBarContainer,
+                    contentColor = if (selected) Colors.navBarContainer else MaterialTheme.colorScheme.onSurface,
+                ),
+                contentPadding = PaddingValues(
+                    vertical = 12.dp,
+                    horizontal = 16.dp
+                ),
+                shape = if (selected) RoundedCornerShape(24.dp) else RoundedCornerShape(percent = 50),
+            ) {
+                Icon(
+                    imageVector = tab.imageVector,
+                    contentDescription = tab.title,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                )
+                if (selected) {
                     Text(
                         text = tab.title,
                         style = MaterialTheme.typography.labelSmall.copy(
@@ -82,19 +88,46 @@ fun NavBar(
                         )
                     )
                 }
-            } else {
-                IconButton(
-                    onClick = { navigateToBottomBarRoute(tab.route) },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
-                ) {
-                    Icon(
-                        imageVector = tab.imageVector,
-                        contentDescription = tab.title
-                    )
-                }
             }
+//            if (selected) {
+//                Button(
+//                    onClick = { navigateToBottomBarRoute(tab.route) },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = MaterialTheme.colorScheme.onSurface,
+//                        contentColor = Colors.navBarContainer,
+//                    ),
+//                    contentPadding = PaddingValues(
+//                        vertical = 12.dp,
+//                        horizontal = 16.dp
+//                    ),
+//                ) {
+//                    Icon(
+//                        imageVector = tab.imageVector,
+//                        contentDescription = tab.title,
+//                        modifier = Modifier
+//                            .padding(end = 4.dp)
+//                    )
+//                    Text(
+//                        text = tab.title,
+//                        style = MaterialTheme.typography.labelSmall.copy(
+//                            fontSize = 12.sp,
+//                            lineHeight = 16.sp,
+//                        )
+//                    )
+//                }
+//            } else {
+//                IconButton(
+//                    onClick = { navigateToBottomBarRoute(tab.route) },
+//                    colors = IconButtonDefaults.iconButtonColors(
+//                        contentColor = MaterialTheme.colorScheme.onSurface,
+//                    ),
+//                ) {
+//                    Icon(
+//                        imageVector = tab.imageVector,
+//                        contentDescription = tab.title
+//                    )
+//                }
+//            }
         }
     }
 }

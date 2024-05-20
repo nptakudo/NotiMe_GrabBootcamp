@@ -128,11 +128,18 @@ const getAllArticles = `-- name: GetAllArticles :many
 SELECT id, title, publish_date, url, source_id
 FROM post
 ORDER BY publish_date DESC
+LIMIT $2 OFFSET $1
 `
 
+type GetAllArticlesParams struct {
+	Offset int32 `json:"offset"`
+	Count  int32 `json:"count"`
+}
+
+// params: limit: number, offset: number
 // behavior: sorted by publish_date desc
-func (q *Queries) GetAllArticles(ctx context.Context) ([]Post, error) {
-	rows, err := q.db.Query(ctx, getAllArticles)
+func (q *Queries) GetAllArticles(ctx context.Context, arg GetAllArticlesParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getAllArticles, arg.Offset, arg.Count)
 	if err != nil {
 		return nil, err
 	}

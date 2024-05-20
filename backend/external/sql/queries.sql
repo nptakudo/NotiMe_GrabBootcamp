@@ -84,10 +84,12 @@ ORDER BY publish_date DESC
 LIMIT @count OFFSET $1;
 
 -- name: GetAllArticles :many
+-- params: limit: number, offset: number
 -- behavior: sorted by publish_date desc
 SELECT *
 FROM post
-ORDER BY publish_date DESC;
+ORDER BY publish_date DESC
+LIMIT @count OFFSET $1;
 
 -- name: SearchArticlesByName :many
 -- params: query: string, limit: number, offset: number
