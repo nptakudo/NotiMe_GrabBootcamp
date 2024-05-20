@@ -60,7 +60,6 @@ class ReaderViewModel @Inject constructor(
     private val recsysRepository: RecsysRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val subscriptionRepository: SubscriptionRepository,
-    private val settingDataSource: SettingDataSource,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val articleId = BigInteger(savedStateHandle.get<String>(Route.Reader.args[0])!!)
@@ -119,8 +118,7 @@ class ReaderViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.subscribePublisher(userId, publisherId)
+                subscriptionRepository.subscribePublisher(publisherId)
                 _article.update { article ->
                     article.copy(
                         metadata = article.metadata.copy(
@@ -143,8 +141,7 @@ class ReaderViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.unsubscribePublisher(userId, publisherId)
+                subscriptionRepository.unsubscribePublisher(publisherId)
                 _article.update { article ->
                     article.copy(
                         metadata = article.metadata.copy(

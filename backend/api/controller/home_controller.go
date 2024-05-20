@@ -29,7 +29,7 @@ func (controller *HomeController) GetLatestSubscribedArticles(ctx *gin.Context) 
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	articles, err := controller.HomeUsecase.GetLatestSubscribedArticles(ctx, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -48,7 +48,7 @@ func (controller *HomeController) GetLatestSubscribedArticlesByPublisher(ctx *gi
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	articles, err := controller.HomeUsecase.GetLatestSubscribedArticlesByPublisher(ctx, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -67,7 +67,7 @@ func (controller *HomeController) GetExploreArticles(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	articles, err := controller.HomeUsecase.GetExploreArticles(ctx, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -87,7 +87,7 @@ func (controller *HomeController) Search(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	articles, err := controller.HomeUsecase.Search(ctx, reqQuery, reqCount, reqOffset, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})

@@ -44,7 +44,7 @@ func (controller *CommonController) GetArticleMetadataById(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	metadata, err := controller.CommonUsecase.GetArticleMetadataById(ctx, int64(articleId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -61,7 +61,7 @@ func (controller *CommonController) GetPublisherById(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	publisher, err := controller.CommonUsecase.GetPublisherById(ctx, int32(publisherId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -72,7 +72,7 @@ func (controller *CommonController) GetPublisherById(ctx *gin.Context) {
 }
 
 func (controller *CommonController) GetBookmarkLists(ctx *gin.Context) {
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	bookmarkLists, err := controller.CommonUsecase.GetBookmarkLists(ctx, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -90,7 +90,7 @@ func (controller *CommonController) GetBookmarkListById(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	bookmarkList, err := controller.CommonUsecase.GetBookmarkListById(ctx, int32(bookmarkListId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -102,11 +102,7 @@ func (controller *CommonController) GetBookmarkListById(ctx *gin.Context) {
 
 func (controller *CommonController) GetSubscriptions(ctx *gin.Context) {
 	// get user id from path parameter
-	userId, err := strconv.Atoi(ctx.Param("userId"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
-		return
-	}
+	userId := ctx.GetInt(api.UserIdKey)
 	subscriptions, err := controller.CommonUsecase.GetSubscriptions(ctx, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -141,7 +137,7 @@ func (controller *CommonController) IsSubscribed(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	isSubscribed, err := controller.CommonUsecase.IsSubscribed(ctx, int32(publisherId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -160,7 +156,7 @@ func (controller *CommonController) Bookmark(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	err = controller.CommonUsecase.Bookmark(ctx, int64(articleId), int32(bookmarkListId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -178,7 +174,7 @@ func (controller *CommonController) Unbookmark(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	err = controller.CommonUsecase.Unbookmark(ctx, int64(articleId), int32(bookmarkListId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -195,12 +191,7 @@ func (controller *CommonController) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(ctx.Param("user_id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
-		return
-	}
-
+	userId := ctx.GetInt(api.UserIdKey)
 	err = controller.CommonUsecase.Subscribe(ctx, int32(publisherId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -217,12 +208,7 @@ func (controller *CommonController) Unsubscribe(ctx *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(ctx.Param("user_id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
-		return
-	}
-
+	userId := ctx.GetInt(api.UserIdKey)
 	err = controller.CommonUsecase.Unsubscribe(ctx, int32(publisherId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -240,11 +226,7 @@ type SearchResponse struct {
 
 func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if the search query is not in the db, call the scrape data
 	searchQuery := ctx.Query("query")
-	userId, err := strconv.Atoi(ctx.Param("user_id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
-		return
-	}
+	userId := ctx.GetInt(api.UserIdKey)
 
 	webscrapeRepo := repository.NewWebscrapeRepository(controller.Env)
 
@@ -253,7 +235,7 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 		return
 	}
 	// search for publishers in db
-	publishers, err := controller.CommonUsecase.SearchPublisher(ctx, searchQuery, userId)
+	publishers, err := controller.CommonUsecase.SearchPublisher(ctx, searchQuery, int(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return

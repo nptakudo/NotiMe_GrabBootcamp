@@ -1,5 +1,6 @@
 package com.example.frontend.ui.screens.search
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
@@ -26,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,14 +79,13 @@ fun SearchResultScreen(
                 }
             }
         )
-        Box(
+        Column(
             modifier = Modifier
                 .padding(
                     start = UiConfig.sideScreenPadding,
                     end = UiConfig.sideScreenPadding,
                 )
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
         ) {
             when (uiState.isNewSource) {
                 true -> SearchResultContentForPublishers(
@@ -115,6 +117,7 @@ fun SearchResultContentForPublishers(
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(
                     start = UiConfig.sideScreenPadding,
                     end = UiConfig.sideScreenPadding,
@@ -150,10 +153,17 @@ fun SearchResultContentForPublishers(
         }
 
     } else {
-        Text(
-            text = "Start subscribing to publishers to see articles here! Hop over to Explore to find new publishers.",
-            style = MaterialTheme.typography.titleMedium
-        )
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = UiConfig.sideScreenPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Nothing here :-(",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
 
@@ -166,6 +176,7 @@ fun SearchResultContentForArticles(
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(
                     start = UiConfig.sideScreenPadding,
                     end = UiConfig.sideScreenPadding,
@@ -230,9 +241,16 @@ fun SearchResultContentForArticles(
             }
         }
     } else {
-        Text(
-            text = "Start subscribing to publishers to see articles here! Hop over to Explore to find new publishers.",
-            style = MaterialTheme.typography.titleMedium
-        )
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = UiConfig.sideScreenPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Nothing here :-(",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }

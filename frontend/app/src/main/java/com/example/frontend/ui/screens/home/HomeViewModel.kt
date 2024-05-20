@@ -65,12 +65,11 @@ enum class Screen {
 }
 
 abstract class BaseHomeViewModel(
-    protected val screenType: Screen,
+    screenType: Screen,
     protected val recsysRepository: RecsysRepository,
     protected val bookmarkRepository: BookmarkRepository,
     protected val subscriptionRepository: SubscriptionRepository,
     protected val articleRepository: ArticleRepository,
-    protected val settingDataSource: SettingDataSource
 ) : ViewModel() {
     protected var _articles = MutableStateFlow(emptyList<ArticleMetadata>())
     protected var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
@@ -119,8 +118,7 @@ abstract class BaseHomeViewModel(
     fun onSubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.subscribePublisher(userId, publisherId)
+                subscriptionRepository.subscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to subscribe publisher")
             }
@@ -130,8 +128,7 @@ abstract class BaseHomeViewModel(
     fun onUnsubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.unsubscribePublisher(userId, publisherId)
+                subscriptionRepository.unsubscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(HomeConfig.LOG_TAG, "Failed to unsubscribe publisher")
             }
@@ -221,7 +218,6 @@ class HomeViewModel @Inject constructor(
     bookmarkRepository,
     subscriptionRepository,
     articleRepository,
-    settingDataSource
 ) {
     init {
         refreshUiState()
@@ -270,7 +266,6 @@ class ExploreViewModel @Inject constructor(
     bookmarkRepository,
     subscriptionRepository,
     articleRepository,
-    settingDataSource
 ) {
     init {
         refreshUiState()

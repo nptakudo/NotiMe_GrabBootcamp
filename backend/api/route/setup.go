@@ -16,13 +16,12 @@ func Setup(env *bootstrap.Env, db *store.Queries, timeout time.Duration, gin *gi
 	// TODO
 	NewDebugRouter(publicRouter, env, db)
 
-	authRouter := gin.Group("/auth")
+	authRouter := publicRouter.Group("/auth")
 	NewAuthRouter(authRouter, env, db)
 
 	protectedRouter := gin.Group("")
-	// TODO
 	// Middleware to verify AccessToken
-	// protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
+	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 
 	homeRouter := protectedRouter.Group("/home")
 	NewHomeRouter(homeRouter, env, db)

@@ -10,8 +10,8 @@ import javax.inject.Inject
 class RemoteSubscriptionDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getSubscriptions(userId: BigInteger): List<Publisher> {
-        val res = apiService.getSubscriptions(userId)
+    suspend fun getSubscriptions(): List<Publisher> {
+        val res = apiService.getSubscriptions()
         if (!res.isSuccessful) {
             throw Exception("Failed to get subscribed publishers")
         }
@@ -26,22 +26,22 @@ class RemoteSubscriptionDataSource @Inject constructor(
         return res.body()!!.message.toBoolean()
     }
 
-    suspend fun subscribePublisher(userId: BigInteger, publisherId: BigInteger) {
-        val res = apiService.subscribePublisher(userId, publisherId)
+    suspend fun subscribePublisher(publisherId: BigInteger) {
+        val res = apiService.subscribePublisher(publisherId)
         if (!res.isSuccessful) {
             throw Exception("Failed to subscribe publisher")
         }
     }
 
-    suspend fun unsubscribePublisher(userId: BigInteger, publisherId: BigInteger) {
-        val res = apiService.unsubscribePublisher(userId, publisherId)
+    suspend fun unsubscribePublisher(publisherId: BigInteger) {
+        val res = apiService.unsubscribePublisher(publisherId)
         if (!res.isSuccessful) {
             throw Exception("Failed to unsubscribe publisher")
         }
     }
 
-    suspend fun searchPublishers(query: String, userId: BigInteger): SearchResponse {
-        val res = apiService.searchPublishers(userId, query)
+    suspend fun searchPublishers(query: String): SearchResponse {
+        val res = apiService.searchPublishers(query)
         if (!res.isSuccessful) {
             throw Exception("Failed to search publishers")
         }

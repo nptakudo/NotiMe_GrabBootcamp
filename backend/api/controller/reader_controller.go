@@ -25,7 +25,7 @@ func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
 		return
 	}
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	article, err := controller.ReaderUsecase.GetArticleById(ctx, int64(reqArticleId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -44,7 +44,7 @@ func (controller *ReaderController) GetRelatedArticles(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.GetInt64(api.UserIdKey)
+	userId := ctx.GetInt(api.UserIdKey)
 	articles, err := controller.ReaderUsecase.GetRelatedArticles(ctx, int64(reqArticleId), int32(userId), reqCount, reqOffset)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})

@@ -87,27 +87,24 @@ interface ApiService {
     ): Response<ApiResponse>
 
     // ---------------- Model: SUBSCRIPTION ----------------
-    @GET("subscriptions/user/{user_id}/")
-    suspend fun getSubscriptions(@Path("user_id") userId: BigInteger): Response<List<Publisher>>
+    @GET("subscriptions/")
+    suspend fun getSubscriptions(): Response<List<Publisher>>
 
     @GET("subscriptions/publisher/{publisher_id}/")
     suspend fun isPublisherSubscribed(@Path("publisher_id") publisherId: BigInteger): Response<ApiResponse>
 
-    @GET("subscriptions/{user_id}/search/")
+    @GET("subscriptions/search/")
     suspend fun searchPublishers(
-        @Path("user_id") userId: BigInteger,
         @Query("query") query: String
     ): Response<SearchResponse>
 
-    @PUT("subscriptions/{user_id}/{publisher_id}/")
+    @PUT("subscriptions/{publisher_id}/")
     suspend fun subscribePublisher(
-        @Path("user_id") userId: BigInteger,
         @Path("publisher_id") publisherId: BigInteger
     ): Response<ApiResponse>
 
-    @DELETE("subscriptions/{user_id}/{publisher_id}/")
+    @DELETE("subscriptions/{publisher_id}/")
     suspend fun unsubscribePublisher(
-        @Path("user_id") userId: BigInteger,
         @Path("publisher_id") publisherId: BigInteger
     ): Response<ApiResponse>
 

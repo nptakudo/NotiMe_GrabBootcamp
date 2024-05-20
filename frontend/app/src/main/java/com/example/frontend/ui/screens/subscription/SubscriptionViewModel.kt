@@ -41,7 +41,6 @@ data class SubscriptionUiState(
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository,
-    private val settingDataSource: SettingDataSource
 ) : ViewModel() {
     private var _subscribedSources = MutableStateFlow(emptyList<Publisher>())
     private var _uiState = MutableStateFlow(SubscriptionUiState.empty)
@@ -61,8 +60,7 @@ class SubscriptionViewModel @Inject constructor(
     fun onSubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.subscribePublisher(userId, publisherId)
+                subscriptionRepository.subscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(SubscriptionConfig.LOG_TAG, "Failed to subscribe publisher")
             }
@@ -72,8 +70,7 @@ class SubscriptionViewModel @Inject constructor(
     fun onUnsubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.unsubscribePublisher(userId, publisherId)
+                subscriptionRepository.unsubscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(SubscriptionConfig.LOG_TAG, "Failed to unsubscribe publisher")
             }
@@ -88,8 +85,7 @@ class SubscriptionViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.Loading) }
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                val sources = subscriptionRepository.getSubscriptions(userId)
+                val sources = subscriptionRepository.getSubscriptions()
                 _subscribedSources.update { sources }
             } catch (e: Exception) {
                 Log.e(

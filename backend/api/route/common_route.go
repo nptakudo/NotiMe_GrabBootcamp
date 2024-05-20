@@ -25,16 +25,16 @@ func NewCommonRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queri
 	// Add article to bookmark list
 	group.PUT("/bookmarks/:bookmark_id/:article_id", commonController.Bookmark)
 	// Remove article from bookmark list
-	group.DELETE("/bookmarks/:bookmark_id/:article_id/", commonController.Unbookmark)
+	group.DELETE("/bookmarks/:bookmark_id/:article_id", commonController.Unbookmark)
 
 	// Get all subscriptions
-	group.GET("/subscriptions/user/:userId", commonController.GetSubscriptions)
+	group.GET("/subscriptions", commonController.GetSubscriptions)
 	// Get whether user is subscribed to publisher
 	group.GET("/subscriptions/publisher/:publisher_id", commonController.IsSubscribed)
 	// Search a publisher
-	group.GET("/subscriptions/:user_id/search/", commonController.SearchPublisher)
+	group.GET("/subscriptions/search/", commonController.SearchPublisher)
 	// Subscribe to publisher
-	group.PUT("/subscriptions/:user_id/:publisher_id", commonController.Subscribe)
+	group.PUT("/subscriptions/:publisher_id", commonController.Subscribe)
 	// Unsubscribe from publisher
-	group.DELETE("/subscriptions/:user_id/:publisher_id", commonController.Unsubscribe)
+	group.DELETE("/subscriptions/:publisher_id", commonController.Unsubscribe)
 }

@@ -47,7 +47,6 @@ data class SearchResultUiState(
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository,
-    private val settingDataSource: SettingDataSource
 ) : ViewModel() {
     private val _articles = MutableStateFlow(emptyList<ArticleMetadata>())
     private val _subscriptions = MutableStateFlow(emptyList<Publisher>())
@@ -78,8 +77,7 @@ class SearchResultViewModel @Inject constructor(
     fun onSubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.subscribePublisher(userId, publisherId)
+                subscriptionRepository.subscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(SubscriptionConfig.LOG_TAG, "Failed to subscribe publisher")
             }
@@ -89,8 +87,7 @@ class SearchResultViewModel @Inject constructor(
     fun onUnsubscribePublisher(publisherId: BigInteger) {
         viewModelScope.launch {
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                subscriptionRepository.unsubscribePublisher(userId, publisherId)
+                subscriptionRepository.unsubscribePublisher(publisherId)
             } catch (e: Exception) {
                 Log.e(SubscriptionConfig.LOG_TAG, "Failed to unsubscribe publisher")
             }
@@ -100,8 +97,7 @@ class SearchResultViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.Loading) }
             try {
-                val userId = settingDataSource.getUserId().first().toBigInteger()
-                val searchResponse = subscriptionRepository.searchPublishers(query, userId)
+                val searchResponse = subscriptionRepository.searchPublishers(query)
                 Log.i(SearchRessultConfig.LOG_TAG, searchResponse.toString())
                 _subscriptions.update { searchResponse.publishers }
                 _articles.update { searchResponse.articles }
