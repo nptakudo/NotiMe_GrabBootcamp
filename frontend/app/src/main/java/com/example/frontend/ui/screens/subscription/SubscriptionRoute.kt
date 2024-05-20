@@ -23,6 +23,8 @@ fun SubscriptionRoute(
         uiState = uiState,
         onRefresh = { viewModel.loadSources() },
         onSearchIconClick = onSearchIconClick,
-        onSubscriptionClick = onSubscriptionClick
+        onSubscriptionClick = onSubscriptionClick,
+        onSubscribe = { publisherId -> viewModel.onSubscribePublisher(publisherId) },
+        onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) }
     )
 }

@@ -106,7 +106,6 @@ func (controller *CommonController) GetSubscriptions(ctx *gin.Context) {
 		return
 	}
 
-	slog.Info("[CommonController] GetSubscriptions: respond with:", "length", len(subscriptions))
 	ctx.JSON(http.StatusOK, subscriptions)
 }
 

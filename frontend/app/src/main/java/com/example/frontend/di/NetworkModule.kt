@@ -4,6 +4,9 @@ import com.example.frontend.BuildConfig
 import com.example.frontend.network.ApiService
 import com.example.frontend.network.AuthInterceptor
 import com.example.frontend.network.RequestInterceptor
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,10 +38,16 @@ object NetworkModule {
     fun provideRetrofitClient(
         okHttpClient: OkHttpClient,
     ): Retrofit {
+
+
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(
+                GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                    .create()
+            ))
             .build()
     }
 

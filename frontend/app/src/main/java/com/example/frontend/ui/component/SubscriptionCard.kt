@@ -35,7 +35,8 @@ fun SubscriptionCard(
     avatarUrl: String?,
     url: String?,
     isFollowing: MutableState<Boolean>,
-    onFollowClick: (isFollowing: Boolean) -> Unit,
+    onSubscribe: () -> Unit,
+    onUnSubscribe: () -> Unit,
     onClick: () -> Unit
 ) {
     Row(
@@ -50,7 +51,7 @@ fun SubscriptionCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (avatarUrl != null) {
+            if (!avatarUrl.isNullOrEmpty()){
                 AsyncImage(
                     model = avatarUrl,
                     contentDescription = null,
@@ -87,7 +88,7 @@ fun SubscriptionCard(
             Button(
                 modifier = Modifier
                     .width(112.dp),
-                onClick = { onFollowClick(false) },
+                onClick = { onUnSubscribe() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
                     contentColor = MaterialTheme.colorScheme.onSecondary
@@ -104,7 +105,7 @@ fun SubscriptionCard(
             Button(
                 modifier = Modifier
                     .width(112.dp),
-                onClick = { onFollowClick(true) },
+                onClick = { onSubscribe() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -119,18 +120,4 @@ fun SubscriptionCard(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun SubscriptionCardPreview() {
-    val isFollowing = remember { mutableStateOf(false) }
-    SubscriptionCard(
-        name = "Publisher Name",
-        avatarUrl = "https://findingtom.com/images/uploads/medium-logo/article-image-00.jpeg",
-        url = "Publisher description",
-        isFollowing = isFollowing,
-        onFollowClick = {},
-        onClick = {}
-    )
 }

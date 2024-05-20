@@ -1,15 +1,21 @@
 package com.example.frontend.ui.screens.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontend.data.datasource.SettingDataSource
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
+import com.example.frontend.data.repository.SubscriptionRepository
+import com.example.frontend.ui.screens.subscription.SubscriptionConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.math.BigInteger
 import java.util.Date
 import javax.inject.Inject
@@ -40,7 +46,8 @@ data class SearchResultUiState(
 
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
-
+    private val subscriptionRepository: SubscriptionRepository,
+    private val settingDataSource: SettingDataSource
 ) : ViewModel() {
     private val _articles = MutableStateFlow(emptyList<ArticleMetadata>())
     private val _subscriptions = MutableStateFlow(emptyList<Publisher>())
@@ -68,7 +75,27 @@ class SearchResultViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             SearchResultUiState.empty
         )
+    fun onSubscribePublisher(publisherId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                val userId = settingDataSource.getUserId().first().toBigInteger()
+                subscriptionRepository.subscribePublisher(userId, publisherId)
+            } catch (e: Exception) {
+                Log.e(SubscriptionConfig.LOG_TAG, "Failed to subscribe publisher")
+            }
+        }
+    }
 
+    fun onUnsubscribePublisher(publisherId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                val userId = settingDataSource.getUserId().first().toBigInteger()
+                subscriptionRepository.unsubscribePublisher(userId, publisherId)
+            } catch (e: Exception) {
+                Log.e(SubscriptionConfig.LOG_TAG, "Failed to unsubscribe publisher")
+            }
+        }
+    }
     fun search(query: String) {
         _uiState.update { it.copy(state = State.Loading) }
         _isNewSource.update { true }

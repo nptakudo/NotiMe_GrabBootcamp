@@ -21,6 +21,8 @@ fun SearchResultRoute(
         uiState = uiState,
         onBack = obBack,
         query = query,
-        onSubscriptionClick = onSubscriptionClick
+        onSubscriptionClick = onSubscriptionClick,
+        onSubscribe = { publisherId -> viewModel.onSubscribePublisher(publisherId) },
+        onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) }
     )
 }

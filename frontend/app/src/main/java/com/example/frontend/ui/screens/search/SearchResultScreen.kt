@@ -46,7 +46,9 @@ fun SearchResultScreen(
     uiState: SearchResultUiState,
     onBack: () -> Unit,
     onSubscriptionClick: (publisherId: BigInteger) -> Unit,
-    query: String
+    query: String,
+    onSubscribe: (publisherId: BigInteger) -> Unit,
+    onUnSubscribe: (publisherId: BigInteger) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -87,7 +89,9 @@ fun SearchResultScreen(
                 false -> SearchResultContentForPublishers(
                     modifier = modifier,
                     subscriptions = uiState.subscriptions,
-                    onSubscriptionClick = onSubscriptionClick
+                    onSubscriptionClick = onSubscriptionClick,
+                    onSubscribe = onSubscribe,
+                    onUnSubscribe = onUnSubscribe
                 )
 
                 true -> SearchResultContentForArticles(
@@ -103,7 +107,9 @@ fun SearchResultScreen(
 fun SearchResultContentForPublishers(
     modifier: Modifier,
     subscriptions: List<Publisher>,
-    onSubscriptionClick: (publisherId: BigInteger) -> Unit
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit,
+    onSubscribe: (publisherId: BigInteger) -> Unit,
+    onUnSubscribe: (publisherId: BigInteger) -> Unit
 ) {
     if (subscriptions.isNotEmpty()) {
         Column(
@@ -126,8 +132,13 @@ fun SearchResultContentForPublishers(
                         avatarUrl = publisher.avatarUrl,
                         url = publisher.url,
                         isFollowing = isFollowing,
-                        onFollowClick = {
-                            isFollowing.value = !isFollowing.value
+                        onSubscribe = {
+                            isFollowing.value = true
+                            onSubscribe(publisher.id)
+                        },
+                        onUnSubscribe = {
+                            onUnSubscribe(publisher.id)
+                            isFollowing.value = false
                         },
                         onClick = {
                             onSubscriptionClick(publisher.id)

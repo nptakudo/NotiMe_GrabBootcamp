@@ -1,6 +1,7 @@
 package com.example.frontend.ui.screens.subscription
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,9 @@ fun SubscriptionScreen(
     uiState: SubscriptionUiState,
     onRefresh: () -> Unit,
     onSearchIconClick: () -> Unit,
-    onSubscriptionClick: (publisherId: BigInteger) -> Unit
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit,
+    onSubscribe: (publisherId: BigInteger) -> Unit,
+    onUnSubscribe: (publisherId: BigInteger) -> Unit
 ) {
     val refreshScope = rememberCoroutineScope()
     val refreshState = rememberPullToRefreshState()
@@ -110,7 +113,9 @@ fun SubscriptionScreen(
                     } else {
                         SubscriptionScreenContent(
                             subscriptions = uiState.subscriptions,
-                            onSubscriptionClick = onSubscriptionClick
+                            onSubscriptionClick = onSubscriptionClick,
+                            onSubscribe = onSubscribe,
+                            onUnSubscribe = onUnSubscribe
                         )
                     }
                 }
@@ -129,7 +134,9 @@ fun SubscriptionScreen(
 fun SubscriptionScreenContent(
     modifier: Modifier = Modifier,
     subscriptions: List<Publisher>,
-    onSubscriptionClick: (publisherId: BigInteger) -> Unit
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit,
+    onSubscribe: (publisherId: BigInteger) -> Unit,
+    onUnSubscribe: (publisherId: BigInteger) -> Unit
 ) {
 
     if (subscriptions.isNotEmpty()) {
@@ -154,8 +161,13 @@ fun SubscriptionScreenContent(
                         avatarUrl = publisher.avatarUrl,
                         url = publisher.url,
                         isFollowing = isFollowing,
-                        onFollowClick = {
-                            isFollowing.value = !isFollowing.value
+                        onSubscribe = {
+                            isFollowing.value = true
+                            onSubscribe(publisher.id)
+                        },
+                        onUnSubscribe = {
+                            onUnSubscribe(publisher.id)
+                            isFollowing.value = false
                         },
                         onClick = {
                             onSubscriptionClick(publisher.id)
