@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"log/slog"
 	"net/http"
 	"notime/api"
 	"notime/api/messages"
@@ -40,7 +39,6 @@ func JwtAuthMiddleware(secret string) gin.HandlerFunc {
 				return
 			}
 			c.Set(api.UserIdKey, int(userIdInt32))
-			slog.Info("[JwtAuthMiddleware] User is authorized", "decoded userId", userIdInt32, "userId from ctx", c.GetInt(api.UserIdKey))
 			c.Next()
 			return
 		}

@@ -193,6 +193,7 @@ fun ArticleListScreenContent(
                         bottomSheetBookmarkArticleId = article.id
                         expandBottomSheet(ArticleListUiConfig.BottomSheetContentType.BOOKMARK)
                     },
+                    disableBookmarkButton = true,
                     isBookmarked = article.isBookmarked
                 )
                 HorizontalDivider()

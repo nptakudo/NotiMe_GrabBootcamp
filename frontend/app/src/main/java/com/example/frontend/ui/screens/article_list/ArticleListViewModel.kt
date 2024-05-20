@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.model.Publisher
+import com.example.frontend.data.repository.ArticleRepository
 import com.example.frontend.data.repository.BookmarkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +45,7 @@ data class ArticleListUiState(
 @HiltViewModel
 class ArticleListViewModel @Inject constructor(
     private val bookmarkRepository: BookmarkRepository,
-//    private val articleListRepository: ArticleListRepository
+    private val articleRepository: ArticleRepository
 ) : ViewModel() {
     private var _articles = MutableStateFlow(emptyList<ArticleMetadata>())
     private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
@@ -118,140 +119,16 @@ class ArticleListViewModel @Inject constructor(
     }
 
     fun onLoadArticlesByPublisher(publisherId: BigInteger) {
-        _uiState.update { it.copy(state = State.Loading) }
-        _articles.update {
-            listOf(
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-            )
+        viewModelScope.launch {
+            _uiState.update { it.copy(state = State.Loading) }
+            try {
+                val articles = articleRepository.getArticlesByPublisher(publisherId, 10, 0)
+                _articles.update { articles }
+                _uiState.update { it.copy(state = State.Idle) }
+            } catch (e: Exception) {
+                Log.e(ArticleListConfig.LOG_TAG, "Failed to load articles by publisher")
+            }
         }
-        _uiState.update { it.copy(state = State.Idle) }
-        //viewModelScope.launch {
-        //    try {
-        //        val articles = articleListRepository.getArticlesByPublisher(publisher)
-        //        _articles.update { articles }
-        //    } catch (e: Exception) {
-        //        Log.e(ArticleListConfig.LOG_TAG, "Failed to load articles by publisher")
-        //    }
-        //}
     }
 
     fun onLoadArticlesByBookmarkList(bookmarkListId: BigInteger) {

@@ -101,7 +101,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
     // Webview
-    implementation("androidx.browser:browser:1.5.0")
+    implementation("androidx.browser:browser:1.8.0")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

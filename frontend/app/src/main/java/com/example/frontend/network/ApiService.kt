@@ -111,4 +111,12 @@ interface ApiService {
     // ---------------- Model: PUBLISHER ----------------
     @GET("publishers/{publisher_id}/")
     suspend fun getPublisherById(@Path("publisher_id") publisherId: BigInteger): Response<Publisher>
+
+    // ---------------- Model: ARTICLE ----------------
+    @GET("articles/publisher/{publisher_id}")
+    suspend fun getArticlesByPublisher(
+        @Path("publisher_id") publisherId: BigInteger,
+        @Query("count") count: Int,
+        @Query("offset") offset: Int
+    ): Response<List<ArticleMetadata>>
 }

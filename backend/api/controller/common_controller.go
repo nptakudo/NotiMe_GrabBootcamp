@@ -35,6 +35,8 @@ type CommonUsecase interface {
 	Unsubscribe(ctx context.Context, publisherId int32, userId int32) error
 
 	SearchPublisher(ctx context.Context, searchQuery string, userId int) ([]*messages.Publisher, error)
+
+	GetArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
 }
 
 func (controller *CommonController) GetArticleMetadataById(ctx *gin.Context) {
@@ -103,6 +105,7 @@ func (controller *CommonController) GetBookmarkListById(ctx *gin.Context) {
 func (controller *CommonController) GetSubscriptions(ctx *gin.Context) {
 	// get user id from path parameter
 	userId := ctx.GetInt(api.UserIdKey)
+	slog.Info("[CommonController] GetSubscriptions: user id:", "userId", userId)
 	subscriptions, err := controller.CommonUsecase.GetSubscriptions(ctx, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
@@ -270,4 +273,31 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 		Articles:   make([]*domain.ArticleMetadata, 0),
 		Publishers: publishers,
 	})
+}
+
+func (controller *CommonController) GetArticlesByPublisher(ctx *gin.Context) {
+	publisherId, err := strconv.Atoi(ctx.Param("publisher_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+	userId := ctx.GetInt64(api.UserIdKey)
+	count, err := strconv.Atoi(ctx.Query("count"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+	offset, err := strconv.Atoi(ctx.Query("offset"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	articles, err := controller.CommonUsecase.GetArticlesByPublisher(ctx, int32(publisherId), int32(userId), count, offset)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, articles)
 }

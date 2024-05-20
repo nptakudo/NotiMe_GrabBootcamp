@@ -196,3 +196,12 @@ func (uc *CommonUsecaseImpl) SearchPublisher(ctx context.Context, searchQuery st
 
 	return results, nil
 }
+
+func (uc *CommonUsecaseImpl) GetArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error) {
+	articlesDm, err := uc.ArticleRepository.GetByPublisher(ctx, publisherId, count, offset)
+	if err != nil {
+		slog.Error("[HomeUsecase] GetArticlesByPublisher:", "error", err)
+		return nil, ErrInternal
+	}
+	return fromDmArticlesToApi(ctx, articlesDm, userId, uc.BookmarkListRepository)
+}

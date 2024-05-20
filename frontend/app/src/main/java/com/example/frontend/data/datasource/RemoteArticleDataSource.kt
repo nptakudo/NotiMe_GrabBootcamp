@@ -2,6 +2,7 @@ package com.example.frontend.data.datasource
 
 import com.example.frontend.data.model.Article
 import com.example.frontend.data.model.ArticleMetadata
+import com.example.frontend.data.model.Publisher
 import com.example.frontend.network.ApiService
 import java.math.BigInteger
 import javax.inject.Inject
@@ -21,6 +22,14 @@ class RemoteArticleDataSource @Inject constructor(
         val res = apiService.searchArticles(query, count, offset)
         if (!res.isSuccessful) {
             throw Exception("Failed to search articles")
+        }
+        return res.body()!!
+    }
+
+    suspend fun getArticlesByPublisher(publisherId: BigInteger, count: Int, offset: Int): List<ArticleMetadata> {
+        val res = apiService.getArticlesByPublisher(publisherId, count, offset)
+        if (!res.isSuccessful) {
+            throw Exception("Failed to get articles by publisher")
         }
         return res.body()!!
     }
