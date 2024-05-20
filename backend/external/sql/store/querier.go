@@ -6,7 +6,7 @@ package store
 
 import (
 	"context"
-	"database/sql"
+	_ "database/sql"
 )
 
 type Querier interface {
@@ -107,7 +107,8 @@ type Querier interface {
 	// params: query: string, limit: number, offset: number
 	// behavior: sorted by publish_date desc
 	SearchArticlesByName(ctx context.Context, arg SearchArticlesByNameParams) ([]Post, error)
-	SearchPublishersByName(ctx context.Context, query sql.NullString) ([]Source, error)
+	SearchPublishersByName(ctx context.Context, query string) ([]Source, error)
+	SearchPublishersByUrl(ctx context.Context, url string) ([]Source, error)
 	SubscribePublisher(ctx context.Context, arg SubscribePublisherParams) error
 	UnsubscribePublisher(ctx context.Context, arg UnsubscribePublisherParams) error
 }

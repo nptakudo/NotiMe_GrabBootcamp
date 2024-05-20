@@ -9,6 +9,7 @@ import (
 	"notime/domain"
 	"notime/external/sql/store"
 	"notime/repository"
+	"strings"
 )
 
 type CommonUsecaseImpl struct {
@@ -156,4 +157,42 @@ func (uc *CommonUsecaseImpl) Unsubscribe(ctx context.Context, publisherId int32,
 		return ErrInternal
 	}
 	return nil
+}
+func (uc *CommonUsecaseImpl) SearchPublisher(ctx context.Context, searchQuery string, userId int) ([]*messages.Publisher, error) {
+	publishersDm := make([]*domain.Publisher, 0)
+
+	if strings.HasPrefix(searchQuery, "https://") {
+		if !strings.HasSuffix(searchQuery, "/") {
+			searchQuery += "/"
+		}
+		publisherDm, err := uc.PublisherRepository.SearchByUrl(ctx, searchQuery)
+		if err != nil {
+			return nil, ErrInternal
+		}
+
+		if publisherDm == nil {
+			return nil, nil
+		}
+
+		publishersDm = append(publishersDm, publisherDm)
+	} else {
+		publishers, err := uc.PublisherRepository.SearchByName(ctx, searchQuery)
+		if err != nil {
+			slog.Error("[HomeUsecase] SearchPublisher:", "error", err)
+			return nil, ErrInternal
+		}
+		publishersDm = append(publishersDm, publishers...)
+	}
+
+	results := make([]*messages.Publisher, 0)
+	for _, publisher := range publishersDm {
+		isSubscribed, err := uc.IsSubscribed(ctx, publisher.Id, int32(userId))
+		if err != nil {
+			slog.Error("[CommonUsecase] SearchPublisher - IsUserSubscribed:", "error", err)
+			return nil, ErrInternal
+		}
+		results = append(results, FromDmPublisherToApi(publisher, isSubscribed))
+	}
+
+	return results, nil
 }

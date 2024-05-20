@@ -86,7 +86,7 @@ fun SearchResultScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             when (uiState.isNewSource) {
-                false -> SearchResultContentForPublishers(
+                true -> SearchResultContentForPublishers(
                     modifier = modifier,
                     subscriptions = uiState.subscriptions,
                     onSubscriptionClick = onSubscriptionClick,
@@ -94,7 +94,7 @@ fun SearchResultScreen(
                     onUnSubscribe = onUnSubscribe
                 )
 
-                true -> SearchResultContentForArticles(
+                false -> SearchResultContentForArticles(
                     modifier = modifier,
                     articles = uiState.articles
                 )

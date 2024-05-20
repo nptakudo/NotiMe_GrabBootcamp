@@ -62,3 +62,11 @@ func fromDmUserToApi(user *domain.User, token string) *messages.User {
 		Token:    token,
 	}
 }
+
+func fromDmPublishersToApi(publishers []*domain.Publisher) []*messages.Publisher {
+	publishersApi := make([]*messages.Publisher, 0)
+	for _, publisher := range publishers {
+		publishersApi = append(publishersApi, FromDmPublisherToApi(publisher, false))
+	}
+	return publishersApi
+}

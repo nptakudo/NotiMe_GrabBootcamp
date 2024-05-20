@@ -38,8 +38,7 @@ func (r *SubscribeListRepositoryImpl) IsSubscribed(ctx context.Context, publishe
 		UserID:      userId,
 	})
 	if err != nil {
-		slog.Error("[SubscribeList Repository] IsSubscribed:", "error", err)
-		return false, err
+		return false, nil
 	}
 	return true, nil
 }

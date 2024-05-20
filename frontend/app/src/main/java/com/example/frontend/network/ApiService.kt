@@ -7,6 +7,7 @@ import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.model.request.LoginRequest
 import com.example.frontend.data.model.response.ApiResponse
 import com.example.frontend.data.model.response.LoginResponse
+import com.example.frontend.data.model.response.SearchResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -91,6 +92,12 @@ interface ApiService {
 
     @GET("subscriptions/publisher/{publisher_id}/")
     suspend fun isPublisherSubscribed(@Path("publisher_id") publisherId: BigInteger): Response<ApiResponse>
+
+    @GET("subscriptions/{user_id}/search/")
+    suspend fun searchPublishers(
+        @Path("user_id") userId: BigInteger,
+        @Query("query") query: String
+    ): Response<SearchResponse>
 
     @PUT("subscriptions/{user_id}/{publisher_id}/")
     suspend fun subscribePublisher(

@@ -11,7 +11,8 @@ type Publisher struct {
 
 type PublisherRepository interface {
 	GetById(ctx context.Context, id int32) (*Publisher, error)
-	Search(ctx context.Context, name string) ([]*Publisher, error)
+	SearchByName(ctx context.Context, name string) ([]*Publisher, error)
+	SearchByUrl(ctx context.Context, url string) (*Publisher, error)
 	Create(ctx context.Context, name string, url string, avatarUrl string) (*Publisher, error)
 }
 

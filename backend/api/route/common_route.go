@@ -11,6 +11,7 @@ import (
 func NewCommonRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queries) {
 	commonController := controller.CommonController{
 		CommonUsecase: usecases.NewCommonUsecase(env, db),
+		Env:           env,
 	}
 	// Get publisher by id
 	group.GET("/publisher/:publisher_id", commonController.GetPublisherById)
@@ -30,6 +31,8 @@ func NewCommonRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queri
 	group.GET("/subscriptions/user/:userId", commonController.GetSubscriptions)
 	// Get whether user is subscribed to publisher
 	group.GET("/subscriptions/publisher/:publisher_id", commonController.IsSubscribed)
+	// Search a publisher
+	group.GET("/subscriptions/:user_id/search/", commonController.SearchPublisher)
 	// Subscribe to publisher
 	group.PUT("/subscriptions/:user_id/:publisher_id", commonController.Subscribe)
 	// Unsubscribe from publisher

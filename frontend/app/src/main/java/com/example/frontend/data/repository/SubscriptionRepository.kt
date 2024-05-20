@@ -16,4 +16,7 @@ class SubscriptionRepository @Inject constructor(
 
     suspend fun unsubscribePublisher(userId: BigInteger, publisherId: BigInteger) =
         remoteSubscriptionDataSource.unsubscribePublisher(userId, publisherId)
+
+    suspend fun searchPublishers(query: String, userId: BigInteger) =
+        remoteSubscriptionDataSource.searchPublishers(query, userId)
 }

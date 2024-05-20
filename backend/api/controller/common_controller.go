@@ -7,11 +7,16 @@ import (
 	"net/http"
 	"notime/api"
 	"notime/api/messages"
+	"notime/bootstrap"
+	"notime/domain"
+	"notime/repository"
 	"strconv"
+	"strings"
 )
 
 type CommonController struct {
 	CommonUsecase CommonUsecase
+	Env           *bootstrap.Env
 }
 
 type CommonUsecase interface {
@@ -28,6 +33,8 @@ type CommonUsecase interface {
 	IsSubscribed(ctx context.Context, publisherId int32, userId int32) (bool, error)
 	Subscribe(ctx context.Context, publisherId int32, userId int32) error
 	Unsubscribe(ctx context.Context, publisherId int32, userId int32) error
+
+	SearchPublisher(ctx context.Context, searchQuery string, userId int) ([]*messages.Publisher, error)
 }
 
 func (controller *CommonController) GetArticleMetadataById(ctx *gin.Context) {
@@ -223,4 +230,61 @@ func (controller *CommonController) Unsubscribe(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, nil)
+}
+
+type SearchResponse struct {
+	IsExisting bool                      `json:"is_existing"`
+	Articles   []*domain.ArticleMetadata `json:"articles"`
+	Publishers []*messages.Publisher     `json:"publishers"`
+}
+
+func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if the search query is not in the db, call the scrape data
+	searchQuery := ctx.Query("query")
+	userId, err := strconv.Atoi(ctx.Param("user_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	webscrapeRepo := repository.NewWebscrapeRepository(controller.Env)
+
+	if searchQuery == "" {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: "search query cannot be empty"})
+		return
+	}
+	// search for publishers in db
+	publishers, err := controller.CommonUsecase.SearchPublisher(ctx, searchQuery, userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+	// if no publishers found in db, scrape the data
+	if publishers == nil || len(publishers) == 0 {
+		if !strings.HasPrefix(searchQuery, "https://") {
+			ctx.JSON(http.StatusAccepted, messages.SimpleResponse{Message: "No publishers found"})
+			return
+		}
+		if !strings.HasSuffix(searchQuery, "/") {
+			searchQuery += "/"
+		}
+		// scrape data
+		articles, _, err := webscrapeRepo.ScrapeFromUrl(searchQuery)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, SearchResponse{
+			IsExisting: false,
+			Articles:   articles,
+			Publishers: make([]*messages.Publisher, 0),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, SearchResponse{
+		IsExisting: true,
+		Articles:   make([]*domain.ArticleMetadata, 0),
+		Publishers: publishers,
+	})
 }

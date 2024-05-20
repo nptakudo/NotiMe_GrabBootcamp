@@ -30,8 +30,8 @@ func (r *PublisherRepositoryImpl) GetById(ctx context.Context, id int32) (*domai
 	return dmPublisher, nil
 }
 
-func (r *PublisherRepositoryImpl) Search(ctx context.Context, name string) ([]*domain.Publisher, error) {
-	dbPublishers, err := r.q.SearchPublishersByName(ctx, sql.NullString{String: name})
+func (r *PublisherRepositoryImpl) SearchByName(ctx context.Context, name string) ([]*domain.Publisher, error) {
+	dbPublishers, err := r.q.SearchPublishersByName(ctx, name)
 	if err != nil {
 		slog.Error("[Publisher Repository] Search:", "error", err)
 		return nil, err
@@ -46,6 +46,23 @@ func (r *PublisherRepositoryImpl) Search(ctx context.Context, name string) ([]*d
 		dmPublishers = append(dmPublishers, dmPublisher)
 	}
 	return dmPublishers, nil
+}
+func (r *PublisherRepositoryImpl) SearchByUrl(ctx context.Context, url string) (*domain.Publisher, error) {
+	dbPublishers, err := r.q.SearchPublishersByUrl(ctx, url)
+	if err != nil {
+		slog.Error("[Publisher Repository] Search:", "error", err)
+		return nil, err
+	}
+	if len(dbPublishers) == 0 {
+		slog.Error("[Publisher Repository] Search:", "error", "Publisher not found")
+		return nil, nil
+	}
+	dmPublisher, err := convertDbPublisherToDm(&dbPublishers[0])
+	if err != nil {
+		slog.Error("[Publisher Repository] Search:", "error", err)
+		return nil, err
+	}
+	return dmPublisher, nil
 }
 
 func (r *PublisherRepositoryImpl) Create(ctx context.Context, name string, url string, avatarUrl string) (*domain.Publisher, error) {

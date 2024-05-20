@@ -1,6 +1,8 @@
 package com.example.frontend.data.datasource
 
+import android.util.Log
 import com.example.frontend.data.model.Publisher
+import com.example.frontend.data.model.response.SearchResponse
 import com.example.frontend.network.ApiService
 import java.math.BigInteger
 import javax.inject.Inject
@@ -36,5 +38,14 @@ class RemoteSubscriptionDataSource @Inject constructor(
         if (!res.isSuccessful) {
             throw Exception("Failed to unsubscribe publisher")
         }
+    }
+
+    suspend fun searchPublishers(query: String, userId: BigInteger): SearchResponse {
+        val res = apiService.searchPublishers(userId, query)
+        if (!res.isSuccessful) {
+            throw Exception("Failed to search publishers")
+        }
+        Log.i("RemoteSubscriptionDataSource", res.body().toString())
+        return res.body()!!
     }
 }
