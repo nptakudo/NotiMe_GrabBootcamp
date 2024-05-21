@@ -128,143 +128,21 @@ class ArticleListViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e(ArticleListConfig.LOG_TAG, "Failed to load articles by publisher")
             }
+            _uiState.update { it.copy(state = State.Idle) }
         }
     }
 
     fun onLoadArticlesByBookmarkList(bookmarkListId: BigInteger) {
-        _uiState.update { it.copy(state = State.Loading) }
-        _articles.update {
-            listOf(
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-                ArticleMetadata(
-                    id = BigInteger.ONE,
-                    title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                    url = "",
-                    date = Date(),
-                    publisher = Publisher(
-                        id = BigInteger.ONE,
-                        name = "BBC News",
-                        url = "",
-                        avatarUrl = "https://picsum.photos/200",
-                        isSubscribed = false
-                    ),
-                    isBookmarked = true,
-                    imageUrl = "https://picsum.photos/400",
-                ),
-            )
+        viewModelScope.launch {
+            _uiState.update { it.copy(state = State.Loading) }
+            try {
+                val bookmarkList = bookmarkRepository.getBookmarkListById(bookmarkListId)
+                _articles.update { bookmarkList.articles }
+                _uiState.update { it.copy(state = State.Idle) }
+            } catch (e: Exception) {
+                Log.e(ArticleListConfig.LOG_TAG, "Failed to load articles by bookmark list")
+            }
+            _uiState.update { it.copy(state = State.Idle) }
         }
-        _uiState.update { it.copy(state = State.Idle) }
-        //viewModelScope.launch {
-        //    try {
-        //        val articles = articleListRepository.getArticlesByBookmarkList(bookmarkListId)
-        //        _articles.update { articles }
-        //    } catch (e: Exception) {
-        //        Log.e(ArticleListConfig.LOG_TAG, "Failed to load articles by bookmark list")
-        //    }
-        //}
     }
 }
