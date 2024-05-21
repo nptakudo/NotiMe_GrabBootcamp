@@ -8,6 +8,7 @@ import (
 	"notime/domain"
 	"notime/external/sql/store"
 	"notime/utils/htmlutils"
+	"sync"
 	"time"
 )
 
@@ -51,26 +52,57 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 		return nil, err
 	}
 
-	var dmArticles []*domain.ArticleMetadata
-	for _, dbArticle := range dbArticles {
-		// Check if url is actually of an article
-		isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
-		if err != nil {
-			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
-			continue
-		}
-		if !isArticle {
-			slog.Warn("[Article Repository] GetByPublisher: Skipping potential article: url is not an article:", "url", dbArticle.Url)
-			continue
-		}
+	var wg sync.WaitGroup
+	dmArticles := make([]*domain.ArticleMetadata, 0)
+	errCh := make(chan error, len(dbArticles))
+	resCh := make(chan *domain.ArticleMetadata, len(dbArticles))
 
-		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+	for _, dbArticle := range dbArticles {
+		wg.Add(1)
+		go func(dbArticle store.Post) {
+			defer wg.Done()
+
+			// Check if url is actually of an article
+			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+			if err != nil {
+				slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
+				errCh <- err
+				return
+			}
+			if !isArticle {
+				slog.Warn("[Article Repository] GetByPublisher: Skipping potential article: url is not an article:", "url", dbArticle.Url)
+				return
+			}
+
+			dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+			if err != nil {
+				slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
+				errCh <- err
+				return
+			}
+			resCh <- dmArticle
+		}(dbArticle)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Close the channels after all goroutines finish
+	close(errCh)
+	close(resCh)
+
+	// Check if there were any errors
+	for err := range errCh {
 		if err != nil {
-			slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
 			return nil, err
 		}
+	}
+
+	// Collect all results
+	for dmArticle := range resCh {
 		dmArticles = append(dmArticles, dmArticle)
 	}
+
 	return dmArticles, nil
 }
 
@@ -85,26 +117,57 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 		return nil, err
 	}
 
-	var dmArticles []*domain.ArticleMetadata
-	for _, dbArticle := range dbArticles {
-		// Check if url is actually of an article
-		isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
-		if err != nil {
-			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
-			continue
-		}
-		if !isArticle {
-			slog.Warn("[Article Repository] GetByPublisher: Skipping potential article: url is not an article:", "url", dbArticle.Url)
-			continue
-		}
+	var wg sync.WaitGroup
+	dmArticles := make([]*domain.ArticleMetadata, 0)
+	errCh := make(chan error, len(dbArticles))
+	resCh := make(chan *domain.ArticleMetadata, len(dbArticles))
 
-		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+	for _, dbArticle := range dbArticles {
+		wg.Add(1)
+		go func(dbArticle store.Post) {
+			defer wg.Done()
+
+			// Check if url is actually of an article
+			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+			if err != nil {
+				slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
+				errCh <- err
+				return
+			}
+			if !isArticle {
+				slog.Warn("[Article Repository] GetByPublisher: Skipping potential article: url is not an article:", "url", dbArticle.Url)
+				return
+			}
+
+			dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+			if err != nil {
+				slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
+				errCh <- err
+				return
+			}
+			resCh <- dmArticle
+		}(dbArticle)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Close the channels after all goroutines finish
+	close(errCh)
+	close(resCh)
+
+	// Check if there were any errors
+	for err := range errCh {
 		if err != nil {
-			slog.Error("[Article Repository] Search convert:", "error", err)
 			return nil, err
 		}
+	}
+
+	// Collect all results
+	for dmArticle := range resCh {
 		dmArticles = append(dmArticles, dmArticle)
 	}
+
 	return dmArticles, nil
 }
 

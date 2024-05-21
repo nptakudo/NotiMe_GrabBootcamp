@@ -8,6 +8,7 @@ import (
 	"notime/external/recsys_engine"
 	"notime/external/sql/store"
 	"notime/utils/htmlutils"
+	"sync"
 	"time"
 )
 
@@ -54,26 +55,57 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(ctx context.Conte
 		return nil, err
 	}
 
-	var dmArticles []*domain.ArticleMetadata
-	for _, dbArticle := range dbArticles {
-		// Check if url is actually of an article
-		isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
-		if err != nil {
-			slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
-			continue
-		}
-		if !isArticle {
-			slog.Warn("[Article Repository] GetByPublisher: Skipping potential article: url is not an article:", "url", dbArticle.Url)
-			continue
-		}
+	var wg sync.WaitGroup
+	dmArticles := make([]*domain.ArticleMetadata, 0)
+	errCh := make(chan error, len(dbArticles))
+	resCh := make(chan *domain.ArticleMetadata, len(dbArticles))
 
-		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+	for _, dbArticle := range dbArticles {
+		wg.Add(1)
+		go func(dbArticle store.Post) {
+			defer wg.Done()
+
+			// Check if url is actually of an article
+			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+			if err != nil {
+				slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
+				errCh <- err
+				return
+			}
+			if !isArticle {
+				slog.Warn("[Article Repository] GetByPublisher: Skipping potential article: url is not an article:", "url", dbArticle.Url)
+				return
+			}
+
+			dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+			if err != nil {
+				slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
+				errCh <- err
+				return
+			}
+			resCh <- dmArticle
+		}(dbArticle)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Close the channels after all goroutines finish
+	close(errCh)
+	close(resCh)
+
+	// Check if there were any errors
+	for err := range errCh {
 		if err != nil {
-			slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
 			return nil, err
 		}
+	}
+
+	// Collect all results
+	for dmArticle := range resCh {
 		dmArticles = append(dmArticles, dmArticle)
 	}
+
 	return dmArticles, nil
 }
 
@@ -93,28 +125,59 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 				continue
 			}
 
-			for _, articleUrl := range articleUrls {
-				// Check if url is actually of an article
-				isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
-				if err != nil {
-					slog.Error("[Article Repository] GetLatestArticlesFromUnsubscribed validate url as article:", "error", err)
-					continue
-				}
-				if !isArticle {
-					slog.Warn("[Article Repository] GetLatestArticlesFromUnsubscribed: Skipping potential article: url is not an article:", "url", articleUrl)
-					continue
-				}
+			var wg sync.WaitGroup
+			errCh := make(chan error, len(articleUrls))
+			resCh := make(chan *domain.ArticleMetadata, len(articleUrls))
 
-				dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
+			for _, articleUrl := range articleUrls {
+				wg.Add(1)
+				go func(articleUrl string) {
+					defer wg.Done()
+
+					// Check if url is actually of an article
+					isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
+					if err != nil {
+						slog.Error("[Article Repository] GetLatestArticlesFromUnsubscribed validate url as article:", "error", err)
+						errCh <- err
+						return
+					}
+					if !isArticle {
+						slog.Warn("[Article Repository] GetLatestArticlesFromUnsubscribed: Skipping potential article: url is not an article:", "url", articleUrl)
+						return
+					}
+
+					dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
+					if err != nil {
+						slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed query:", "error", err)
+						errCh <- err
+						return
+					}
+					dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+					if err != nil {
+						slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed convert:", "error", err)
+						errCh <- err
+						return
+					}
+					resCh <- dmArticle
+				}(articleUrl)
+			}
+
+			// Wait for all goroutines to finish
+			wg.Wait()
+
+			// Close the channels after all goroutines finish
+			close(errCh)
+			close(resCh)
+
+			// Check if there were any errors
+			for err := range errCh {
 				if err != nil {
-					slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed query:", "error", err)
-					continue
+					return nil, err
 				}
-				dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
-				if err != nil {
-					slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed convert:", "error", err)
-					continue
-				}
+			}
+
+			// Collect all results
+			for dmArticle := range resCh {
 				dmArticles = append(dmArticles, dmArticle)
 			}
 		}
@@ -161,29 +224,60 @@ func (r *RecsysRepositoryImpl) GetRelatedArticles(ctx context.Context, articleId
 		return nil, err
 	}
 
-	var dmArticles []*domain.ArticleMetadata
-	for _, articleUrl := range articleUrls {
-		// Check if url is actually of an article
-		isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
-		if err != nil {
-			slog.Error("[Article Repository] GetRelatedArticles validate url as article:", "error", err)
-			continue
-		}
-		if !isArticle {
-			slog.Warn("[Article Repository] GetRelatedArticles: Skipping potential article: url is not an article:", "url", articleUrl)
-			continue
-		}
+	var wg sync.WaitGroup
+	dmArticles := make([]*domain.ArticleMetadata, 0)
+	errCh := make(chan error, len(articleUrls))
+	resCh := make(chan *domain.ArticleMetadata, len(articleUrls))
 
-		dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
+	for _, articleUrl := range articleUrls {
+		wg.Add(1)
+		go func(articleUrl string) {
+			defer wg.Done()
+
+			// Check if url is actually of an article
+			isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
+			if err != nil {
+				slog.Error("[Article Repository] GetRelatedArticles validate url as article:", "error", err)
+				errCh <- err
+				return
+			}
+			if !isArticle {
+				slog.Warn("[Article Repository] GetRelatedArticles: Skipping potential article: url is not an article:", "url", articleUrl)
+				return
+			}
+
+			dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
+			if err != nil {
+				slog.Error("[Recsys Repository] GetRelatedArticles query:", "error", err)
+				errCh <- err
+				return
+			}
+			dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+			if err != nil {
+				slog.Error("[Recsys Repository] GetRelatedArticles convert:", "error", err)
+				errCh <- err
+				return
+			}
+			resCh <- dmArticle
+		}(articleUrl)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Close the channels after all goroutines finish
+	close(errCh)
+	close(resCh)
+
+	// Check if there were any errors
+	for err := range errCh {
 		if err != nil {
-			slog.Error("[Recsys Repository] GetRelatedArticles query:", "error", err)
-			continue
+			return nil, err
 		}
-		dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
-		if err != nil {
-			slog.Error("[Recsys Repository] GetRelatedArticles convert:", "error", err)
-			continue
-		}
+	}
+
+	// Collect all results
+	for dmArticle := range resCh {
 		dmArticles = append(dmArticles, dmArticle)
 	}
 

@@ -49,7 +49,7 @@ private fun NavGraphBuilder.showLogin(navController: NavController) {
         LoginRoute(
             viewModel = hiltViewModel(),
             onLoginSuccess = {
-                navController.navigate(Route.Following.route)
+                navController.navigate(Route.Home.route)
             }
         )
     }

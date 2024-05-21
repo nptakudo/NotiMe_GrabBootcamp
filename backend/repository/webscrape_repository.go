@@ -7,6 +7,7 @@ import (
 	"notime/external/webscrape_engine"
 	"notime/repository/models"
 	"notime/utils/htmlutils"
+	"sync"
 	"time"
 )
 
@@ -49,32 +50,63 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 		}
 	}
 
+	var wg sync.WaitGroup
 	dmArticles := make([]*domain.ArticleMetadata, 0)
-	for _, article := range scrapedArticles {
-		// Check if url is actually of an article
-		isArticle, err := htmlutils.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold)
-		if err != nil {
-			slog.Error("[Webscrape Repository] ScrapeFromUrl validate url as article:", "error", err)
-			continue
-		}
-		if !isArticle {
-			slog.Warn("[Webscrape Repository] ScrapeFromUrl: Skipping potential article: url is not an article:", "url", article.Url)
-			continue
-		}
+	errCh := make(chan error, len(scrapedArticles))
+	resCh := make(chan *domain.ArticleMetadata, len(scrapedArticles))
 
-		date, err := article.GetTime()
+	for _, article := range scrapedArticles {
+		wg.Add(1)
+		go func(article *models.ScrapedArticle) {
+			defer wg.Done()
+
+			// Check if url is actually of an article
+			isArticle, err := htmlutils.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold)
+			if err != nil {
+				slog.Error("[Webscrape Repository] ScrapeFromUrl validate url as article:", "error", err)
+				errCh <- err
+				return
+			}
+			if !isArticle {
+				slog.Warn("[Webscrape Repository] ScrapeFromUrl: Skipping potential article: url is not an article:", "url", article.Url)
+				return
+			}
+
+			date, err := article.GetTime()
+			if err != nil {
+				slog.Error("[Webscrape Repository] ScrapeFromUrl get time:", "error", err)
+				errCh <- err
+				return
+			}
+			dmArticle := &domain.ArticleMetadata{
+				Id:        -1,
+				Title:     article.Title,
+				Url:       article.Url,
+				Date:      date,
+				Publisher: dmPublisher,
+			}
+			resCh <- dmArticle
+		}(article)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Close the channels after all goroutines finish
+	close(errCh)
+	close(resCh)
+
+	// Check if there were any errors
+	for err := range errCh {
 		if err != nil {
-			slog.Error("[Webscrape Repository] ScrapeFromUrl get time:", "error", err)
-			continue
+			return nil, nil, err
 		}
-		dmArticle := &domain.ArticleMetadata{
-			Id:        -1,
-			Title:     article.Title,
-			Url:       article.Url,
-			Date:      date,
-			Publisher: dmPublisher,
-		}
+	}
+
+	// Collect all results
+	for dmArticle := range resCh {
 		dmArticles = append(dmArticles, dmArticle)
 	}
+
 	return dmArticles, dmPublisher, nil
 }
