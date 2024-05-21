@@ -14,6 +14,7 @@ import com.example.frontend.ui.screens.bookmark.BookmarkRoute
 import com.example.frontend.ui.screens.home.ExploreRoute
 import com.example.frontend.ui.screens.home.HomeRoute
 import com.example.frontend.ui.screens.login.LoginRoute
+import com.example.frontend.ui.screens.reader.NewReaderRoute
 import com.example.frontend.ui.screens.reader.ReaderRoute
 import com.example.frontend.ui.screens.search.SearchResultRoute
 import com.example.frontend.ui.screens.search.SearchScreen
@@ -32,6 +33,7 @@ fun AppNavGraph(
         showHome(navController)
         showExplore(navController)
         showReader(navController)
+        showNewReader(navController)
         showBookmarkList(navController)
         showBookmarkListDetail(navController)
         showSubscription(navController)
@@ -92,6 +94,18 @@ private fun NavGraphBuilder.showReader(navController: NavController) {
             onReadAnotherArticle = {
                 navController.navigate(Route.Reader.route + "/$it")
             },
+            onBack = { navController.navigateUp() }
+        )
+    }
+}
+private fun NavGraphBuilder.showNewReader(navController: NavController) {
+    val route = Route.Reader.route + "/new/{${Route.Reader.args[0]}}"
+    composable(route) {
+        val parentEntry = remember(it) {
+            navController.getBackStackEntry(route)
+        }
+        NewReaderRoute(
+            viewModel = hiltViewModel(parentEntry),
             onBack = { navController.navigateUp() }
         )
     }
@@ -178,6 +192,10 @@ private fun NavGraphBuilder.showSearchResult(navController: NavController) {
             onSubscriptionClick = {
                 navController.navigate(Route.SubscriptionDetail.route + "/$it")
             },
+            onReadNewArticle = {
+                val encodedUrl = URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
+                navController.navigate(Route.Reader.route + "/new/$encodedUrl")
+            }
         )
     }
 }

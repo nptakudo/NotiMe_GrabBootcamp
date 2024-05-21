@@ -33,4 +33,12 @@ class RemoteArticleDataSource @Inject constructor(
         }
         return res.body()!!
     }
+
+    suspend fun getNewArticle (url: String): Article {
+        val res = apiService.getNewArticle(url)
+        if (!res.isSuccessful) {
+            throw Exception("Failed to get new article")
+        }
+        return res.body()!!
+    }
 }

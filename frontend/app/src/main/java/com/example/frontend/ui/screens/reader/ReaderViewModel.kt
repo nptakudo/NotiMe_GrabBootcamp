@@ -160,8 +160,6 @@ class ReaderViewModel @Inject constructor(
             try {
                 val bookmarkId = bookmarkRepository.createBookmarkList(name)
                 bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
-                // TODO
-//                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
                 _bookmarks.update {
                     it + BookmarkList(
                         id = bookmarkId,

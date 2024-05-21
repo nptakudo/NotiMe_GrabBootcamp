@@ -1,5 +1,6 @@
 package com.example.frontend.ui.screens.search
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.component.SubscriptionCard
+import com.example.frontend.ui.screens.search.State
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringExactDateFormat
@@ -48,7 +50,8 @@ fun SearchResultScreen(
     onSubscriptionClick: (publisherId: BigInteger) -> Unit,
     query: String,
     onSubscribe: (publisherId: BigInteger) -> Unit,
-    onUnSubscribe: (publisherId: BigInteger) -> Unit
+    onUnSubscribe: (publisherId: BigInteger) -> Unit,
+    onLoadNewArticle: (url: String) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -95,7 +98,9 @@ fun SearchResultScreen(
 
                 false -> SearchResultContentForArticles(
                     modifier = modifier,
-                    articles = uiState.articles
+                    uiState = uiState,
+                    articles = uiState.articles,
+                    onLoadNewArticle = onLoadNewArticle
                 )
             }
         }
@@ -167,87 +172,105 @@ fun SearchResultContentForPublishers(
 @Composable
 fun SearchResultContentForArticles(
     modifier: Modifier,
+    uiState: SearchResultUiState,
     articles: List<ArticleMetadata>,
+    onLoadNewArticle: (url: String) -> Unit
 ) {
-    if (articles.isNotEmpty()) {
+    if (uiState.state == State.Loading) {
         Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    start = UiConfig.sideScreenPadding,
-                    end = UiConfig.sideScreenPadding,
-                    top = 16.dp,
-                ),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = "Loading...",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        }
+    } else {
+        if (articles.isNotEmpty()) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        start = UiConfig.sideScreenPadding,
+                        end = UiConfig.sideScreenPadding,
+                        top = 16.dp,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "This publisher is not in our database yet. Do you wanna add it?",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(
+                        modifier = Modifier.width(112.dp),
+                        onClick = { },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            text = "Add",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        )
+                    }
+                }
+                HorizontalDivider()
+                Text(
+                    text = "Articles from this publisher",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                Column(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    articles.forEach { article ->
+                        Log.i("SearchResultScreen", "Article: ${article.url}")
+                        SmallArticleCard(
+                            articleImageUrl = article.imageUrl,
+                            title = article.title,
+                            publisher = article.publisher.name,
+                            date = dateToStringExactDateFormat(article.date),
+                            onClick = { onLoadNewArticle(article.url) },
+                            disableBookmarkButton = true,
+                            onBookmarkClick = {},
+                            isBookmarked = article.isBookmarked
+                        )
+                        HorizontalDivider()
+                    }
+                }
+            }
+        } else {
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(horizontal = UiConfig.sideScreenPadding),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "This publisher is not in our database yet. Wanna add?",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
+                    text = "Nothing here :-(",
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    modifier = Modifier.width(112.dp),
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text(
-                        text = "Add",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    )
-                }
-            }
-            HorizontalDivider()
-            Text(
-                text = "Articles from this publisher",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-            Column(
-                modifier = Modifier.padding(vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                articles.forEach { article ->
-                    SmallArticleCard(
-                        articleImageUrl = article.imageUrl,
-                        title = article.title,
-                        publisher = article.publisher.name,
-                        date = dateToStringExactDateFormat(article.date),
-                        onClick = { /* TODO */ },
-                        disableBookmarkButton = true,
-                        onBookmarkClick = {},
-                        isBookmarked = article.isBookmarked
-                    )
-                    HorizontalDivider()
-                }
-            }
-        }
-    } else {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(horizontal = UiConfig.sideScreenPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Nothing here :-(",
-                style = MaterialTheme.typography.bodyLarge
-            )
         }
     }
 }

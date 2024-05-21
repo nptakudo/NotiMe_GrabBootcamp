@@ -17,4 +17,5 @@ func NewReaderRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queri
 	// Get related articles metadata by article id
 	// Query params: count, offset
 	group.GET("/:article_id/related_articles", readerController.GetRelatedArticles)
+	group.GET("/new_article", readerController.GetNewArticle)
 }

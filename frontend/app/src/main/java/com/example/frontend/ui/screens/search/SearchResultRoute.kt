@@ -11,7 +11,8 @@ fun SearchResultRoute(
     viewModel: SearchResultViewModel,
     query: String,
     obBack: () -> Unit,
-    onSubscriptionClick: (publisherId: BigInteger) -> Unit
+    onSubscriptionClick: (publisherId: BigInteger) -> Unit,
+    onReadNewArticle: (url: String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -23,6 +24,7 @@ fun SearchResultRoute(
         query = query,
         onSubscriptionClick = onSubscriptionClick,
         onSubscribe = { publisherId -> viewModel.onSubscribePublisher(publisherId) },
-        onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) }
+        onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) },
+        onLoadNewArticle = onReadNewArticle
     )
 }

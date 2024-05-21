@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import java.util.Locale
 
 @Composable
 fun SubscriptionCard(
@@ -65,8 +66,21 @@ fun SubscriptionCard(
                     .padding(start = 8.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
+                val domain = listOf(
+                    "com", "vn", "github", "io", "dev", "net", "org", "edu", "gov", "mil"
+                )
+                var nameStr = name ?: ""
+                var nameList = nameStr.split(".")
+                if (nameList.size > 1) {
+                    while (domain.contains(nameList.last())) {
+                        nameList = nameList.dropLast(1)
+                    }
+                    nameStr = nameList.joinToString(" ")
+                        .lowercase(Locale.getDefault())
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                }
                 Text(
-                    text = name,
+                    text = nameStr,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleMedium.copy(

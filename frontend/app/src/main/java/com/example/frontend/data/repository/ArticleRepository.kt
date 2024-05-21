@@ -17,4 +17,7 @@ class ArticleRepository @Inject constructor(
 
     suspend fun getArticlesByPublisher(publisherId: BigInteger, count: Int, offset: Int): List<ArticleMetadata> =
         remoteArticleDataSource.getArticlesByPublisher(publisherId, count, offset)
+
+    suspend fun getNewArticle(url: String): Article =
+        remoteArticleDataSource.getNewArticle(url)
 }

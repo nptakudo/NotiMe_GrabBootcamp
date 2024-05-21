@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"log/slog"
 	"notime/api/controller"
 	"notime/api/messages"
@@ -9,8 +11,12 @@ import (
 	"notime/domain"
 	"notime/external/sql/store"
 	"notime/repository"
+	"notime/repository/models"
 	"notime/utils/geminiutils"
 	"notime/utils/htmlutils"
+	"os"
+	"strings"
+	"time"
 )
 
 type ReaderUsecaseImpl struct {
@@ -74,4 +80,83 @@ func (uc *ReaderUsecaseImpl) GetRelatedArticles(ctx context.Context, articleId i
 		return nil, ErrInternal
 	}
 	return relatedArticlesApi, nil
+}
+
+func (uc *ReaderUsecaseImpl) GetNewArticle(ctx context.Context, url string) (*messages.ArticleResponse, error) {
+	// get metadata by finding the url in the output.json file
+	file, err := os.Open("../pipeline/webscrape/webscrape/spiders/output.json")
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetNewArticle: Error opening output.json:", "error", err)
+		return nil, ErrInternal
+	}
+	defer file.Close()
+
+	// Read the file content
+	content, err := io.ReadAll(file)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetNewArticle: Error reading output.json:", "error", err)
+		return nil, ErrInternal
+	}
+
+	// Decode the response
+	var articles []*models.ScrapedArticle
+	err = json.Unmarshal(content, &articles)
+	if err != nil {
+		slog.Error("[Webscrape] ScrapeFromUrl: Error unmarshalling output.json:", "error", err)
+		return nil, err
+	}
+	// get the article with the given url
+	var article *models.ScrapedArticle
+	for _, a := range articles {
+		if a.Url == url {
+			article = a
+			break
+		}
+	}
+
+	if article == nil {
+		slog.Error("[ReaderUsecase] GetNewArticle: Article not found")
+		return nil, ErrInternal
+	}
+
+	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(url)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetNewArticle:", "error", err)
+		body = ""
+	}
+
+	summary, err := geminiutils.GenerateArticleSummary(uc.env, body)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetNewArticle:", "error", err)
+		summary = ""
+	}
+
+	publishDate, _ := time.Parse("2 Jan 2006", strings.Split(article.Date, " | ")[0])
+	slog.Info("[ReaderUsecase] GetNewArticle:", "publishDate", publishDate)
+
+	metadata := domain.ArticleMetadata{
+		Id:    0,
+		Title: article.Title,
+		Publisher: &domain.Publisher{
+			Id:        0,
+			Name:      article.PublisherName,
+			Url:       "",
+			AvatarUrl: "",
+		},
+		Date:     publishDate,
+		Url:      article.Url,
+		ImageUrl: "",
+	}
+
+	return &messages.ArticleResponse{
+		Metadata: &messages.ArticleMetadata{
+			IsBookmarked:    false,
+			ArticleMetadata: metadata,
+		},
+		Content: &messages.ArticleContent{
+			Id:      metadata.Id,
+			Content: body,
+		},
+		Summary: summary,
+	}, nil
 }

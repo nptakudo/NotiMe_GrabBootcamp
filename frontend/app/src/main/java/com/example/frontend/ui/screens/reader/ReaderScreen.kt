@@ -2,6 +2,7 @@ package com.example.frontend.ui.screens.reader
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -505,6 +506,216 @@ fun SummaryCard(
                 Text(
                     text = summary,
                     style = ReaderTextStyle.body,
+                )
+            }
+        }
+    }
+}
+
+@SuppressLint("CoroutineCreationDuringComposition")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReaderScreenForNewArticle(
+    modifier: Modifier = Modifier,
+    uiState: NewReaderUiState,
+    onRefresh: () -> Unit,
+    onToBrowser: (ctx: Context) -> Unit,
+    onBack: () -> Unit,
+) {
+    val refreshScope = rememberCoroutineScope()
+    val refreshState = rememberPullToRefreshState()
+    if (refreshState.isRefreshing) {
+        refreshScope.launch {
+            onRefresh()
+            refreshState.endRefresh()
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            modifier = Modifier
+                .requiredHeight(50.dp)
+                .shadow(
+                    elevation = 16.dp,
+                    spotColor = Color.DarkGray
+                )
+                .zIndex(1f),
+            title = {},
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            navigationIcon = {
+                IconButton(
+                    onClick = onBack
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowBackIosNew,
+                        contentDescription = "back"
+                    )
+                }
+            },
+            actions = {
+                Row {
+                    val currentCtx = LocalContext.current
+                    IconButton(
+                        onClick = { onToBrowser(currentCtx) },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.OpenInBrowser,
+                            contentDescription = "open in browser",
+                        )
+                    }
+                }
+            }
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(refreshState.nestedScrollConnection)
+        ) {
+            if (!refreshState.isRefreshing) {
+                if (uiState.state == State.Loading) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Loading...",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                    }
+                } else {
+                    if (isValidUrl(uiState.article.metadata.imageUrl)) {
+                        ImageFromUrl(
+                            url = uiState.article.metadata.imageUrl!!,
+                            contentDescription = "article image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeight(ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp + 40.dp)
+                                .align(Alignment.TopCenter),
+                        )
+                    }
+                    ReaderScreenContentForNewArticle(
+                        firstSpacerHeight = if (!isValidUrl(uiState.article.metadata.imageUrl)) {
+                            0.dp
+                        } else {
+                            ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp
+                        },
+                        uiState = uiState,
+                        onToBrowser = onToBrowser
+                    )
+                }
+            }
+            PullToRefreshContainer(
+                state = refreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                containerColor = Colors.topBarContainer
+            )
+        }
+    }
+}
+@Composable
+fun ReaderScreenContentForNewArticle(
+    modifier: Modifier = Modifier,
+    firstSpacerHeight: Dp,
+    uiState: NewReaderUiState,
+    onToBrowser: (ctx: Context) -> Unit,
+) {
+    val metadata = uiState.article.metadata
+    val summary = uiState.article.summary
+    val content = uiState.article.content.content
+
+
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
+    ) {
+        Spacer(modifier = Modifier.height(firstSpacerHeight))
+        Card(
+            modifier = Modifier.fillMaxSize(),
+            shape = if (firstSpacerHeight != 0.dp) {
+                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+            } else {
+                RoundedCornerShape(0.dp)
+            },
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        ) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(
+                        start = UiConfig.sideScreenPadding,
+                        end = UiConfig.sideScreenPadding,
+                        top = 16.dp,
+                        bottom = 50.dp,
+                    )
+                    .background(MaterialTheme.colorScheme.surface),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text(
+                    text = metadata.title,
+                    style = ReaderTextStyle.title,
+                )
+                if (summary != "") {
+                    SummaryCard(
+                        summary = summary,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                if (content != "") {
+                    MarkdownText(
+                        markdown = content,
+                        fontResource = ReaderTextStyle.bodyResource,
+                    )
+                } else {
+                    val annotatedString = buildAnnotatedString {
+                        append("Sadly, we could not load the article. You will need to find the article fresh ")
+
+                        pushStringAnnotation(tag = "url", annotation = metadata.url)
+                        withStyle(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        ) {
+                            append("on its website")
+                        }
+                        pop()
+
+                        append(".")
+                    }
+                    val currentCtx = LocalContext.current
+                    ClickableText(
+                        text = annotatedString,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        onClick = { offset ->
+                            annotatedString.getStringAnnotations(
+                                tag = "url",
+                                start = offset,
+                                end = offset
+                            ).firstOrNull()?.let {
+                                onToBrowser(currentCtx)
+                            }
+                        }
+                    )
+                }
+                HorizontalDivider()
+                Text(
+                    text = "Related Articles",
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }

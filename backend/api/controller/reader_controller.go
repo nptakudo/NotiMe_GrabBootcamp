@@ -17,6 +17,7 @@ type ReaderController struct {
 type ReaderUsecase interface {
 	GetArticleById(ctx context.Context, id int64, userId int32) (*messages.ArticleResponse, error)
 	GetRelatedArticles(ctx context.Context, articleId int64, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
+	GetNewArticle(ctx context.Context, url string) (*messages.ArticleResponse, error)
 }
 
 func (controller *ReaderController) GetArticleById(ctx *gin.Context) {
@@ -52,5 +53,18 @@ func (controller *ReaderController) GetRelatedArticles(ctx *gin.Context) {
 	}
 
 	slog.Info("[ReaderController] GetRelatedArticles: respond with:", "length", len(articles))
+	ctx.JSON(http.StatusOK, articles)
+}
+
+func (controller *ReaderController) GetNewArticle(ctx *gin.Context) {
+	url := ctx.Query("url")
+	slog.Info("[ReaderController] GetNewArticle: url:", "url", url)
+
+	articles, err := controller.ReaderUsecase.GetNewArticle(ctx, url)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, articles)
 }

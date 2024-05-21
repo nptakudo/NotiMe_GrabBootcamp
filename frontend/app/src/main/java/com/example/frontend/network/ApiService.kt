@@ -61,6 +61,12 @@ interface ApiService {
         @Query("offset") offset: Int
     ): Response<List<ArticleMetadata>>
 
+    @GET("reader/new_article/")
+    suspend fun getNewArticle(
+        @Query("url") url: String
+    ): Response<Article>
+
+
     // ---------------- Model: BOOKMARK ----------------
     @GET("bookmarks/")
     suspend fun getBookmarkLists(): Response<List<BookmarkList>>
@@ -119,4 +125,5 @@ interface ApiService {
         @Query("count") count: Int,
         @Query("offset") offset: Int
     ): Response<List<ArticleMetadata>>
+
 }
