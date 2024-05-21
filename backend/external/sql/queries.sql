@@ -101,8 +101,8 @@ ORDER BY publish_date DESC
 LIMIT @count OFFSET $1;
 
 -- name: CreateArticle :one
-INSERT INTO post (title, publish_date, url, source_id)
-VALUES (@title, @publish_date, @url, @publisher_id)
+INSERT INTO post (title, publish_date, url, raw_text, source_id)
+VALUES (@title, @publish_date, @url, @raw_text, @publisher_id)
 RETURNING post.*;
 
 
