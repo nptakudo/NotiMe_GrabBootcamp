@@ -22,8 +22,10 @@ RUN apt-get update && \
     rsync && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
+# Download hadoop-aws library
+RUN curl -L https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws/3.3.2 -o /opt/spark/jars/hadoop-aws-3.3.2.jar
 COPY ./conf/spark-defaults.conf "$SPARK_HOME/conf/spark-defaults.conf"
+COPY ./aws-java-sdk-1.12.721.jar "$SPARK_HOME/jars/aws-java-sdk-1.12.721.jar"
 # COPY ./conf/metrics.properties "$SPARK_HOME/conf/metrics.properties"
 ENV SPARK_CONF_DIR="$SPARK_HOME/config"
 ENV SPARK_MASTER="spark://spark-master:7077"
