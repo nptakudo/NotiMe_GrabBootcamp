@@ -89,9 +89,9 @@ fun BigArticleCard(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (publisherAvatarUrl != null) {
+                        if (isValidUrl(publisherAvatarUrl)) {
                             ImageFromUrl(
-                                url = publisherAvatarUrl,
+                                url = publisherAvatarUrl!!,
                                 contentDescription = "Publisher Avatar",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

@@ -22,27 +22,14 @@ fun dateToStringExactDateFormat(date: Date): String {
 }
 
 fun dateToStringAgoFormat(date: Date): String {
-    // If less than 100 minutes, show "X minutes ago"
-    // If less than 24 hours, show "X hours ago"
-    // If yesterday, show "Yesterday"
-    // If less than 14 days, show "X days ago"
-    // If less than 2 months, show "X weeks ago"
-    // If less than 2 years, show "X months ago"
-    // Else, show "X years ago"
+    // If less than 14 days, show "Xd ago"
+    // If less than 2 months, show "Xw ago"
+    // If less than 2 years, show "Xm ago"
+    // Else, show "Xy ago"
     val givenLocalDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
     val today = LocalDate.now()
     val daysDifference = ChronoUnit.DAYS.between(givenLocalDate, today)
-    if (daysDifference == 0L) {
-        val minutesDifference = ChronoUnit.MINUTES.between(date.toInstant(), Date().toInstant())
-        return if (minutesDifference < 100) {
-            "${minutesDifference}m ago"
-        } else {
-            val hoursDifference = ChronoUnit.HOURS.between(date.toInstant(), Date().toInstant())
-            "${hoursDifference}h ago"
-        }
-    } else if (daysDifference == 1L) {
-        return "Yesterday"
-    } else if (daysDifference < 14) {
+    if (daysDifference < 14) {
         return "${daysDifference}d ago"
     } else if (daysDifference < 60) {
         val weeksDifference = daysDifference / 7

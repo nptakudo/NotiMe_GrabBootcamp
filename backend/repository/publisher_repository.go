@@ -66,6 +66,10 @@ func (r *PublisherRepositoryImpl) SearchByUrl(ctx context.Context, url string) (
 }
 
 func (r *PublisherRepositoryImpl) Create(ctx context.Context, name string, url string, avatarUrl string) (*domain.Publisher, error) {
+	// Add "/" to the end of the url if it doesn't have it
+	if url[len(url)-1] != '/' {
+		url += "/"
+	}
 	dbPublisher, err := r.q.CreatePublisher(ctx, store.CreatePublisherParams{
 		Name:      name,
 		Url:       url,
