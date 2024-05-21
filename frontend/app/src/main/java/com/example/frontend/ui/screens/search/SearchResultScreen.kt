@@ -37,7 +37,7 @@ import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.component.SubscriptionCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
-import com.example.frontend.utils.dateToStringExactDateFormat
+import com.example.frontend.utils.dateToStringAgoFormat
 import java.math.BigInteger
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,6 +48,7 @@ fun SearchResultScreen(
     onBack: () -> Unit,
     onSubscriptionClick: (publisherId: BigInteger) -> Unit,
     query: String,
+    disableBookmark: Boolean,
     onSubscribe: (publisherId: BigInteger) -> Unit,
     onUnSubscribe: (publisherId: BigInteger) -> Unit,
     onLoadNewArticle: (url: String) -> Unit,
@@ -100,6 +101,7 @@ fun SearchResultScreen(
                     modifier = modifier,
                     uiState = uiState,
                     articles = uiState.articles,
+                    disableBookmark = disableBookmark,
                     onLoadNewArticle = onLoadNewArticle,
                     onAddSource = onAddSource
                 )
@@ -175,6 +177,7 @@ fun SearchResultContentForArticles(
     modifier: Modifier,
     uiState: SearchResultUiState,
     articles: List<ArticleMetadata>,
+    disableBookmark: Boolean,
     onLoadNewArticle: (url: String) -> Unit,
     onAddSource: (publisher: Publisher) -> Unit
 ) {
@@ -251,9 +254,9 @@ fun SearchResultContentForArticles(
                             articleImageUrl = article.imageUrl,
                             title = article.title,
                             publisher = article.publisher.name,
-                            date = dateToStringExactDateFormat(article.date),
+                            date = dateToStringAgoFormat(article.date),
                             onClick = { onLoadNewArticle(article.url) },
-                            disableBookmarkButton = true,
+                            disableBookmarkButton = disableBookmark,
                             onBookmarkClick = {},
                             isBookmarked = article.isBookmarked
                         )

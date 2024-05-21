@@ -80,6 +80,16 @@ func (uc *CommonUsecaseImpl) GetBookmarkLists(ctx context.Context, userId int32,
 	return fromDmBookmarkListsToApi(bookmarkListsDm), nil
 }
 
+func (uc *CommonUsecaseImpl) CreateBookmarkList(ctx context.Context, name string, userId int32) (*messages.BookmarkList, error) {
+	bookmarkListDm, err := uc.BookmarkListRepository.Create(ctx, name, userId, false)
+	if err != nil {
+		slog.Error("[HomeUsecase] CreateBookmarkList:", "error", err)
+		return nil, ErrInternal
+	}
+
+	return fromDmBookmarkListToApi(bookmarkListDm), nil
+}
+
 func (uc *CommonUsecaseImpl) GetBookmarkListById(ctx context.Context, id int32, userId int32) (*messages.BookmarkList, error) {
 	bookmarkListDm, err := uc.BookmarkListRepository.GetById(ctx, id)
 	if err != nil {
@@ -147,6 +157,27 @@ func (uc *CommonUsecaseImpl) Unbookmark(ctx context.Context, articleId int64, bo
 	err = uc.BookmarkListRepository.RemoveFromBookmarkList(ctx, articleId, bookmarkListId)
 	if err != nil {
 		slog.Error("[HomeUsecase] Unbookmark:", "error", err)
+		return ErrInternal
+	}
+	return nil
+}
+
+func (uc *CommonUsecaseImpl) DeleteBookmarkList(ctx context.Context, id int32, userId int32) error {
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(ctx, id)
+	if err != nil {
+		slog.Error("[HomeUsecase] DeleteBookmarkList:", "error", err)
+		return ErrInternal
+	}
+	if bookmarkListDm.OwnerId != userId {
+		return ErrNotAuthorized
+	}
+	if bookmarkListDm.IsSaved {
+		return ErrInternal
+	}
+
+	_, err = uc.BookmarkListRepository.Delete(ctx, id)
+	if err != nil {
+		slog.Error("[HomeUsecase] DeleteBookmarkList:", "error", err)
 		return ErrInternal
 	}
 	return nil

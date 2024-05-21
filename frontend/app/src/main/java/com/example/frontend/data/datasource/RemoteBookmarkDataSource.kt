@@ -1,6 +1,7 @@
 package com.example.frontend.data.datasource
 
 import com.example.frontend.data.model.BookmarkList
+import com.example.frontend.data.model.request.NewBookmarkRequest
 import com.example.frontend.network.ApiService
 import java.math.BigInteger
 import javax.inject.Inject
@@ -12,6 +13,14 @@ class RemoteBookmarkDataSource @Inject constructor(
         val res = apiService.getBookmarkLists(isShared)
         if (!res.isSuccessful) {
             throw Exception("Failed to get bookmark lists")
+        }
+        return res.body()!!
+    }
+
+    suspend fun createBookmarkList(name: String): BookmarkList {
+        val res = apiService.createBookmarkList(NewBookmarkRequest(name))
+        if (!res.isSuccessful) {
+            throw Exception("Failed to create bookmark list")
         }
         return res.body()!!
     }
@@ -32,19 +41,24 @@ class RemoteBookmarkDataSource @Inject constructor(
         return res.body()!!.message.toBoolean()
     }
 
-    suspend fun bookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger): String {
+    suspend fun bookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
         val res = apiService.bookmarkArticle(articleId, bookmarkId)
         if (!res.isSuccessful) {
             throw Exception("Failed to bookmark article")
         }
-        return res.body()!!.message
     }
 
-    suspend fun unbookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger): String {
+    suspend fun unbookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) {
         val res = apiService.unbookmarkArticle(articleId, bookmarkId)
         if (!res.isSuccessful) {
             throw Exception("Failed to unbookmark article")
         }
-        return res.body()!!.message
+    }
+
+    suspend fun deleteBookmarkList(bookmarkId: BigInteger) {
+        val res = apiService.deleteBookmarkList(bookmarkId)
+        if (!res.isSuccessful) {
+            throw Exception("Failed to delete bookmark list")
+        }
     }
 }

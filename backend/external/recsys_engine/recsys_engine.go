@@ -3,6 +3,7 @@ package recsys_engine
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"log/slog"
 	"net/http"
 	"time"
@@ -25,16 +26,26 @@ func (r *RecsysEngineImpl) GetRelatedArticleUrlsFromUrl(url string, timeout time
 	}
 
 	client := &http.Client{Timeout: timeout}
-	resp, err := client.Post(r.Host+":"+r.Port+"/suggest_on_url", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := client.Post(r.Host+"/suggest", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		slog.Error("[Recsys] GetRelatedArticleUrlsFromUrl: Error sending POST request:", "error", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	// Read the response as a list of strings
+	// Read the response body
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		slog.Error("[Recsys] GetRelatedArticleUrlsFromUrl: Error reading response body:", "error", err)
+		return nil, err
+	}
+
+	// Log the response body
+	slog.Info("[Recsys] GetRelatedArticleUrlsFromUrl: Response body:", "body", string(bodyBytes))
+
+	// Use the body content
 	var relatedArticleUrls []string
-	err = json.NewDecoder(resp.Body).Decode(&relatedArticleUrls)
+	err = json.Unmarshal(bodyBytes, &relatedArticleUrls)
 	if err != nil {
 		slog.Error("[Recsys] GetRelatedArticleUrlsFromUrl: Error decoding response:", "error", err)
 		return nil, err

@@ -66,6 +66,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import coil.imageLoader
 import com.example.frontend.ui.component.BottomSheetBookmarkContent
 import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.ImageFromUrl
@@ -131,7 +132,7 @@ fun ReaderScreen(
         } ?: false
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         TopAppBar(
             modifier = Modifier
                 .requiredHeight(50.dp)
@@ -360,6 +361,8 @@ fun ReaderScreenContent(
                     MarkdownText(
                         markdown = content,
                         fontResource = ReaderTextStyle.bodyResource,
+                        linkColor = MaterialTheme.colorScheme.primary,
+                        imageLoader = LocalContext.current.imageLoader,
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -556,7 +559,7 @@ fun ReaderScreenForNewArticle(
     }
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         TopAppBar(
             modifier = Modifier
                 .requiredHeight(50.dp)

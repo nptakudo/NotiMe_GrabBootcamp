@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 object HomeConfig {
     const val LOG_TAG = "HomeViewModel"
-    const val LOAD_COUNT = 200
+    const val LOAD_COUNT = 100
 }
 
 data class HomeUiState(
@@ -137,8 +137,8 @@ abstract class BaseHomeViewModel(
     fun onCreateNewBookmark(name: String, articleId: BigInteger) {
         viewModelScope.launch {
             try {
-                val bookmarkId = bookmarkRepository.createBookmarkList(name)
-                bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
+                val bookmark = bookmarkRepository.createBookmarkList(name)
+                bookmarkRepository.bookmarkArticle(articleId, bookmark.id)
                 _bookmarks.update { bookmarkRepository.getBookmarkLists() }
                 updateBookmarkedState(articleId)
             } catch (e: Exception) {
@@ -153,7 +153,7 @@ abstract class BaseHomeViewModel(
                 if (articleId != null && article.id != articleId) {
                     article
                 } else
-                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles.any { it.id == article.id } }) {
+                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles?.any { it.id == article.id } == true }) {
                         article.copy(isBookmarked = true)
                     } else {
                         article.copy(isBookmarked = false)
@@ -210,7 +210,6 @@ class HomeViewModel @Inject constructor(
     bookmarkRepository: BookmarkRepository,
     subscriptionRepository: SubscriptionRepository,
     articleRepository: ArticleRepository,
-    settingDataSource: SettingDataSource
 ) : BaseHomeViewModel(
     Screen.Home,
     recsysRepository,
@@ -258,7 +257,6 @@ class ExploreViewModel @Inject constructor(
     bookmarkRepository: BookmarkRepository,
     subscriptionRepository: SubscriptionRepository,
     articleRepository: ArticleRepository,
-    settingDataSource: SettingDataSource
 ) : BaseHomeViewModel(
     Screen.Explore,
     recsysRepository,

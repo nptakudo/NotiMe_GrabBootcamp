@@ -91,13 +91,6 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 	close(errCh)
 	close(resCh)
 
-	// Check if there were any errors
-	for err := range errCh {
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	// Collect all results
 	for dmArticle := range resCh {
 		dmArticles = append(dmArticles, dmArticle)
@@ -155,13 +148,6 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 	// Close the channels after all goroutines finish
 	close(errCh)
 	close(resCh)
-
-	// Check if there were any errors
-	for err := range errCh {
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	// Collect all results
 	for dmArticle := range resCh {

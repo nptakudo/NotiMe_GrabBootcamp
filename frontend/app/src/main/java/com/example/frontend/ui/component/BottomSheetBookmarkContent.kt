@@ -73,7 +73,7 @@ fun BottomSheetBookmarkContent(
             modifier = Modifier.padding(vertical = 12.dp),
         )
         bookmarkLists.forEach { bookmarkList ->
-            val isContaining = bookmarkList.articles.any { it.id == articleId }
+            val isContaining = bookmarkList.articles?.any { it.id == articleId } ?: false
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {

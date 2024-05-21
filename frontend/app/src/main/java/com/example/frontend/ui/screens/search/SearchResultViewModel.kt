@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import java.math.BigInteger
 import javax.inject.Inject
 
-object SearchRessultConfig {
+object SearchResultConfig {
     const val LOG_TAG = "SearchResultViewModel"
 }
 
@@ -99,12 +99,12 @@ class SearchResultViewModel @Inject constructor(
             _uiState.update { it.copy(state = State.Loading) }
             try {
                 val searchResponse = subscriptionRepository.searchPublishers(query)
-                Log.i(SearchRessultConfig.LOG_TAG, searchResponse.toString())
+                Log.i(SearchResultConfig.LOG_TAG, searchResponse.toString())
                 _subscriptions.update { searchResponse.publishers }
                 _articles.update { searchResponse.articles }
                 _isNewSource.update { searchResponse.isExisting }
             } catch (e: Exception) {
-                Log.e(SearchRessultConfig.LOG_TAG, "Failed to search publishers")
+                Log.e(SearchResultConfig.LOG_TAG, "Failed to search publishers")
             }
             _uiState.update { it.copy(state = State.Idle) }
         }
@@ -115,7 +115,7 @@ class SearchResultViewModel @Inject constructor(
             try {
                 publisherRepository.addNewSource(publisher)
             } catch (e: Exception) {
-                Log.e(SearchRessultConfig.LOG_TAG, "Failed to add new source")
+                Log.e(SearchResultConfig.LOG_TAG, "Failed to add new source")
             }
         }
     }

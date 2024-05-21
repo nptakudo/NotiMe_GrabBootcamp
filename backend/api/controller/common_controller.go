@@ -29,10 +29,12 @@ type CommonUsecase interface {
 	GetPublisherById(ctx context.Context, id int32, userId int32) (*messages.Publisher, error)
 
 	GetBookmarkLists(ctx context.Context, userId int32, isShared bool) ([]*messages.BookmarkList, error)
+	CreateBookmarkList(ctx context.Context, name string, userId int32) (*messages.BookmarkList, error)
 	GetBookmarkListById(ctx context.Context, id int32, userId int32) (*messages.BookmarkList, error)
 	IsBookmarked(ctx context.Context, articleId int64, bookmarkListId int32) (bool, error)
 	Bookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error
 	Unbookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error
+	DeleteBookmarkList(ctx context.Context, id int32, userId int32) error
 
 	GetSubscriptions(ctx context.Context, userId int32) ([]*messages.Publisher, error)
 	IsSubscribed(ctx context.Context, publisherId int32, userId int32) (bool, error)
@@ -93,6 +95,26 @@ func (controller *CommonController) GetBookmarkLists(ctx *gin.Context) {
 
 	slog.Info("[CommonController] GetBookmarkLists: respond with:", "length", len(bookmarkLists))
 	ctx.JSON(http.StatusOK, bookmarkLists)
+}
+
+func (controller *CommonController) CreateBookmarkList(ctx *gin.Context) {
+	userId := ctx.GetInt(api.UserIdKey)
+	slog.Info("[CommonController] CreateBookmarkList: user id:", "userId", userId)
+
+	var bookmarkList domain.BookmarkList
+	err := ctx.ShouldBind(&bookmarkList)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	newBookmarkList, err := controller.CommonUsecase.CreateBookmarkList(ctx, bookmarkList.Name, int32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newBookmarkList)
 }
 
 func (controller *CommonController) GetBookmarkListById(ctx *gin.Context) {
@@ -190,6 +212,23 @@ func (controller *CommonController) Unbookmark(ctx *gin.Context) {
 
 	userId := ctx.GetInt(api.UserIdKey)
 	err = controller.CommonUsecase.Unbookmark(ctx, int64(articleId), int32(bookmarkListId), int32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
+}
+
+func (controller *CommonController) DeleteBookmarkList(ctx *gin.Context) {
+	bookmarkListId, err := strconv.Atoi(ctx.Param("bookmark_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	userId := ctx.GetInt(api.UserIdKey)
+	err = controller.CommonUsecase.DeleteBookmarkList(ctx, int32(bookmarkListId), int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return

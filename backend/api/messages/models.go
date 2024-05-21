@@ -18,7 +18,11 @@ type Publisher struct {
 }
 
 type BookmarkList struct {
-	domain.BookmarkList
+	Id       int32              `json:"id"`
+	Name     string             `json:"name"`
+	IsSaved  bool               `json:"is_saved"`
+	Articles []*ArticleMetadata `json:"articles"`
+	OwnerId  int32              `json:"owner_id"`
 }
 
 type User struct {
