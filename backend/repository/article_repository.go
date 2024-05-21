@@ -171,12 +171,13 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 	return dmArticles, nil
 }
 
-func (r *ArticleRepositoryImpl) Create(ctx context.Context, title string, publishDate time.Time, url string, publisherId int32) (*domain.ArticleMetadata, error) {
+func (r *ArticleRepositoryImpl) Create(ctx context.Context, title string, publishDate time.Time, url string, publisherId int32, rawText string) (*domain.ArticleMetadata, error) {
 	dbArticle, err := r.q.CreateArticle(ctx, store.CreateArticleParams{
 		Title:       title,
 		PublishDate: publishDate,
 		Url:         url,
 		PublisherID: publisherId,
+		RawText:     rawText,
 	})
 	if err != nil {
 		slog.Error("[Article Repository] Create:", "error", err)

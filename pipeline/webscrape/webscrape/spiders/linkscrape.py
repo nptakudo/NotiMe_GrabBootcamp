@@ -45,7 +45,7 @@ class InstantCrawl(scrapy.Spider):
         time = soup.select("[class*=date],[class*=time]", limit=1)
         time_text = time[0].text if time else "N/A"
 
-        yield {"url": response.url, "title": title, "date": time_text, "text": text}
+        yield {"url": response.url, "title": title, "date": time_text, "content": text}
 
 # Configure the crawling process with settings for performance and output format
 process = CrawlerProcess(settings={
@@ -73,3 +73,5 @@ if __name__ == '__main__':
     process.crawl(InstantCrawl, url)  # Start the crawling process
     process.start()
     print(f"--- {time.time() - start_time} seconds ---")  # Print the total time taken for the crawl
+
+df.repartition(1).write.format("json").mode("overwrite").save("output.json")

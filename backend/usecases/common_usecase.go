@@ -224,8 +224,8 @@ func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Pub
 	}
 	return int(newPublisher.Id), nil
 }
-func (uc *CommonUsecaseImpl) AddNewArticle(ctx context.Context, article domain.ArticleMetadata) error {
-	_, err := uc.ArticleRepository.Create(ctx, article.Title, article.Date, article.Url, article.Publisher.Id)
+func (uc *CommonUsecaseImpl) AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error {
+	_, err := uc.ArticleRepository.Create(ctx, article.Title, article.Date, article.Url, article.Publisher.Id, rawText)
 	if err != nil {
 		slog.Error("[HomeUsecase] AddNewArticle:", "error", err)
 		return ErrInternal

@@ -42,7 +42,7 @@ func Populate(ctx context.Context, env *bootstrap.Env, db *store.Queries) {
 		publisher_count++
 
 		for _, article := range articles {
-			_, err = article_repo.Create(ctx, article.Title, article.Date, article.Url, dmPublisher.Id)
+			_, err = article_repo.Create(ctx, article.Title, article.Date, article.Url, dmPublisher.Id, "")
 			if err != nil {
 				slog.Error("[Populate] Failed to create article link ", "url", article.Url, "error", err)
 				continue

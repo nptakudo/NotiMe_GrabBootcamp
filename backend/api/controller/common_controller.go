@@ -44,7 +44,7 @@ type CommonUsecase interface {
 	GetArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
 
 	AddNewSource(ctx context.Context, source domain.Publisher) (int, error)
-	AddNewArticle(ctx context.Context, article domain.ArticleMetadata) error
+	AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error
 }
 
 func (controller *CommonController) GetArticleMetadataById(ctx *gin.Context) {
@@ -369,7 +369,7 @@ func (controller *CommonController) AddNewSource(ctx *gin.Context) {
 			Date:      parseDate,
 			Url:       article.Url,
 			ImageUrl:  "",
-		})
+		}, article.Content)
 		if err != nil {
 			slog.Error("[ReaderUsecase] GetNewArticle:", "error", err)
 		}
