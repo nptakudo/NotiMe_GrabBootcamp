@@ -24,6 +24,7 @@ type Post struct {
 	Title       string    `json:"title"`
 	PublishDate time.Time `json:"publish_date"`
 	Url         string    `json:"url"`
+	RawText     string    `json:"raw_text"`
 	SourceID    int32     `json:"source_id"`
 }
 

@@ -27,15 +27,16 @@ func (q *Queries) AddArticleToBookmarkList(ctx context.Context, arg AddArticleTo
 }
 
 const createArticle = `-- name: CreateArticle :one
-INSERT INTO post (title, publish_date, url, source_id)
-VALUES ($1, $2, $3, $4)
-RETURNING post.id, post.title, post.publish_date, post.url, post.source_id
+INSERT INTO post (title, publish_date, url, raw_text, source_id)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING post.id, post.title, post.publish_date, post.url, post.raw_text, post.source_id
 `
 
 type CreateArticleParams struct {
 	Title       string    `json:"title"`
 	PublishDate time.Time `json:"publish_date"`
 	Url         string    `json:"url"`
+	RawText     string    `json:"raw_text"`
 	PublisherID int32     `json:"publisher_id"`
 }
 
@@ -44,6 +45,7 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (P
 		arg.Title,
 		arg.PublishDate,
 		arg.Url,
+		arg.RawText,
 		arg.PublisherID,
 	)
 	var i Post
@@ -52,6 +54,7 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (P
 		&i.Title,
 		&i.PublishDate,
 		&i.Url,
+		&i.RawText,
 		&i.SourceID,
 	)
 	return i, err
@@ -125,7 +128,7 @@ func (q *Queries) DeleteBookmarkList(ctx context.Context, id int32) (ReadingList
 }
 
 const getAllArticles = `-- name: GetAllArticles :many
-SELECT id, title, publish_date, url, source_id
+SELECT id, title, publish_date, url, raw_text, source_id
 FROM post
 ORDER BY publish_date DESC
 LIMIT $2 OFFSET $1
@@ -152,6 +155,7 @@ func (q *Queries) GetAllArticles(ctx context.Context, arg GetAllArticlesParams) 
 			&i.Title,
 			&i.PublishDate,
 			&i.Url,
+			&i.RawText,
 			&i.SourceID,
 		); err != nil {
 			return nil, err
@@ -167,7 +171,7 @@ func (q *Queries) GetAllArticles(ctx context.Context, arg GetAllArticlesParams) 
 const getArticleById = `-- name: GetArticleById :one
 
 
-SELECT id, title, publish_date, url, source_id
+SELECT id, title, publish_date, url, raw_text, source_id
 FROM post
 WHERE id = $1
 `
@@ -200,6 +204,7 @@ WHERE id = $1
 //	                  title VARCHAR(255) NOT NULL,
 //	                  publish_date BIGINT,
 //	                  "url" VARCHAR(255) NOT NULL,
+//	                  raw_text TEXT NOT NULL,
 //	                  source_id INTEGER REFERENCES source (id) ON DELETE CASCADE -- delete post when source is deleted
 //	-- consider about the image of post to show on the top
 //
@@ -248,13 +253,14 @@ func (q *Queries) GetArticleById(ctx context.Context, id int64) (Post, error) {
 		&i.Title,
 		&i.PublishDate,
 		&i.Url,
+		&i.RawText,
 		&i.SourceID,
 	)
 	return i, err
 }
 
 const getArticleByUrl = `-- name: GetArticleByUrl :one
-SELECT id, title, publish_date, url, source_id
+SELECT id, title, publish_date, url, raw_text, source_id
 FROM post
 WHERE url = $1
 `
@@ -267,13 +273,14 @@ func (q *Queries) GetArticleByUrl(ctx context.Context, url string) (Post, error)
 		&i.Title,
 		&i.PublishDate,
 		&i.Url,
+		&i.RawText,
 		&i.SourceID,
 	)
 	return i, err
 }
 
 const getArticlesByPublisherId = `-- name: GetArticlesByPublisherId :many
-SELECT id, title, publish_date, url, source_id
+SELECT id, title, publish_date, url, raw_text, source_id
 FROM post
 WHERE source_id = $2
 ORDER BY publish_date DESC
@@ -302,6 +309,7 @@ func (q *Queries) GetArticlesByPublisherId(ctx context.Context, arg GetArticlesB
 			&i.Title,
 			&i.PublishDate,
 			&i.Url,
+			&i.RawText,
 			&i.SourceID,
 		); err != nil {
 			return nil, err
@@ -315,7 +323,7 @@ func (q *Queries) GetArticlesByPublisherId(ctx context.Context, arg GetArticlesB
 }
 
 const getArticlesFromSubscribedPublishers = `-- name: GetArticlesFromSubscribedPublishers :many
-SELECT post.id, post.title, post.publish_date, post.url, post.source_id
+SELECT post.id, post.title, post.publish_date, post.url, post.raw_text, post.source_id
 FROM post
          JOIN subscription ON post.source_id = subscription.source_id
 WHERE subscription.user_id = $2
@@ -345,6 +353,7 @@ func (q *Queries) GetArticlesFromSubscribedPublishers(ctx context.Context, arg G
 			&i.Title,
 			&i.PublishDate,
 			&i.Url,
+			&i.RawText,
 			&i.SourceID,
 		); err != nil {
 			return nil, err
@@ -358,7 +367,7 @@ func (q *Queries) GetArticlesFromSubscribedPublishers(ctx context.Context, arg G
 }
 
 const getArticlesInBookmarkList = `-- name: GetArticlesInBookmarkList :many
-SELECT post.id, post.title, post.publish_date, post.url, post.source_id
+SELECT post.id, post.title, post.publish_date, post.url, post.raw_text, post.source_id
 FROM post
          JOIN list_post ON post.id = list_post.post_id
 WHERE list_post.list_id = $1
@@ -378,6 +387,7 @@ func (q *Queries) GetArticlesInBookmarkList(ctx context.Context, listID int32) (
 			&i.Title,
 			&i.PublishDate,
 			&i.Url,
+			&i.RawText,
 			&i.SourceID,
 		); err != nil {
 			return nil, err
@@ -632,7 +642,7 @@ func (q *Queries) RemoveArticleFromBookmarkList(ctx context.Context, arg RemoveA
 }
 
 const searchArticlesByName = `-- name: SearchArticlesByName :many
-SELECT id, title, publish_date, url, source_id
+SELECT id, title, publish_date, url, raw_text, source_id
 FROM post
 WHERE title ILIKE '%' || $2 || '%'
 ORDER BY publish_date DESC
@@ -661,6 +671,7 @@ func (q *Queries) SearchArticlesByName(ctx context.Context, arg SearchArticlesBy
 			&i.Title,
 			&i.PublishDate,
 			&i.Url,
+			&i.RawText,
 			&i.SourceID,
 		); err != nil {
 			return nil, err

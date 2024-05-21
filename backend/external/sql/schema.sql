@@ -19,6 +19,7 @@ CREATE TABLE post
     title        VARCHAR(255)        NOT NULL,
     publish_date TIMESTAMP           NOT NULL,
     "url"        VARCHAR(255) UNIQUE NOT NULL,
+    raw_text     TEXT                NOT NULL,
     source_id    INTEGER             NOT NULL REFERENCES source (id) ON DELETE CASCADE -- delete post when source is deleted
     -- consider about the image of post to show on the top
 );
