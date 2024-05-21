@@ -69,7 +69,9 @@ interface ApiService {
 
     // ---------------- Model: BOOKMARK ----------------
     @GET("bookmarks/")
-    suspend fun getBookmarkLists(): Response<List<BookmarkList>>
+    suspend fun getBookmarkLists(
+        @Query("shared") isShared: Boolean? = null,
+    ): Response<List<BookmarkList>>
 
     @GET("bookmarks/{bookmark_id}/")
     suspend fun getBookmarkListById(@Path("bookmark_id") bookmarkId: BigInteger): Response<BookmarkList>

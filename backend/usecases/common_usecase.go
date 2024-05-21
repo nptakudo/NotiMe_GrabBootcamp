@@ -61,12 +61,22 @@ func (uc *CommonUsecaseImpl) GetPublisherById(ctx context.Context, id int32, use
 	return FromDmPublisherToApi(publisherDm, isSubscribed), nil
 }
 
-func (uc *CommonUsecaseImpl) GetBookmarkLists(ctx context.Context, userId int32) ([]*messages.BookmarkList, error) {
+func (uc *CommonUsecaseImpl) GetBookmarkLists(ctx context.Context, userId int32, isShared bool) ([]*messages.BookmarkList, error) {
 	bookmarkListsDm, err := uc.BookmarkListRepository.GetOwnByUser(ctx, userId)
 	if err != nil {
 		slog.Error("[HomeUsecase] GetBookmarkLists:", "error", err)
 		return nil, ErrInternal
 	}
+
+	if isShared {
+		shareBookmarkListsDm, err := uc.BookmarkListRepository.GetSharedWithUser(ctx, userId)
+		if err != nil {
+			slog.Error("[HomeUsecase] GetBookmarkLists:", "error", err)
+			return nil, ErrInternal
+		}
+		bookmarkListsDm = append(bookmarkListsDm, shareBookmarkListsDm...)
+	}
+
 	return fromDmBookmarkListsToApi(bookmarkListsDm), nil
 }
 

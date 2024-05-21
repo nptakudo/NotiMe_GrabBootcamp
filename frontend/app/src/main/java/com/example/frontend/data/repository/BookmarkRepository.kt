@@ -7,7 +7,7 @@ import javax.inject.Inject
 class BookmarkRepository @Inject constructor(
     private val remoteBookmarkDataSource: RemoteBookmarkDataSource
 ) {
-    suspend fun getBookmarkLists() = remoteBookmarkDataSource.getBookmarkLists()
+    suspend fun getBookmarkLists(isShared: Boolean? = null) = remoteBookmarkDataSource.getBookmarkLists(isShared)
     suspend fun getBookmarkListById(bookmarkId: BigInteger) =
         remoteBookmarkDataSource.getBookmarkListById(bookmarkId)
 

@@ -8,8 +8,8 @@ import javax.inject.Inject
 class RemoteBookmarkDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getBookmarkLists(): List<BookmarkList> {
-        val res = apiService.getBookmarkLists()
+    suspend fun getBookmarkLists(isShared: Boolean? = null): List<BookmarkList> {
+        val res = apiService.getBookmarkLists(isShared)
         if (!res.isSuccessful) {
             throw Exception("Failed to get bookmark lists")
         }

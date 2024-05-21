@@ -1,6 +1,7 @@
 package com.example.frontend.ui.screens.bookmark
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -111,6 +112,7 @@ fun BookmarkScreen(
                     }
                 } else {
                     BookmarkScreenContent(
+                        userId = uiState.userId,
                         bookmarks = uiState.bookmarks,
                         onAddNewBookmark = onAddNewBookmark,
                         onDeleteBookmark = onDeleteBookmark,
@@ -131,6 +133,7 @@ fun BookmarkScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreenContent(
+    userId: BigInteger,
     modifier: Modifier = Modifier,
     bookmarks: List<BookmarkList>,
     onAddNewBookmark: (name: String) -> Unit,
@@ -190,15 +193,16 @@ fun BookmarkScreenContent(
             }
         }
         bookmarks.forEach { bookmark ->
+            Log.i("BookmarkScreenContent", "bookmark owner: ${bookmark.ownerId}, userId: $userId")
             BookmarkCard(
                 listName = if (bookmark.isSaved) "Saved Posts" else bookmark.name,
-                numArticle = bookmark.articles.size,
-                // TODO
-                imgUrl = "https://findingtom.com/images/uploads/medium-logo/article-image-00.jpeg", //get the first article image url from bookmark.articles
-                disableDelete = bookmark.isSaved,
+                numArticle = if (!bookmark.articles.isNullOrEmpty()) bookmark.articles.size else 0,
+                imgUrl = null,
+                disableDelete = bookmark.isSaved || bookmark.ownerId != userId,
                 onBookmarkClick = { onBookmarkDetail(bookmark.id) },
                 onShare = { onShareBookmark(bookmark.id) },
-                onDelete = { onDeleteBookmark(bookmark.id) }
+                onDelete = { onDeleteBookmark(bookmark.id) },
+                isShared = bookmark.ownerId != userId
             )
             HorizontalDivider()
         }

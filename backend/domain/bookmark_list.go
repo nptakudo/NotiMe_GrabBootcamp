@@ -3,11 +3,11 @@ package domain
 import "context"
 
 type BookmarkList struct {
-	Id          int32              `json:"id"`
-	Name        string             `json:"name"`
-	IsSavedList bool               `json:"is_saved_list"`
-	Articles    []*ArticleMetadata `json:"articles"`
-	OwnerId     int32              `json:"owner_id"`
+	Id       int32              `json:"id"`
+	Name     string             `json:"name"`
+	IsSaved  bool               `json:"is_saved"`
+	Articles []*ArticleMetadata `json:"articles"`
+	OwnerId  int32              `json:"owner_id"`
 }
 
 type BookmarkListRepository interface {

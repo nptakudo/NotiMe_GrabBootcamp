@@ -3,6 +3,7 @@ package com.example.frontend.ui.screens.bookmark
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.frontend.data.datasource.SettingDataSource
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.model.Publisher
@@ -11,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,11 +31,13 @@ enum class State {
 
 data class BookmarkUiState(
     val bookmarks: List<BookmarkList> = emptyList(),
+    val userId: BigInteger,
     val state: State
 ) {
     companion object {
         val empty = BookmarkUiState(
             bookmarks = emptyList(),
+            userId = BigInteger.ZERO,
             state = State.Idle
         )
     }
@@ -41,15 +45,29 @@ data class BookmarkUiState(
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
-    private val bookmarkRepository: BookmarkRepository
+    private val bookmarkRepository: BookmarkRepository,
+    private val settingDataSource: SettingDataSource
 ) : ViewModel() {
     private var _bookmarks = MutableStateFlow(emptyList<BookmarkList>())
     private var _uiState = MutableStateFlow(BookmarkUiState.empty)
+    private var _userId = MutableStateFlow(BigInteger.ZERO)
+
+    init {
+        onLoadBookmark()
+        viewModelScope.launch {
+            _userId.update { settingDataSource.getUserId().first().toBigInteger() }
+        }
+    }
 
     val uiState = _uiState
         .combine(_bookmarks) { uiState, bookmarks ->
             uiState.copy(
                 bookmarks = bookmarks
+            )
+        }
+        .combine(_userId) { uiState, userId ->
+            uiState.copy(
+                userId = userId
             )
         }
         .stateIn(
@@ -70,71 +88,18 @@ class BookmarkViewModel @Inject constructor(
     }
 
     fun onLoadBookmark() {
-        _uiState.update { it.copy(state = State.Loading) }
-        _bookmarks.update {
-            listOf(
-                BookmarkList(
-                    id = BigInteger.ONE,
-                    name = "Article 1",
-                    ownerId = BigInteger.ONE,
-                    isSaved = true,
-                    articles = listOf(
-                        ArticleMetadata(
-                            id = BigInteger.ONE,
-                            title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                            url = "",
-                            date = Date(),
-                            publisher = Publisher(
-                                id = BigInteger.ONE,
-                                name = "BBC News",
-                                url = "",
-                                avatarUrl = "https://picsum.photos/200",
-                                isSubscribed = false
-                            ),
-                            isBookmarked = true,
-                            imageUrl = "https://picsum.photos/400",
-                        ),
-                        ArticleMetadata(
-                            id = BigInteger.ONE,
-                            title = "Ukraine's President Zelensky to BBC: Blood money being paid for Russian oil",
-                            url = "",
-                            date = Date(),
-                            publisher = Publisher(
-                                id = BigInteger.ONE,
-                                name = "BBC News",
-                                url = "",
-                                avatarUrl = "https://picsum.photos/200",
-                                isSubscribed = false
-                            ),
-                            isBookmarked = true,
-                            imageUrl = "https://picsum.photos/400",
-                        ),
-                    )
-                ),
-                BookmarkList(
-                    id = BigInteger.ONE,
-                    name = "Article 2",
-                    ownerId = BigInteger.ONE,
-                    isSaved = false,
-                    articles = emptyList()
-                ),
-                BookmarkList(
-                    id = BigInteger.ONE,
-                    name = "Article 3",
-                    ownerId = BigInteger.ONE,
-                    isSaved = false,
-                    articles = emptyList()
-                ),
-            )
+        viewModelScope.launch {
+            _uiState.update { it.copy(state = State.Loading)}
+            try {
+                _bookmarks.update { bookmarkRepository.getBookmarkLists(isShared = true) }
+                _bookmarks.update { bookmarks ->
+                    bookmarks.sortedWith(compareByDescending<BookmarkList> { it.isSaved }.thenByDescending { it.ownerId == _userId.value })
+                }
+            } catch (e: Exception) {
+                Log.e(BookmarkConfig.LOG_TAG, "Failed to load bookmarks")
+            }
+            _uiState.update { it.copy(state = State.Idle) }
         }
-        _uiState.update { it.copy(state = State.Idle) }
-//        viewModelScope.launch {
-//            try {
-//                bookmarkRepository.bookmarkArticle(articleId)
-//            } catch (e: Exception) {
-//                Log.e(BookmarkConfig.LOG_TAG, "Failed to bookmark article")
-//            }
-//        }
     }
 
     fun onDeleteBookmark(articleId: BigInteger) {

@@ -39,11 +39,11 @@ func convertDbBookmarkListToDm(dbBookmarkListMetadata *store.ReadingList, dmArti
 	}
 
 	return &domain.BookmarkList{
-		Id:          dbBookmarkListMetadata.ID,
-		Name:        dbBookmarkListMetadata.ListName,
-		IsSavedList: dbBookmarkListMetadata.IsSaved,
-		Articles:    dmArticles,
-		OwnerId:     dbBookmarkListMetadata.Owner,
+		Id:       dbBookmarkListMetadata.ID,
+		Name:     dbBookmarkListMetadata.ListName,
+		IsSaved:  dbBookmarkListMetadata.IsSaved,
+		Articles: dmArticles,
+		OwnerId:  dbBookmarkListMetadata.Owner,
 	}, nil
 }
 

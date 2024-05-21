@@ -28,7 +28,7 @@ type CommonUsecase interface {
 	GetArticleMetadataById(ctx context.Context, id int64, userId int32) (*messages.ArticleMetadata, error)
 	GetPublisherById(ctx context.Context, id int32, userId int32) (*messages.Publisher, error)
 
-	GetBookmarkLists(ctx context.Context, userId int32) ([]*messages.BookmarkList, error)
+	GetBookmarkLists(ctx context.Context, userId int32, isShared bool) ([]*messages.BookmarkList, error)
 	GetBookmarkListById(ctx context.Context, id int32, userId int32) (*messages.BookmarkList, error)
 	IsBookmarked(ctx context.Context, articleId int64, bookmarkListId int32) (bool, error)
 	Bookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error
@@ -83,7 +83,9 @@ func (controller *CommonController) GetPublisherById(ctx *gin.Context) {
 
 func (controller *CommonController) GetBookmarkLists(ctx *gin.Context) {
 	userId := ctx.GetInt(api.UserIdKey)
-	bookmarkLists, err := controller.CommonUsecase.GetBookmarkLists(ctx, int32(userId))
+	isShared := ctx.Query("shared") == "true"
+
+	bookmarkLists, err := controller.CommonUsecase.GetBookmarkLists(ctx, int32(userId), isShared)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
