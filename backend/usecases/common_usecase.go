@@ -205,3 +205,20 @@ func (uc *CommonUsecaseImpl) GetArticlesByPublisher(ctx context.Context, publish
 	}
 	return fromDmArticlesToApi(ctx, articlesDm, userId, uc.BookmarkListRepository)
 }
+
+func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Publisher) (int, error) {
+	newPublisher, err := uc.PublisherRepository.Create(ctx, source.Name, source.Url, source.AvatarUrl)
+	if err != nil {
+		slog.Error("[HomeUsecase] AddNewSource:", "error", err)
+		return 0, ErrInternal
+	}
+	return int(newPublisher.Id), nil
+}
+func (uc *CommonUsecaseImpl) AddNewArticle(ctx context.Context, article domain.ArticleMetadata) error {
+	_, err := uc.ArticleRepository.Create(ctx, article.Title, article.Date, article.Url, article.Publisher.Id)
+	if err != nil {
+		slog.Error("[HomeUsecase] AddNewArticle:", "error", err)
+		return ErrInternal
+	}
+	return nil
+}

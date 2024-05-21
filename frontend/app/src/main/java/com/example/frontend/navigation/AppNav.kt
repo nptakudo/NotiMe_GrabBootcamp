@@ -195,6 +195,9 @@ private fun NavGraphBuilder.showSearchResult(navController: NavController) {
             onReadNewArticle = {
                 val encodedUrl = URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
                 navController.navigate(Route.Reader.route + "/new/$encodedUrl")
+            },
+            onAddSourceSuccess = {
+                navController.navigate(Route.Following.route)
             }
         )
     }

@@ -15,4 +15,11 @@ class RemotePublisherDataSource @Inject constructor(
         }
         return res.body()!!
     }
+
+    suspend fun addNewSource (publisher: Publisher) {
+        val res = apiService.addNewSource(publisher)
+        if (!res.isSuccessful) {
+            throw Exception("Failed to add new source")
+        }
+    }
 }

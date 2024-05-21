@@ -2,7 +2,9 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"io"
 	"log/slog"
 	"net/http"
 	"notime/api"
@@ -10,8 +12,11 @@ import (
 	"notime/bootstrap"
 	"notime/domain"
 	"notime/repository"
+	"notime/repository/models"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type CommonController struct {
@@ -37,6 +42,9 @@ type CommonUsecase interface {
 	SearchPublisher(ctx context.Context, searchQuery string, userId int) ([]*messages.Publisher, error)
 
 	GetArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
+
+	AddNewSource(ctx context.Context, source domain.Publisher) (int, error)
+	AddNewArticle(ctx context.Context, article domain.ArticleMetadata) error
 }
 
 func (controller *CommonController) GetArticleMetadataById(ctx *gin.Context) {
@@ -254,10 +262,15 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 			searchQuery += "/"
 		}
 		// scrape data
-		articles, _, err := webscrapeRepo.ScrapeFromUrl(searchQuery)
+		articles, publisher, err := webscrapeRepo.ScrapeFromUrl(searchQuery)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 			return
+		}
+
+		// assign the publisher to the articles
+		for _, article := range articles {
+			article.Publisher = publisher
 		}
 
 		ctx.JSON(http.StatusOK, SearchResponse{
@@ -300,4 +313,71 @@ func (controller *CommonController) GetArticlesByPublisher(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, articles)
+}
+
+func (controller *CommonController) AddNewSource(ctx *gin.Context) {
+	userId := ctx.GetInt(api.UserIdKey)
+	slog.Info("[CommonController] AddNewSource: user id:", "userId", userId)
+
+	var source domain.Publisher
+	err := ctx.ShouldBind(&source)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	newPublisherId, err := controller.CommonUsecase.AddNewSource(ctx, source)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	source.Id = int32(newPublisherId)
+
+	// add articles
+	file, err := os.Open("../pipeline/webscrape/webscrape/spiders/output.json")
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetNewArticle: Error opening output.json:", "error", err)
+		return
+	}
+	defer file.Close()
+
+	// Read the file content
+	content, err := io.ReadAll(file)
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetNewArticle: Error reading output.json:", "error", err)
+		return
+	}
+
+	var articles []*models.ScrapedArticle
+	err = json.Unmarshal(content, &articles)
+	if err != nil {
+		slog.Error("[Webscrape] ScrapeFromUrl: Error unmarshalling output.json:", "error", err)
+		return
+	}
+	for _, article := range articles {
+		parseDate, err := time.Parse("2 Jan 2006", strings.Split(article.Date, " | ")[0])
+		if err != nil {
+			parseDate = time.Now()
+		}
+		err = controller.CommonUsecase.AddNewArticle(ctx, domain.ArticleMetadata{
+			Id:        0,
+			Title:     article.Title,
+			Publisher: &source,
+			Date:      parseDate,
+			Url:       article.Url,
+			ImageUrl:  "",
+		})
+		if err != nil {
+			slog.Error("[ReaderUsecase] GetNewArticle:", "error", err)
+		}
+	}
+
+	err = controller.CommonUsecase.Subscribe(ctx, int32(newPublisherId), int32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, source)
 }

@@ -51,7 +51,8 @@ fun SearchResultScreen(
     query: String,
     onSubscribe: (publisherId: BigInteger) -> Unit,
     onUnSubscribe: (publisherId: BigInteger) -> Unit,
-    onLoadNewArticle: (url: String) -> Unit
+    onLoadNewArticle: (url: String) -> Unit,
+    onAddSource: (publisher: Publisher) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -100,7 +101,8 @@ fun SearchResultScreen(
                     modifier = modifier,
                     uiState = uiState,
                     articles = uiState.articles,
-                    onLoadNewArticle = onLoadNewArticle
+                    onLoadNewArticle = onLoadNewArticle,
+                    onAddSource = onAddSource
                 )
             }
         }
@@ -174,7 +176,8 @@ fun SearchResultContentForArticles(
     modifier: Modifier,
     uiState: SearchResultUiState,
     articles: List<ArticleMetadata>,
-    onLoadNewArticle: (url: String) -> Unit
+    onLoadNewArticle: (url: String) -> Unit,
+    onAddSource: (publisher: Publisher) -> Unit
 ) {
     if (uiState.state == State.Loading) {
         Column(
@@ -218,7 +221,7 @@ fun SearchResultContentForArticles(
                 ) {
                     Button(
                         modifier = Modifier.width(112.dp),
-                        onClick = { },
+                        onClick = { onAddSource(uiState.articles[0].publisher) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary

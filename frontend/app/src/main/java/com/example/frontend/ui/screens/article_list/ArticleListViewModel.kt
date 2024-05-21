@@ -122,7 +122,7 @@ class ArticleListViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(state = State.Loading) }
             try {
-                val articles = articleRepository.getArticlesByPublisher(publisherId, 10, 0)
+                val articles = articleRepository.getArticlesByPublisher(publisherId, 20, 0)
                 _articles.update { articles }
                 _uiState.update { it.copy(state = State.Idle) }
             } catch (e: Exception) {

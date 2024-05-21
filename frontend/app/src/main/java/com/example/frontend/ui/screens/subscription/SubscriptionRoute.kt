@@ -14,10 +14,8 @@ fun SubscriptionRoute(
     onToExplore: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    if (uiState.subscriptions.isEmpty()) {
-        LaunchedEffect(Unit) {
-            viewModel.loadSources()
-        }
+    LaunchedEffect(uiState.subscriptions) {
+        viewModel.loadSources()
     }
 
     SubscriptionScreen(

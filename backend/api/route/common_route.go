@@ -39,4 +39,5 @@ func NewCommonRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queri
 	group.DELETE("/subscriptions/:publisher_id", commonController.Unsubscribe)
 	// Get all articles from a publisher
 	group.GET("/articles/publisher/:publisher_id", commonController.GetArticlesByPublisher)
+	group.POST("/add_new_source", commonController.AddNewSource)
 }

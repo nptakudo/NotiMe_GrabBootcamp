@@ -118,6 +118,9 @@ interface ApiService {
     @GET("publishers/{publisher_id}/")
     suspend fun getPublisherById(@Path("publisher_id") publisherId: BigInteger): Response<Publisher>
 
+    @POST("add_new_source/")
+    suspend fun addNewSource(@Body request: Publisher): Response<ApiResponse>
+
     // ---------------- Model: ARTICLE ----------------
     @GET("articles/publisher/{publisher_id}")
     suspend fun getArticlesByPublisher(

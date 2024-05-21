@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.repository.ArticleRepository
+import com.example.frontend.data.repository.PublisherRepository
 import com.example.frontend.data.repository.SubscriptionRepository
 import com.example.frontend.ui.screens.subscription.SubscriptionConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +46,7 @@ data class SearchResultUiState(
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
     private val subscriptionRepository: SubscriptionRepository,
-    private val articleRepository: ArticleRepository
+    private val publisherRepository: PublisherRepository
 ) : ViewModel() {
     private val _articles = MutableStateFlow(emptyList<ArticleMetadata>())
     private val _subscriptions = MutableStateFlow(emptyList<Publisher>())
@@ -110,15 +111,13 @@ class SearchResultViewModel @Inject constructor(
         }
     }
 
-    fun loadNewArticle(url: String) {
+    fun onAddSource (publisher: Publisher) {
         viewModelScope.launch {
-            _uiState.update { it.copy(state = State.Loading) }
             try {
-                articleRepository.getNewArticle(url)
+                publisherRepository.addNewSource(publisher)
             } catch (e: Exception) {
-                Log.e(SearchRessultConfig.LOG_TAG, "Failed to load new article")
+                Log.e(SearchRessultConfig.LOG_TAG, "Failed to add new source")
             }
-            _uiState.update { it.copy(state = State.Idle) }
         }
     }
 
