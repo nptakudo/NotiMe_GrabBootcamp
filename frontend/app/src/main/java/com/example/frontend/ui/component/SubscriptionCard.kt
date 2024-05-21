@@ -80,7 +80,7 @@ fun SubscriptionCard(
                         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                 }
                 Text(
-                    text = nameStr,
+                    text = nameStr.trim(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -93,7 +93,7 @@ fun SubscriptionCard(
                     urlStr = urlStr.take(28) + "..."
                 }
                 Text(
-                    text = urlStr,
+                    text = urlStr.trim(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium.copy(

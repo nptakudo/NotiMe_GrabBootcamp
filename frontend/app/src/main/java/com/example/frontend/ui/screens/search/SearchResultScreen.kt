@@ -35,7 +35,6 @@ import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.component.SubscriptionCard
-import com.example.frontend.ui.screens.search.State
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringExactDateFormat

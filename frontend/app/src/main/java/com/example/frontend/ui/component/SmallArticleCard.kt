@@ -19,15 +19,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.frontend.utils.isValidUrl
+import com.example.frontend.utils.isValidImageUrl
+import kotlinx.coroutines.async
 
 @Composable
 fun SmallArticleCard(
@@ -42,6 +48,17 @@ fun SmallArticleCard(
     disableBookmarkButton: Boolean = false,
     onBookmarkClick: (isBookmarked: Boolean) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val isValidImage = remember { mutableStateOf(false) }
+    LaunchedEffect(articleImageUrl) {
+        isValidImage.value = articleImageUrl?.let { url ->
+            coroutineScope.async {
+                isValidImageUrl(context, url)
+            }.await()
+        } ?: false
+    }
+
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
@@ -63,7 +80,7 @@ fun SmallArticleCard(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = title,
+                    text = title.trim(),
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
@@ -96,7 +113,7 @@ fun SmallArticleCard(
                         }
                     }
                     Text(
-                        text = publisher,
+                        text = publisher.trim(),
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
@@ -115,7 +132,7 @@ fun SmallArticleCard(
                     )
                 }
             }
-            if (isValidUrl(articleImageUrl)) {
+            if (isValidImage.value) {
                 Spacer(modifier = Modifier.width(24.dp))
                 ImageFromUrl(
                     url = articleImageUrl!!,

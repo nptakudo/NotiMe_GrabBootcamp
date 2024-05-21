@@ -19,15 +19,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.frontend.utils.isValidUrl
+import com.example.frontend.utils.isValidImageUrl
+import kotlinx.coroutines.async
 
 @Composable
 fun BigArticleCard(
@@ -42,6 +48,25 @@ fun BigArticleCard(
     onClick: () -> Unit,
     onBookmarkClick: (isBookmarked: Boolean) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val isValidArticleImage = remember { mutableStateOf(false) }
+    LaunchedEffect(articleImageUrl) {
+        isValidArticleImage.value = articleImageUrl?.let { url ->
+            coroutineScope.async {
+                isValidImageUrl(context, url)
+            }.await()
+        } ?: false
+    }
+    val isValidPublisherImage = remember { mutableStateOf(false) }
+    LaunchedEffect(publisherAvatarUrl) {
+        isValidPublisherImage.value = publisherAvatarUrl?.let { url ->
+            coroutineScope.async {
+                isValidImageUrl(context, url)
+            }.await()
+        } ?: false
+    }
+
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
@@ -53,7 +78,7 @@ fun BigArticleCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (isValidUrl(articleImageUrl)) {
+            if (isValidArticleImage.value) {
                 ImageFromUrl(
                     url = articleImageUrl!!,
                     contentDescription = "Article Image",
@@ -72,7 +97,7 @@ fun BigArticleCard(
                 )
             ) {
                 Text(
-                    text = title,
+                    text = title.trim(),
                     style = MaterialTheme.typography.headlineLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
@@ -89,7 +114,7 @@ fun BigArticleCard(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (isValidUrl(publisherAvatarUrl)) {
+                        if (isValidPublisherImage.value) {
                             ImageFromUrl(
                                 url = publisherAvatarUrl!!,
                                 contentDescription = "Publisher Avatar",
@@ -101,7 +126,7 @@ fun BigArticleCard(
                             )
                         }
                         Text(
-                            text = publisher,
+                            text = publisher.trim(),
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),

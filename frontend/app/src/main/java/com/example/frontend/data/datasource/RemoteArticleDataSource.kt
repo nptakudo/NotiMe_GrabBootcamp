@@ -2,7 +2,6 @@ package com.example.frontend.data.datasource
 
 import com.example.frontend.data.model.Article
 import com.example.frontend.data.model.ArticleMetadata
-import com.example.frontend.data.model.Publisher
 import com.example.frontend.network.ApiService
 import java.math.BigInteger
 import javax.inject.Inject

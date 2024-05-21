@@ -2,7 +2,6 @@ package com.example.frontend.ui.screens.reader
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,8 +42,10 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -74,8 +75,9 @@ import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.ReaderTextStyle
 import com.example.frontend.ui.theme.UiConfig
 import com.example.frontend.utils.dateToStringAgoFormat
-import com.example.frontend.utils.isValidUrl
+import com.example.frontend.utils.isValidImageUrl
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 
@@ -117,6 +119,17 @@ fun ReaderScreen(
     }
 
     var currentArticleBookmarkRequest by rememberSaveable { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val isValidImage = remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.article.metadata.imageUrl) {
+        isValidImage.value = uiState.article.metadata.imageUrl?.let { url ->
+            coroutineScope.async {
+                isValidImageUrl(context, url)
+            }.await()
+        } ?: false
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -207,7 +220,7 @@ fun ReaderScreen(
                         )
                     }
                 } else {
-                    if (isValidUrl(uiState.article.metadata.imageUrl)) {
+                    if (isValidImage.value) {
                         ImageFromUrl(
                             url = uiState.article.metadata.imageUrl!!,
                             contentDescription = "article image",
@@ -219,7 +232,7 @@ fun ReaderScreen(
                         )
                     }
                     ReaderScreenContent(
-                        firstSpacerHeight = if (!isValidUrl(uiState.article.metadata.imageUrl)) {
+                        firstSpacerHeight = if (!isValidImage.value) {
                             0.dp
                         } else {
                             ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp
@@ -531,6 +544,18 @@ fun ReaderScreenForNewArticle(
         }
     }
 
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val isValidImage = remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.article.metadata.imageUrl) {
+        isValidImage.value = uiState.article.metadata.imageUrl?.let { url ->
+            coroutineScope.async {
+                isValidImageUrl(context, url)
+            }.await()
+        } ?: false
+    }
+
+
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             modifier = Modifier
@@ -588,7 +613,7 @@ fun ReaderScreenForNewArticle(
                         )
                     }
                 } else {
-                    if (isValidUrl(uiState.article.metadata.imageUrl)) {
+                    if (isValidImage.value) {
                         ImageFromUrl(
                             url = uiState.article.metadata.imageUrl!!,
                             contentDescription = "article image",
@@ -600,7 +625,7 @@ fun ReaderScreenForNewArticle(
                         )
                     }
                     ReaderScreenContentForNewArticle(
-                        firstSpacerHeight = if (!isValidUrl(uiState.article.metadata.imageUrl)) {
+                        firstSpacerHeight = if (!isValidImage.value) {
                             0.dp
                         } else {
                             ReaderUiConfig.ARTICLE_IMG_HEIGHT.dp
@@ -628,7 +653,6 @@ fun ReaderScreenContentForNewArticle(
     val metadata = uiState.article.metadata
     val summary = uiState.article.summary
     val content = uiState.article.content.content
-
 
     val scrollState = rememberScrollState()
     Column(
@@ -661,18 +685,18 @@ fun ReaderScreenContentForNewArticle(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Text(
-                    text = metadata.title,
+                    text = metadata.title.trim(),
                     style = ReaderTextStyle.title,
                 )
                 if (summary != "") {
                     SummaryCard(
-                        summary = summary,
+                        summary = summary.trim(),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
                 if (content != "") {
                     MarkdownText(
-                        markdown = content,
+                        markdown = content.trim(),
                         fontResource = ReaderTextStyle.bodyResource,
                     )
                 } else {

@@ -1,13 +1,10 @@
 package com.example.frontend.ui.screens.reader
 
-import android.content.Intent
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.math.BigInteger
 
 @Composable
 fun NewReaderRoute(

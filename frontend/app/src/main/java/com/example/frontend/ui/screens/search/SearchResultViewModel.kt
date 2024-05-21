@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.Publisher
-import com.example.frontend.data.repository.ArticleRepository
 import com.example.frontend.data.repository.PublisherRepository
 import com.example.frontend.data.repository.SubscriptionRepository
 import com.example.frontend.ui.screens.subscription.SubscriptionConfig

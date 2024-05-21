@@ -5,16 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.Article
-import com.example.frontend.data.model.ArticleContent
-import com.example.frontend.data.model.ArticleMetadata
-import com.example.frontend.data.model.BookmarkList
-import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.repository.ArticleRepository
-import com.example.frontend.data.repository.BookmarkRepository
-import com.example.frontend.data.repository.RecsysRepository
-import com.example.frontend.data.repository.SubscriptionRepository
 import com.example.frontend.navigation.Route
-import com.example.frontend.ui.screens.home.HomeConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,10 +14,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.math.BigInteger
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.Date
 import javax.inject.Inject
 
 object NewReaderConfig {

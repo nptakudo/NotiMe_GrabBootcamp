@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 object HomeConfig {
     const val LOG_TAG = "HomeViewModel"
-    const val LOAD_COUNT = 100
+    const val LOAD_COUNT = 200
 }
 
 data class HomeUiState(

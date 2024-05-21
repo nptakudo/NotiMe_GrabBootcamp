@@ -9,12 +9,18 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.frontend.utils.isValidUrl
+import com.example.frontend.utils.isValidImageUrl
+import kotlinx.coroutines.async
 
 @Composable
 fun PublisherCard(
@@ -25,6 +31,17 @@ fun PublisherCard(
     isFollowing: Boolean,
     onFollowClick: (isFollowing: Boolean) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val isValidImage = remember { mutableStateOf(false) }
+    LaunchedEffect(avatarUrl) {
+        isValidImage.value = avatarUrl?.let { url ->
+            coroutineScope.async {
+                isValidImageUrl(context, url)
+            }.await()
+        } ?: false
+    }
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -34,7 +51,7 @@ fun PublisherCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (isValidUrl(avatarUrl)) {
+            if (isValidImage.value) {
                 ImageFromUrl(
                     url = avatarUrl!!,
                     contentDescription = "Avatar of $name",
