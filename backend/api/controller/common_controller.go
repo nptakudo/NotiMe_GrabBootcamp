@@ -323,14 +323,13 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 			Articles:   articles,
 			Publishers: make([]*messages.Publisher, 0),
 		})
-		return
+	} else {
+		ctx.JSON(http.StatusOK, SearchResponse{
+			IsExisting: true,
+			Articles:   make([]*domain.ArticleMetadata, 0),
+			Publishers: publishers,
+		})
 	}
-
-	ctx.JSON(http.StatusOK, SearchResponse{
-		IsExisting: true,
-		Articles:   make([]*domain.ArticleMetadata, 0),
-		Publishers: publishers,
-	})
 }
 
 func (controller *CommonController) GetArticlesByPublisher(ctx *gin.Context) {
@@ -401,9 +400,10 @@ func (controller *CommonController) AddNewSource(ctx *gin.Context) {
 		return
 	}
 	for _, article := range articles {
-		parseDate, err := time.Parse("2 Jan 2006", strings.Split(article.Date, " | ")[0])
+		parseDate, err := article.GetTime()
 		if err != nil {
-			parseDate = time.Now()
+			slog.Error("[ReaderUsecase] GetNewArticle: get time:", "error", err)
+			parseDate = time.Now().UTC()
 		}
 		err = controller.CommonUsecase.AddNewArticle(ctx, domain.ArticleMetadata{
 			Id:        0,

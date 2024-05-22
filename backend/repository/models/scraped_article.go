@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"log/slog"
+	"strings"
+	"time"
+)
 
 type ScrapedArticle struct {
 	Url           string `json:"url"`
@@ -11,10 +15,20 @@ type ScrapedArticle struct {
 }
 
 func (s *ScrapedArticle) GetTime() (time.Time, error) {
-	t, err := time.Parse("January 2, 2006", s.Date)
+	t := time.Time{}
+	var err error = nil
+
+	slog.Info("Date", "date", s.Date)
+	if strings.Contains(s.Date, "|") {
+		slog.Info("Date contains |")
+		t, err = time.Parse("2 Jan 2006", strings.Split(s.Date, " | ")[0])
+	} else {
+		t, err = time.Parse("January 2, 2006", s.Date)
+	}
 	if err != nil {
 		return time.Time{}, err
 	}
+	t = t.UTC()
 	return t, nil
 }
 

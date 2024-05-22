@@ -15,7 +15,6 @@ import (
 	"notime/utils/geminiutils"
 	"notime/utils/htmlutils"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -152,7 +151,11 @@ func (uc *ReaderUsecaseImpl) GetNewArticle(ctx context.Context, url string) (*me
 		}
 	}
 
-	publishDate, _ := time.Parse("2 Jan 2006", strings.Split(article.Date, " | ")[0])
+	publishDate, err := article.GetTime()
+	if err != nil {
+		slog.Error("[ReaderUsecase] GetArticleById: get time:", "error", err)
+		publishDate = time.Now().UTC()
+	}
 	slog.Info("[ReaderUsecase] GetNewArticle:", "publishDate", publishDate)
 
 	metadata := domain.ArticleMetadata{

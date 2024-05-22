@@ -76,7 +76,7 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 			if err != nil {
 				slog.Error("[Webscrape Repository] ScrapeFromUrl get time:", "error", err)
 				errCh <- err
-				return
+				date = time.Now().UTC()
 			}
 			dmArticle := &domain.ArticleMetadata{
 				Id:        -1,
