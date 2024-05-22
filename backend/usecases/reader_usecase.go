@@ -27,7 +27,7 @@ type ReaderUsecaseImpl struct {
 }
 
 func NewReaderUsecase(env *bootstrap.Env, db *store.Queries) controller.ReaderUsecase {
-	bookmarkListRepository := repository.NewBookmarkListRepository(db)
+	bookmarkListRepository := repository.NewBookmarkListRepository(env, db)
 	recsysRepository := repository.NewRecsysRepository(env, db)
 
 	return &ReaderUsecaseImpl{
@@ -45,17 +45,27 @@ func (uc *ReaderUsecaseImpl) GetArticleById(ctx context.Context, id int64, userI
 	}
 
 	// Scrape article content
-	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(metadata.Url)
+	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(metadata.Url, time.Duration(uc.env.ContextTimeout)*time.Second)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
 		body = ""
 	}
 
 	// Generate article summary
-	summary, err := geminiutils.GenerateArticleSummary(uc.env, body)
-	if err != nil {
-		slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
-		summary = ""
+	summary := ""
+	if body != "" {
+		summary, err = geminiutils.GenerateArticleSummary(uc.env, body)
+		if err != nil {
+			slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
+			summary = ""
+		}
+	}
+	if summary == "" && metadata.RawContent != "" {
+		summary, err = geminiutils.GenerateArticleSummary(uc.env, metadata.RawContent)
+		if err != nil {
+			slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
+			summary = ""
+		}
 	}
 
 	return &messages.ArticleResponse{
@@ -119,16 +129,27 @@ func (uc *ReaderUsecaseImpl) GetNewArticle(ctx context.Context, url string) (*me
 		return nil, ErrInternal
 	}
 
-	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(url)
+	body, err := htmlutils.ScrapeAndConvertArticleToMarkdown(url, time.Duration(uc.env.ContextTimeout)*time.Second)
 	if err != nil {
 		slog.Error("[ReaderUsecase] GetNewArticle:", "error", err)
 		body = ""
 	}
 
-	summary, err := geminiutils.GenerateArticleSummary(uc.env, body)
-	if err != nil {
-		slog.Error("[ReaderUsecase] GetNewArticle:", "error", err)
-		summary = ""
+	// Generate article summary
+	summary := ""
+	if body != "" {
+		summary, err = geminiutils.GenerateArticleSummary(uc.env, body)
+		if err != nil {
+			slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
+			summary = ""
+		}
+	}
+	if summary == "" && article.Content != "" {
+		summary, err = geminiutils.GenerateArticleSummary(uc.env, article.Content)
+		if err != nil {
+			slog.Error("[ReaderUsecase] GetArticleById:", "error", err)
+			summary = ""
+		}
 	}
 
 	publishDate, _ := time.Parse("2 Jan 2006", strings.Split(article.Date, " | ")[0])

@@ -27,9 +27,9 @@ fun dateToStringAgoFormat(date: Date): String {
         "${weeksDifference}w ago"
     } else if (daysDifference < 730) {
         val monthsDifference = daysDifference / 30
-        "$monthsDifference months ago"
+        "${monthsDifference} months ago"
     } else {
         val yearsDifference = daysDifference / 365
-        "$yearsDifference years ago"
+        "${yearsDifference}y ago"
     }
 }

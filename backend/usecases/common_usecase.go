@@ -22,7 +22,7 @@ type CommonUsecaseImpl struct {
 func NewCommonUsecase(env *bootstrap.Env, db *store.Queries) controller.CommonUsecase {
 	articleRepository := repository.NewArticleRepository(env, db)
 	publisherRepository := repository.NewPublisherRepository(db)
-	bookmarkListRepository := repository.NewBookmarkListRepository(db)
+	bookmarkListRepository := repository.NewBookmarkListRepository(env, db)
 	subscribeListRepository := repository.NewSubscribeListRepository(db)
 
 	return &CommonUsecaseImpl{
@@ -202,7 +202,7 @@ func (uc *CommonUsecaseImpl) Unsubscribe(ctx context.Context, publisherId int32,
 func (uc *CommonUsecaseImpl) SearchPublisher(ctx context.Context, searchQuery string, userId int) ([]*messages.Publisher, error) {
 	publishersDm := make([]*domain.Publisher, 0)
 
-	if strings.HasPrefix(searchQuery, "https://") {
+	if strings.HasPrefix(searchQuery, "http") {
 		if !strings.HasSuffix(searchQuery, "/") {
 			searchQuery += "/"
 		}
@@ -255,6 +255,7 @@ func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Pub
 	}
 	return int(newPublisher.Id), nil
 }
+
 func (uc *CommonUsecaseImpl) AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error {
 	_, err := uc.ArticleRepository.Create(ctx, article.Title, article.Date, article.Url, article.Publisher.Id, rawText)
 	if err != nil {

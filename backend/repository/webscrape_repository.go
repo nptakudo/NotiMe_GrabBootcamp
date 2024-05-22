@@ -61,7 +61,7 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 			defer wg.Done()
 
 			// Check if url is actually of an article
-			isArticle, err := htmlutils.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold)
+			isArticle, err := htmlutils.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold, time.Duration(repo.env.ContextTimeout)*time.Second)
 			if err != nil {
 				slog.Error("[Webscrape Repository] ScrapeFromUrl validate url as article:", "error", err)
 				errCh <- err

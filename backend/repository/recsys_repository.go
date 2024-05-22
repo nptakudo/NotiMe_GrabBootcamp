@@ -40,7 +40,7 @@ func NewRecsysRepository(env *bootstrap.Env, q *store.Queries) RecsysRepository 
 		q:                   q,
 		env:                 env,
 		engine:              engine,
-		UtilitiesRepository: UtilitiesRepository{q: q},
+		UtilitiesRepository: UtilitiesRepository{q: q, env: env},
 	}
 }
 
@@ -66,7 +66,7 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromSubscribed(ctx context.Conte
 			defer wg.Done()
 
 			// Check if url is actually of an article
-			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold, time.Duration(r.env.ContextTimeout)*time.Second)
 			if err != nil {
 				slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 				errCh <- err
@@ -109,9 +109,10 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 		dbSubscribedPublishers = nil
 	}
 
+	dmArticles := make([]*domain.ArticleMetadata, 0)
+
 	if dbSubscribedPublishers != nil && len(dbSubscribedPublishers) > 0 {
 		var wg sync.WaitGroup
-		dmArticles := make([]*domain.ArticleMetadata, 0)
 		errCh := make(chan error, len(dbSubscribedPublishers))
 		resCh := make(chan []*domain.ArticleMetadata, len(dbSubscribedPublishers))
 
@@ -120,7 +121,7 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 			go func(dbPublisher store.Source) {
 				defer wg.Done()
 
-				articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(dbPublisher.Url, time.Duration(r.env.ContextTimeout)*time.Second)
+				articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(dbPublisher.Url, time.Duration(10)*time.Second)
 				if err != nil {
 					slog.Error("[Recsys Repository] GetLatestArticlesFromUnsubscribed engine:", "error", err)
 					errCh <- err
@@ -135,18 +136,6 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 					wgInner.Add(1)
 					go func(articleUrl string) {
 						defer wgInner.Done()
-
-						//// Check if url is actually of an article
-						//isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
-						//if err != nil {
-						//	slog.Error("[Article Repository] GetLatestArticlesFromUnsubscribed validate url as article:", "error", err)
-						//	errChInner <- err
-						//	return
-						//}
-						//if !isArticle {
-						//	slog.Warn("[Article Repository] GetLatestArticlesFromUnsubscribed: Skipping potential article: url is not an article:", "url", articleUrl)
-						//	return
-						//}
 
 						dbArticle, err := r.q.GetArticleByUrl(ctx, articleUrl)
 						if err != nil {
@@ -193,10 +182,10 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 		for dmArticlesOuter := range resCh {
 			dmArticles = append(dmArticles, dmArticlesOuter...)
 		}
-
-		return dmArticles, nil
-	} else {
-		dbArticles, err := r.q.GetAllArticles(ctx, store.GetAllArticlesParams{
+	}
+	if len(dmArticles) < count {
+		count -= len(dmArticles)
+		dbArticles, err := r.q.GetRandomArticles(ctx, store.GetRandomArticlesParams{
 			Count:  int32(count),
 			Offset: int32(offset),
 		})
@@ -205,17 +194,39 @@ func (r *RecsysRepositoryImpl) GetLatestArticlesFromUnsubscribed(ctx context.Con
 			return nil, err
 		}
 
-		var dmArticles []*domain.ArticleMetadata
+		var wg sync.WaitGroup
+		errCh := make(chan error, len(dbArticles))
+		resCh := make(chan *domain.ArticleMetadata, len(dbArticles))
+
 		for _, dbArticle := range dbArticles {
-			dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
-			if err != nil {
-				slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
-				return nil, err
-			}
+			wg.Add(1)
+			go func(dbArticle store.Post) {
+				defer wg.Done()
+
+				dmArticle, err := r.completeDmArticleFromDb(ctx, &dbArticle)
+				if err != nil {
+					slog.Error("[Article Repository] GetByPublisher convert:", "error", err)
+					errCh <- err
+					return
+				}
+				resCh <- dmArticle
+			}(dbArticle)
+		}
+
+		// Wait for all goroutines to finish
+		wg.Wait()
+
+		// Close the channels after all goroutines finish
+		close(errCh)
+		close(resCh)
+
+		// Collect all results
+		for dmArticle := range resCh {
 			dmArticles = append(dmArticles, dmArticle)
 		}
-		return dmArticles, nil
 	}
+
+	return dmArticles, nil
 }
 
 func (r *RecsysRepositoryImpl) GetLatestArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*domain.ArticleMetadata, error) {
@@ -231,7 +242,7 @@ func (r *RecsysRepositoryImpl) GetRelatedArticles(ctx context.Context, articleId
 	}
 	thisArticleUrl := thisArticle.Url
 
-	articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(thisArticleUrl, time.Duration(r.env.ContextTimeout)*time.Second)
+	articleUrls, err := r.engine.GetRelatedArticleUrlsFromUrl(thisArticleUrl, time.Duration(10)*time.Second)
 	if err != nil {
 		slog.Error("[Recsys Repository] GetRelatedArticles engine:", "error", err)
 		return nil, err
@@ -248,7 +259,7 @@ func (r *RecsysRepositoryImpl) GetRelatedArticles(ctx context.Context, articleId
 			defer wg.Done()
 
 			// Check if url is actually of an article
-			isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold)
+			isArticle, err := htmlutils.ValidateUrlAsArticle(articleUrl, r.env.PElementCharCount, r.env.PElementThreshold, time.Duration(r.env.ContextTimeout)*time.Second)
 			if err != nil {
 				slog.Error("[Article Repository] GetRelatedArticles validate url as article:", "error", err)
 				errCh <- err

@@ -2,13 +2,16 @@ package repository
 
 import (
 	"context"
+	"notime/bootstrap"
 	"notime/domain"
 	"notime/external/sql/store"
 	"notime/utils/htmlutils"
+	"time"
 )
 
 type UtilitiesRepository struct {
-	q *store.Queries
+	q   *store.Queries
+	env *bootstrap.Env
 }
 
 func (r *UtilitiesRepository) completeDmArticleFromDb(ctx context.Context, dbArticle *store.Post) (*domain.ArticleMetadata, error) {
@@ -17,7 +20,7 @@ func (r *UtilitiesRepository) completeDmArticleFromDb(ctx context.Context, dbArt
 		return nil, err
 	}
 
-	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(dbArticle.Url)
+	imgSrc, err := htmlutils.GetLargestImageUrlFromArticle(dbArticle.Url, time.Duration(r.env.ContextTimeout)*time.Second)
 	if err != nil {
 		imgSrc = ""
 	}

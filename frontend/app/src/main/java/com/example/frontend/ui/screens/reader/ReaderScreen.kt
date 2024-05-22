@@ -739,11 +739,6 @@ fun ReaderScreenContentForNewArticle(
                         }
                     )
                 }
-                HorizontalDivider()
-                Text(
-                    text = "Related Articles",
-                    style = MaterialTheme.typography.titleMedium
-                )
             }
         }
     }

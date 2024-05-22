@@ -100,9 +100,9 @@ class SearchResultViewModel @Inject constructor(
             try {
                 val searchResponse = subscriptionRepository.searchPublishers(query)
                 Log.i(SearchResultConfig.LOG_TAG, searchResponse.toString())
-                _subscriptions.update { searchResponse.publishers }
-                _articles.update { searchResponse.articles }
-                _isNewSource.update { searchResponse.isExisting }
+                _subscriptions.update { searchResponse.publishers ?: emptyList() }
+                _articles.update { searchResponse.articles ?: emptyList() }
+                _isNewSource.update { searchResponse.isExisting ?: true }
             } catch (e: Exception) {
                 Log.e(SearchResultConfig.LOG_TAG, "Failed to search publishers")
             }

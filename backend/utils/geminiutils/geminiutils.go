@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	characterLowerThreshold = 150
+	characterLowerThreshold = 100
 	characterUpperThreshold = 200
-	summarizePrompt         = "In 1 short paragraph less than 200 characters, summarize the whole article. Include important numbers, quotes. The content of the article might contain noise, such as html tags. The article is: %s"
+	summarizePrompt         = "In one short paragraph less than 200 characters, concisely summarize the whole article. Include important numbers, quotes. The article is: %s"
 )
 
 var (
