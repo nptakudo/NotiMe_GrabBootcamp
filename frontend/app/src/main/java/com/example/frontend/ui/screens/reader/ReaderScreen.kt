@@ -519,9 +519,9 @@ fun SummaryCard(
                     )
             }
             if (isCollapsed) {
-                Text(
-                    text = summary,
-                    style = ReaderTextStyle.body,
+                MarkdownText(
+                    markdown = summary.trim(),
+                    fontResource = ReaderTextStyle.bodyResource,
                 )
             }
         }
