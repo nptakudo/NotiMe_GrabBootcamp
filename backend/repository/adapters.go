@@ -24,12 +24,13 @@ func convertDbArticleToDm(dbArticle *store.Post, dbPublisher *store.Source, imag
 		return nil, err
 	}
 	return &domain.ArticleMetadata{
-		Id:        dbArticle.ID,
-		Title:     dbArticle.Title,
-		Publisher: dmPublisher,
-		Url:       dbArticle.Url,
-		Date:      dbArticle.PublishDate,
-		ImageUrl:  imageUrl,
+		Id:         dbArticle.ID,
+		Title:      dbArticle.Title,
+		Publisher:  dmPublisher,
+		Url:        dbArticle.Url,
+		Date:       dbArticle.PublishDate,
+		ImageUrl:   imageUrl,
+		RawContent: dbArticle.RawText,
 	}, nil
 }
 

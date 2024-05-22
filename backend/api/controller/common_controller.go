@@ -13,6 +13,7 @@ import (
 	"notime/domain"
 	"notime/repository"
 	"notime/repository/models"
+	"notime/utils/htmlutils"
 	"os"
 	"strconv"
 	"strings"
@@ -45,7 +46,7 @@ type CommonUsecase interface {
 
 	GetArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
 
-	AddNewSource(ctx context.Context, source domain.Publisher) (int, error)
+	AddNewSource(ctx context.Context, source domain.Publisher, userId int32) (int32, error)
 	AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error
 }
 
@@ -295,9 +296,12 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 	}
 	// if no publishers found in db, scrape the data
 	if publishers == nil || len(publishers) == 0 {
-		if !strings.HasPrefix(searchQuery, "https://") {
-			ctx.JSON(http.StatusAccepted, messages.SimpleResponse{Message: "No publishers found"})
-			return
+		if !strings.HasPrefix(searchQuery, "http") {
+			searchQuery, err = htmlutils.GetFullURL(searchQuery)
+			if err != nil {
+				ctx.JSON(http.StatusAccepted, messages.SimpleResponse{Message: "No publishers found"})
+				return
+			}
 		}
 		if !strings.HasSuffix(searchQuery, "/") {
 			searchQuery += "/"
@@ -367,7 +371,7 @@ func (controller *CommonController) AddNewSource(ctx *gin.Context) {
 		return
 	}
 
-	newPublisherId, err := controller.CommonUsecase.AddNewSource(ctx, source)
+	newPublisherId, err := controller.CommonUsecase.AddNewSource(ctx, source, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return

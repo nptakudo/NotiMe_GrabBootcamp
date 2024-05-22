@@ -247,13 +247,17 @@ func (uc *CommonUsecaseImpl) GetArticlesByPublisher(ctx context.Context, publish
 	return fromDmArticlesToApi(ctx, articlesDm, userId, uc.BookmarkListRepository)
 }
 
-func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Publisher) (int, error) {
+func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Publisher, userId int32) (int32, error) {
 	newPublisher, err := uc.PublisherRepository.Create(ctx, source.Name, source.Url, source.AvatarUrl)
 	if err != nil {
 		slog.Error("[HomeUsecase] AddNewSource:", "error", err)
 		return 0, ErrInternal
 	}
-	return int(newPublisher.Id), nil
+	err = uc.Subscribe(ctx, newPublisher.Id, userId)
+	if err != nil {
+		slog.Error("[HomeUsecase] AddNewSource:", "error", err)
+	}
+	return newPublisher.Id, nil
 }
 
 func (uc *CommonUsecaseImpl) AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error {
