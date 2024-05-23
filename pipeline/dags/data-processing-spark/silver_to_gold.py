@@ -4,6 +4,10 @@ from deltalake import DeltaTable
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType, StructField, StructType
 from pyspark.sql import functions as F
+from pyspark.sql.functions import col, regexp_extract
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def create_schema(spark):
     # Ensure the schema exists
@@ -55,8 +59,8 @@ if __name__ == "__main__":
         .config("spark.memory.fraction", "0.9") \
         .config("spark.master", "spark://spark-master:7077") \
         .config("spark.eventLog.enabled", "true") \
-        .config("spark.hadoop.fs.s3a.access.key", "7Vatx4rSRWLj73ArsqAS") \
-        .config("spark.hadoop.fs.s3a.secret.key", "9v1Z718T3zUvvLDV2h2xZXZwjMJaOSScM6AHOSSq") \
+        .config("spark.hadoop.fs.s3a.access.key", os.getenv("DATALAKE_ACCESS_KEY_ID")) \
+        .config("spark.hadoop.fs.s3a.secret.key", os.getenv("DATALAKE_SECRET_ACCESS_KEY")) \
         .config("spark.hadoop.fs.s3a.endpoint", "http://host.docker.internal:9000") \
         .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
         .config("spark.hadoop.fs.s3a.path.style.access", "true") \
