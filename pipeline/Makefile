@@ -10,3 +10,6 @@ down:
 	docker compose down --volumes
 
 restart: down up
+
+pyspark:
+	docker exec -ti spark-master bash pyspark --master spark://spark-master:7077 

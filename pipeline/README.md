@@ -19,6 +19,9 @@ pip3 install -r requirements.txt
 # deactivate
 ```
 ### 3. Jump into spark cluster container
+```bash
+make pyspark
+```
 
 ### 4. Instant scrape API usage
 - Turn On API
