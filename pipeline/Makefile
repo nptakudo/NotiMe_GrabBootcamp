@@ -1,5 +1,5 @@
 docker-spin-up: 
-	docker compose up --build -d
+	docker compose up --build -d --scale spark-worker=2
 
 sleeper:
 	sleep 15
