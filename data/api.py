@@ -46,35 +46,5 @@ def suggestion(input: Url):
         else:
             return [r.payload['url'] for r in result[0:5]]
         
-'''
-@app.post('/suggest_on_url')
-def vectorize_text(input: Url):
-    vec=qdrant.scroll(
-    collection_name='news_collection',
-    scroll_filter=models.Filter(
-        must=[
-            models.FieldCondition(
-                key="url",
-                match=models.MatchValue(value=input.url),
-            )
-        ]
-    ),
-    with_vectors=True,
-    )[0]
-    if vec == []:
-        return []
-    else:
-        result = qdrant.search(
-        collection_name="news_collection",
-        query_vector=vec[0].vector,
-        with_vectors=True,
-        with_payload=True,
-        )
-        if result[0].payload['url']==input.url:
-            return [r.payload['url'] for r in result[1:6]]
-        else:
-            return [r.payload['url'] for r in result[0:5]]'''
-#public_url = ngrok.connect(8000)
-#print('Public URL:', public_url.public_url)
 nest_asyncio.apply()
-uvicorn.run(app, port=8080)
+uvicorn.run(app, port=8000)
