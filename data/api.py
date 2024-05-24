@@ -11,8 +11,8 @@ from qdrant_client import QdrantClient, models
 import numpy as np
 app = FastAPI()
 qdrant = QdrantClient(
-    url="https://511bd411-4d9b-433a-9a9b-e16cd30b84ff.us-east4-0.gcp.cloud.qdrant.io:6333", 
-    api_key="vPFMrOT0Mbjh5UMy_HeBJPdvdqV66IUa6L9S2mUezs8C_aGX5Yk20Q",
+    url="your_url", 
+    api_key="your_api_key",
 )
 
 class Url(BaseModel):
