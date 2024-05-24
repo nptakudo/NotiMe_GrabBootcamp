@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 from transformers import AutoTokenizer, Data2VecTextModel
 import torch
-from sklearn.metrics.pairwise import cosine_similarity
 
-tokenizer = AutoTokenizer.from_pretrained("./AutoTokenizer")
-model = Data2VecTextModel.from_pretrained("./Data2Vec")
+
+tokenizer = AutoTokenizer.from_pretrained("facebook/data2vec-text-base")
+model = Data2VecTextModel.from_pretrained("facebook/data2vec-text-base")
 # Vetorize
 def vectorize(text):
     inputs = tokenizer(text, max_length = 512,return_tensors='pt')

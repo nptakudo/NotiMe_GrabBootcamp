@@ -5,8 +5,10 @@ Scrapy
 fastapi
 uvicorn
 pydantic
-json
-pickle
 scikit-learn
 requests
 Flask
+transformer
+pandas
+numpy
+torch
