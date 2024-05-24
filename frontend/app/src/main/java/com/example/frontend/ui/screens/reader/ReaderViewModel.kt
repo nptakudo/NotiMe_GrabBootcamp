@@ -158,16 +158,10 @@ class ReaderViewModel @Inject constructor(
     fun onCreateNewBookmark(name: String, articleId: BigInteger) {
         viewModelScope.launch {
             try {
-                val bookmarkId = bookmarkRepository.createBookmarkList(name)
-                bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
+                val bookmark = bookmarkRepository.createBookmarkList(name)
+                bookmarkRepository.bookmarkArticle(articleId, bookmark.id)
                 _bookmarks.update {
-                    it + BookmarkList(
-                        id = bookmarkId,
-                        name = name,
-                        articles = emptyList(),
-                        isSaved = true,
-                        ownerId = BigInteger.ONE
-                    )
+                    it + bookmark
                 }
                 updateBookmarkedState(articleId)
             } catch (e: Exception) {
@@ -177,12 +171,23 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun updateBookmarkedState(articleId: BigInteger? = null) {
+        if (articleId != null && articleId == this.articleId) {
+            if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles?.any { it.id == articleId } == true }) {
+                _article.update { article ->
+                    article.copy(metadata = article.metadata.copy(isBookmarked = true))
+                }
+            } else {
+                _article.update { article ->
+                    article.copy(metadata = article.metadata.copy(isBookmarked = false))
+                }
+            }
+        }
         _relatedArticles.update { articleList ->
             articleList.map { article ->
                 if (articleId != null && article.id != articleId) {
                     article
                 } else
-                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles.any { it.id == article.id } }) {
+                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles?.any { it.id == article.id } == true }) {
                         article.copy(isBookmarked = true)
                     } else {
                         article.copy(isBookmarked = false)
@@ -204,7 +209,6 @@ class ReaderViewModel @Inject constructor(
                 }
                 _bookmarks.update { bookmarkRepository.getBookmarkLists() }
                 _relatedArticles.update {
-                    it
                     if (offset == 0) {
                         recsysRepository.getRelatedArticles(articleId, count, offset)
                     } else {

@@ -21,7 +21,7 @@ type HomeUsecaseImpl struct {
 
 func NewHomeUsecase(env *bootstrap.Env, db *store.Queries) controller.HomeUsecase {
 	articleRepository := repository.NewArticleRepository(env, db)
-	bookmarkListRepository := repository.NewBookmarkListRepository(db)
+	bookmarkListRepository := repository.NewBookmarkListRepository(env, db)
 	subscribeListRepository := repository.NewSubscribeListRepository(db)
 	recsysRepository := repository.NewRecsysRepository(env, db)
 

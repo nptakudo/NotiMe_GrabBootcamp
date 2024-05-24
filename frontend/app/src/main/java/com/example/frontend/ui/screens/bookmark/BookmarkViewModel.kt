@@ -4,9 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.datasource.SettingDataSource
-import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
-import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.repository.BookmarkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigInteger
-import java.util.Date
 import javax.inject.Inject
 
 object BookmarkConfig {
@@ -79,8 +76,8 @@ class BookmarkViewModel @Inject constructor(
     fun onCreateNewBookmark(name: String) {
         viewModelScope.launch {
             try {
-                val bookmarkId = bookmarkRepository.createBookmarkList(name)
-                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+                val bookmark = bookmarkRepository.createBookmarkList(name)
+                _bookmarks.update { it + bookmark }
             } catch (e: Exception) {
                 Log.e(BookmarkConfig.LOG_TAG, "Failed to create new bookmark")
             }
@@ -102,11 +99,18 @@ class BookmarkViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteBookmark(articleId: BigInteger) {
-
+    fun onDeleteBookmark(bookmarkId: BigInteger) {
+        viewModelScope.launch {
+            try {
+                bookmarkRepository.deleteBookmarkList(bookmarkId)
+                _bookmarks.update { bookmarkRepository.getBookmarkLists() }
+            } catch (e: Exception) {
+                Log.e(BookmarkConfig.LOG_TAG, "Failed to delete bookmark")
+            }
+        }
     }
 
-    fun onShareBoookmark(articleId: BigInteger) {
+    fun onShareBookmark(bookmarkId: BigInteger) {
 
     }
 }

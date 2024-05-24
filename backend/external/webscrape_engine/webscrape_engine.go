@@ -69,7 +69,6 @@ func (e *WebscrapeEngineImpl) ScrapeFromUrl(url string, timeout time.Duration) (
 	}
 	for _, article := range articles {
 		article.PublisherName = publisherName
-		article.SetTime(time.Now().UTC())
 	}
 	return articles, nil
 }

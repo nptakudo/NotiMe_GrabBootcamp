@@ -13,6 +13,7 @@ import (
 	"notime/domain"
 	"notime/repository"
 	"notime/repository/models"
+	"notime/utils/htmlutils"
 	"os"
 	"strconv"
 	"strings"
@@ -29,10 +30,12 @@ type CommonUsecase interface {
 	GetPublisherById(ctx context.Context, id int32, userId int32) (*messages.Publisher, error)
 
 	GetBookmarkLists(ctx context.Context, userId int32, isShared bool) ([]*messages.BookmarkList, error)
+	CreateBookmarkList(ctx context.Context, name string, userId int32) (*messages.BookmarkList, error)
 	GetBookmarkListById(ctx context.Context, id int32, userId int32) (*messages.BookmarkList, error)
 	IsBookmarked(ctx context.Context, articleId int64, bookmarkListId int32) (bool, error)
 	Bookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error
 	Unbookmark(ctx context.Context, articleId int64, bookmarkListId int32, userId int32) error
+	DeleteBookmarkList(ctx context.Context, id int32, userId int32) error
 
 	GetSubscriptions(ctx context.Context, userId int32) ([]*messages.Publisher, error)
 	IsSubscribed(ctx context.Context, publisherId int32, userId int32) (bool, error)
@@ -43,7 +46,7 @@ type CommonUsecase interface {
 
 	GetArticlesByPublisher(ctx context.Context, publisherId int32, userId int32, count int, offset int) ([]*messages.ArticleMetadata, error)
 
-	AddNewSource(ctx context.Context, source domain.Publisher) (int, error)
+	AddNewSource(ctx context.Context, source domain.Publisher, userId int32) (int32, error)
 	AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error
 }
 
@@ -93,6 +96,26 @@ func (controller *CommonController) GetBookmarkLists(ctx *gin.Context) {
 
 	slog.Info("[CommonController] GetBookmarkLists: respond with:", "length", len(bookmarkLists))
 	ctx.JSON(http.StatusOK, bookmarkLists)
+}
+
+func (controller *CommonController) CreateBookmarkList(ctx *gin.Context) {
+	userId := ctx.GetInt(api.UserIdKey)
+	slog.Info("[CommonController] CreateBookmarkList: user id:", "userId", userId)
+
+	var bookmarkList domain.BookmarkList
+	err := ctx.ShouldBind(&bookmarkList)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	newBookmarkList, err := controller.CommonUsecase.CreateBookmarkList(ctx, bookmarkList.Name, int32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newBookmarkList)
 }
 
 func (controller *CommonController) GetBookmarkListById(ctx *gin.Context) {
@@ -198,6 +221,23 @@ func (controller *CommonController) Unbookmark(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
+func (controller *CommonController) DeleteBookmarkList(ctx *gin.Context) {
+	bookmarkListId, err := strconv.Atoi(ctx.Param("bookmark_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	userId := ctx.GetInt(api.UserIdKey)
+	err = controller.CommonUsecase.DeleteBookmarkList(ctx, int32(bookmarkListId), int32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
+}
+
 func (controller *CommonController) Subscribe(ctx *gin.Context) {
 	publisherId, err := strconv.Atoi(ctx.Param("publisher_id"))
 	if err != nil {
@@ -256,9 +296,12 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 	}
 	// if no publishers found in db, scrape the data
 	if publishers == nil || len(publishers) == 0 {
-		if !strings.HasPrefix(searchQuery, "https://") {
-			ctx.JSON(http.StatusAccepted, messages.SimpleResponse{Message: "No publishers found"})
-			return
+		if !strings.HasPrefix(searchQuery, "http") {
+			searchQuery, err = htmlutils.GetFullURL(searchQuery)
+			if err != nil {
+				ctx.JSON(http.StatusAccepted, messages.SimpleResponse{Message: "No publishers found"})
+				return
+			}
 		}
 		if !strings.HasSuffix(searchQuery, "/") {
 			searchQuery += "/"
@@ -280,14 +323,13 @@ func (controller *CommonController) SearchPublisher(ctx *gin.Context) { // if th
 			Articles:   articles,
 			Publishers: make([]*messages.Publisher, 0),
 		})
-		return
+	} else {
+		ctx.JSON(http.StatusOK, SearchResponse{
+			IsExisting: true,
+			Articles:   make([]*domain.ArticleMetadata, 0),
+			Publishers: publishers,
+		})
 	}
-
-	ctx.JSON(http.StatusOK, SearchResponse{
-		IsExisting: true,
-		Articles:   make([]*domain.ArticleMetadata, 0),
-		Publishers: publishers,
-	})
 }
 
 func (controller *CommonController) GetArticlesByPublisher(ctx *gin.Context) {
@@ -328,7 +370,7 @@ func (controller *CommonController) AddNewSource(ctx *gin.Context) {
 		return
 	}
 
-	newPublisherId, err := controller.CommonUsecase.AddNewSource(ctx, source)
+	newPublisherId, err := controller.CommonUsecase.AddNewSource(ctx, source, int32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, messages.SimpleResponse{Message: err.Error()})
 		return
@@ -358,9 +400,10 @@ func (controller *CommonController) AddNewSource(ctx *gin.Context) {
 		return
 	}
 	for _, article := range articles {
-		parseDate, err := time.Parse("2 Jan 2006", strings.Split(article.Date, " | ")[0])
+		parseDate, err := article.GetTime()
 		if err != nil {
-			parseDate = time.Now()
+			slog.Error("[ReaderUsecase] GetNewArticle: get time:", "error", err)
+			parseDate = time.Now().UTC()
 		}
 		err = controller.CommonUsecase.AddNewArticle(ctx, domain.ArticleMetadata{
 			Id:        0,

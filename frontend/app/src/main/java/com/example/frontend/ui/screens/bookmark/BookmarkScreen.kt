@@ -60,7 +60,7 @@ fun BookmarkScreen(
     onRefresh: () -> Unit,
     onAddNewBookmark: (name: String) -> Unit,
     onDeleteBookmark: (articleId: BigInteger) -> Unit,
-    onShareBoookmark: (articleId: BigInteger) -> Unit,
+    onShareBookmark: (articleId: BigInteger) -> Unit,
     onBookmarkDetail: (articleId: BigInteger) -> Unit
 ) {
     val refreshScope = rememberCoroutineScope()
@@ -116,7 +116,7 @@ fun BookmarkScreen(
                         bookmarks = uiState.bookmarks,
                         onAddNewBookmark = onAddNewBookmark,
                         onDeleteBookmark = onDeleteBookmark,
-                        onShareBookmark = onShareBoookmark,
+                        onShareBookmark = onShareBookmark,
                         onBookmarkDetail = onBookmarkDetail
                     )
                 }

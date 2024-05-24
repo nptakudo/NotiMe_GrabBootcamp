@@ -5,6 +5,7 @@ import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
 import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.model.request.LoginRequest
+import com.example.frontend.data.model.request.NewBookmarkRequest
 import com.example.frontend.data.model.response.ApiResponse
 import com.example.frontend.data.model.response.LoginResponse
 import com.example.frontend.data.model.response.SearchResponse
@@ -73,6 +74,9 @@ interface ApiService {
         @Query("shared") isShared: Boolean? = null,
     ): Response<List<BookmarkList>>
 
+    @POST("bookmarks/")
+    suspend fun createBookmarkList(@Body request: NewBookmarkRequest): Response<BookmarkList>
+
     @GET("bookmarks/{bookmark_id}/")
     suspend fun getBookmarkListById(@Path("bookmark_id") bookmarkId: BigInteger): Response<BookmarkList>
 
@@ -91,6 +95,11 @@ interface ApiService {
     @DELETE("bookmarks/{bookmark_id}/{article_id}/")
     suspend fun unbookmarkArticle(
         @Path("article_id") articleId: BigInteger,
+        @Path("bookmark_id") bookmarkId: BigInteger
+    ): Response<ApiResponse>
+
+    @DELETE("bookmarks/{bookmark_id}/")
+    suspend fun deleteBookmarkList(
         @Path("bookmark_id") bookmarkId: BigInteger
     ): Response<ApiResponse>
 

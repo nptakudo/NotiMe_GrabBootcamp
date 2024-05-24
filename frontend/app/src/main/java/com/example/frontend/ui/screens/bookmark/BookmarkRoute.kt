@@ -23,8 +23,8 @@ fun BookmarkRoute(
         uiState = uiState,
         onRefresh = viewModel::onLoadBookmark,
         onAddNewBookmark = viewModel::onCreateNewBookmark,
-        onDeleteBookmark = { articleId -> viewModel.onDeleteBookmark(articleId) },
-        onShareBoookmark = { articleId -> viewModel.onShareBoookmark(articleId) },
+        onDeleteBookmark = { bookmarkId -> viewModel.onDeleteBookmark(bookmarkId) },
+        onShareBookmark = { bookmarkId -> viewModel.onShareBookmark(bookmarkId) },
         onBookmarkDetail = onBookmarkDetail
     )
 }

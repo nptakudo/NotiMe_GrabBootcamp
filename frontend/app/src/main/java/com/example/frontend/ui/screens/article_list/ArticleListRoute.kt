@@ -11,6 +11,7 @@ fun ArticleListRoute(
     viewModel: ArticleListViewModel,
     articleType: ArticleType,
     id: BigInteger,
+    disableBookmark: Boolean,
     onBack: () -> Unit,
     onArticleClick: (articleId: BigInteger) -> Unit
 ) {
@@ -27,6 +28,7 @@ fun ArticleListRoute(
     ArticleListScreen(
         articleType = articleType,
         uiState = uiState,
+        disableBookmark = disableBookmark,
         onBookmark = viewModel::onBookmarkArticle,
         onUnbookmark = viewModel::onUnbookmarkArticle,
         onNewBookmark = viewModel::onCreateNewBookmark,

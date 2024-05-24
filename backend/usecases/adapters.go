@@ -23,7 +23,17 @@ func FromDmPublisherToApi(p *domain.Publisher, isSubscribed bool) *messages.Publ
 }
 
 func fromDmBookmarkListToApi(bookmarkList *domain.BookmarkList) *messages.BookmarkList {
-	return &messages.BookmarkList{BookmarkList: *bookmarkList}
+	apiArticles := make([]*messages.ArticleMetadata, 0)
+	for _, article := range bookmarkList.Articles {
+		apiArticles = append(apiArticles, FromDmArticleToApi(article, true))
+	}
+	return &messages.BookmarkList{
+		Id:       bookmarkList.Id,
+		Name:     bookmarkList.Name,
+		IsSaved:  bookmarkList.IsSaved,
+		Articles: apiArticles,
+		OwnerId:  bookmarkList.OwnerId,
+	}
 }
 
 func fromDmArticlesToApi(ctx context.Context, articles []*domain.ArticleMetadata, userId int32, bookmarkListRepository domain.BookmarkListRepository) ([]*messages.ArticleMetadata, error) {

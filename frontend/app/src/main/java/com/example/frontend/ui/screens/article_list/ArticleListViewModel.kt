@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.frontend.data.model.ArticleMetadata
 import com.example.frontend.data.model.BookmarkList
-import com.example.frontend.data.model.Publisher
 import com.example.frontend.data.repository.ArticleRepository
 import com.example.frontend.data.repository.BookmarkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigInteger
-import java.util.Date
 import javax.inject.Inject
 
 object ArticleListConfig {
@@ -93,8 +91,8 @@ class ArticleListViewModel @Inject constructor(
     fun onCreateNewBookmark(name: String, articleId: BigInteger) {
         viewModelScope.launch {
             try {
-                val bookmarkId = bookmarkRepository.createBookmarkList(name)
-                bookmarkRepository.addToBookmarkList(articleId, bookmarkId)
+                val bookmark = bookmarkRepository.createBookmarkList(name)
+                bookmarkRepository.bookmarkArticle(articleId, bookmark.id)
                 _bookmarks.update { bookmarkRepository.getBookmarkLists() }
                 updateBookmarkedState(articleId)
             } catch (e: Exception) {
@@ -109,7 +107,8 @@ class ArticleListViewModel @Inject constructor(
                 if (articleId != null && article.id != articleId) {
                     article
                 } else
-                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles.any { it.id == article.id } }) {
+                    Log.i(ArticleListConfig.LOG_TAG, "bookmark updated ${article.id}")
+                    if (_bookmarks.value.any { bookmarkList -> bookmarkList.articles?.any { it.id == article.id } == true }) {
                         article.copy(isBookmarked = true)
                     } else {
                         article.copy(isBookmarked = false)
@@ -137,12 +136,18 @@ class ArticleListViewModel @Inject constructor(
             _uiState.update { it.copy(state = State.Loading) }
             try {
                 val bookmarkList = bookmarkRepository.getBookmarkListById(bookmarkListId)
-                _articles.update { bookmarkList.articles }
+                _articles.update { bookmarkList.articles ?: emptyList() }
                 _uiState.update { it.copy(state = State.Idle) }
             } catch (e: Exception) {
                 Log.e(ArticleListConfig.LOG_TAG, "Failed to load articles by bookmark list")
             }
             _uiState.update { it.copy(state = State.Idle) }
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            _bookmarks.update { bookmarkRepository.getBookmarkLists() }
         }
     }
 }

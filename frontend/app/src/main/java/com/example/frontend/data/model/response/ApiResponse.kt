@@ -16,7 +16,7 @@ data class LoginResponse(
 )
 
 data class SearchResponse(
-    val isExisting: Boolean,
-    val articles: List<ArticleMetadata>,
-    val publishers: List<Publisher>
+    val isExisting: Boolean?,
+    val articles: List<ArticleMetadata>?,
+    val publishers: List<Publisher>?
 )

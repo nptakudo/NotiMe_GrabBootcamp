@@ -18,6 +18,10 @@ func NewCommonRouter(group *gin.RouterGroup, env *bootstrap.Env, db *store.Queri
 
 	// Get all bookmark lists
 	group.GET("/bookmarks", commonController.GetBookmarkLists)
+	// Create new bookmark list
+	group.POST("/bookmarks", commonController.CreateBookmarkList)
+	// Delete bookmark list
+	group.DELETE("/bookmarks/:bookmark_id", commonController.DeleteBookmarkList)
 	// Get bookmark list by id
 	group.GET("/bookmarks/:bookmark_id", commonController.GetBookmarkListById)
 	// Get whether article is bookmarked

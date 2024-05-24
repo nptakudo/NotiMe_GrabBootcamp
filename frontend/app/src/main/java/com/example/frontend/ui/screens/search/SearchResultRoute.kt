@@ -10,6 +10,7 @@ import java.math.BigInteger
 fun SearchResultRoute(
     viewModel: SearchResultViewModel,
     query: String,
+    disableBookmark: Boolean = false,
     obBack: () -> Unit,
     onSubscriptionClick: (publisherId: BigInteger) -> Unit,
     onReadNewArticle: (url: String) -> Unit,
@@ -23,6 +24,7 @@ fun SearchResultRoute(
         uiState = uiState,
         onBack = obBack,
         query = query,
+        disableBookmark = disableBookmark,
         onSubscriptionClick = onSubscriptionClick,
         onSubscribe = { publisherId -> viewModel.onSubscribePublisher(publisherId) },
         onUnSubscribe = { publisherId -> viewModel.onUnsubscribePublisher(publisherId) },

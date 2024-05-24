@@ -37,12 +37,12 @@ func NewWebscrapeRepository(env *bootstrap.Env) WebscrapeRepository {
 }
 
 func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.ArticleMetadata, *domain.Publisher, error) {
-	dmPublisher, err := htmlutils.CheckAndCompilePublisher(url, time.Duration(repo.env.ContextTimeout)*time.Second)
+	dmPublisher, err := htmlutils.CheckAndCompilePublisher(url, time.Duration(5)*time.Second)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	scrapedArticles, err := repo.engine.ScrapeFromUrl(url, time.Duration(repo.env.ContextTimeout)*time.Second)
+	scrapedArticles, err := repo.engine.ScrapeFromUrl(url, time.Duration(10)*time.Second)
 	if err != nil {
 		slog.Error("[Webscrape Repository] ScrapeFromUrl scrape from url:", "error", err)
 		if scrapedArticles == nil || len(scrapedArticles) == 0 {
@@ -61,7 +61,7 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 			defer wg.Done()
 
 			// Check if url is actually of an article
-			isArticle, err := htmlutils.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold)
+			isArticle, err := htmlutils.ValidateUrlAsArticle(article.Url, repo.env.PElementCharCount, repo.env.PElementThreshold, time.Duration(repo.env.ContextTimeout)*time.Second)
 			if err != nil {
 				slog.Error("[Webscrape Repository] ScrapeFromUrl validate url as article:", "error", err)
 				errCh <- err
@@ -76,7 +76,7 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 			if err != nil {
 				slog.Error("[Webscrape Repository] ScrapeFromUrl get time:", "error", err)
 				errCh <- err
-				return
+				date = time.Now().UTC()
 			}
 			dmArticle := &domain.ArticleMetadata{
 				Id:        -1,
@@ -95,13 +95,6 @@ func (repo *WebscrapeRepositoryImpl) ScrapeFromUrl(url string) ([]*domain.Articl
 	// Close the channels after all goroutines finish
 	close(errCh)
 	close(resCh)
-
-	// Check if there were any errors
-	for err := range errCh {
-		if err != nil {
-			return nil, nil, err
-		}
-	}
 
 	// Collect all results
 	for dmArticle := range resCh {

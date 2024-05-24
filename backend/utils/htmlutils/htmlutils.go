@@ -3,12 +3,14 @@ package htmlutils
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	md "github.com/JohannesKaufmann/html-to-markdown"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bobesa/go-domain-util/domainutil"
 	"github.com/microcosm-cc/bluemonday"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"notime/domain"
 	"strconv"
 	"strings"
@@ -20,8 +22,8 @@ var (
 	ErrCannotParse = errors.New("cannot parse html")
 )
 
-func GetLargestImageUrlFromArticle(url string) (string, error) {
-	html, err := GetSanitizedHtml(url)
+func GetLargestImageUrlFromArticle(url string, timeout time.Duration) (string, error) {
+	html, err := GetSanitizedHtml(url, timeout)
 	if err != nil {
 		return "", err
 	}
@@ -67,8 +69,8 @@ func GetLargestImageUrlFromArticle(url string) (string, error) {
 	return imageUrl, nil
 }
 
-func ScrapeAndConvertArticleToMarkdown(url string) (string, error) {
-	html, err := GetSanitizedHtml(url)
+func ScrapeAndConvertArticleToMarkdown(url string, timeout time.Duration) (string, error) {
+	html, err := GetSanitizedHtml(url, timeout)
 	if err != nil {
 		return "", err
 	}
@@ -98,7 +100,7 @@ func ScrapeAndConvertArticleToMarkdown(url string) (string, error) {
 	return markdown, nil
 }
 
-func GetSanitizedHtml(url string) (*bytes.Buffer, error) {
+func GetSanitizedHtml(url string, timeout time.Duration) (*bytes.Buffer, error) {
 	// Request the HTML page.
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -106,7 +108,9 @@ func GetSanitizedHtml(url string) (*bytes.Buffer, error) {
 		return nil, ErrCannotFetch
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36")
-	res, err := http.DefaultClient.Do(req)
+
+	client := &http.Client{Timeout: timeout}
+	res, err := client.Do(req)
 	if err != nil {
 		slog.Error("[HTMLUtils] GetSanitizedHtml:", "error", err)
 		return nil, ErrCannotFetch
@@ -126,8 +130,8 @@ func GetSanitizedHtml(url string) (*bytes.Buffer, error) {
 	return html, nil
 }
 
-func ValidateUrlAsArticle(url string, pCharCount int, pElementThreshold int) (bool, error) {
-	html, err := GetSanitizedHtml(url)
+func ValidateUrlAsArticle(url string, pCharCount int, pElementThreshold int, timeout time.Duration) (bool, error) {
+	html, err := GetSanitizedHtml(url, timeout)
 	if err != nil {
 		return false, err
 	}
@@ -200,4 +204,23 @@ func GetPublisherNameFromSubdomainsAndDomain(urlStr string) (string, error) {
 		publisherName = subdomain + "@" + domain
 	}
 	return publisherName, nil
+}
+
+func GetFullURL(strippedURL string) (string, error) {
+	// Prepend https:// and try parsing the URL
+	fullURL := fmt.Sprintf("https://%s", strippedURL)
+	parsedURL, err := url.Parse(fullURL)
+	if err != nil {
+		// If parsing with https fails, try http://
+		fullURL = fmt.Sprintf("http://%s", strippedURL)
+		parsedURL, err = url.Parse(fullURL)
+		if err != nil {
+			return "", err
+		}
+	}
+	// Check if the scheme is set (http or https)
+	if parsedURL.Scheme == "" {
+		return "", fmt.Errorf("invalid URL format: %s", strippedURL)
+	}
+	return parsedURL.String(), nil
 }

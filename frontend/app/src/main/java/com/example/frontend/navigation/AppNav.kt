@@ -129,6 +129,7 @@ private fun NavGraphBuilder.showBookmarkListDetail(navController: NavController)
             viewModel = hiltViewModel(),
             articleType = ArticleType.BOOKMARK,
             id = BigInteger(bookmarkListId ?: "0"),
+            disableBookmark = false,
             onBack = { navController.navigateUp() },
             onArticleClick = {
                 navController.navigate(Route.Reader.route + "/$it")
@@ -157,6 +158,7 @@ private fun NavGraphBuilder.showSubscriptionDetail(navController: NavController)
             viewModel = hiltViewModel(),
             articleType = ArticleType.PUBLISHER,
             id = BigInteger(publisherId ?: "0"),
+            disableBookmark = false,
             onBack = { navController.navigateUp() },
             onArticleClick = {
                 navController.navigate(Route.Reader.route + "/$it")
@@ -188,6 +190,7 @@ private fun NavGraphBuilder.showSearchResult(navController: NavController) {
         SearchResultRoute(
             viewModel = hiltViewModel(),
             query = query ?: "",
+            disableBookmark = true,
             obBack = { navController.navigateUp() },
             onSubscriptionClick = {
                 navController.navigate(Route.SubscriptionDetail.route + "/$it")

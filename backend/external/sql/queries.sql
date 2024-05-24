@@ -84,12 +84,12 @@ WHERE subscription.user_id = @user_id
 ORDER BY publish_date DESC
 LIMIT @count OFFSET $1;
 
--- name: GetAllArticles :many
+-- name: GetRandomArticles :many
 -- params: limit: number, offset: number
 -- behavior: sorted by publish_date desc
 SELECT *
 FROM post
-ORDER BY publish_date DESC
+ORDER BY random()
 LIMIT @count OFFSET $1;
 
 -- name: SearchArticlesByName :many

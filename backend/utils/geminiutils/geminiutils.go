@@ -13,7 +13,7 @@ import (
 const (
 	characterLowerThreshold = 100
 	characterUpperThreshold = 200
-	summarizePrompt         = "In 1 short paragraph less than 200 characters, summarize the whole article. Include important numbers, quotes. The article is: %s"
+	summarizePrompt         = "In one short paragraph less than 200 characters, concisely summarize the whole article. Include important numbers, quotes. The article is: %s"
 )
 
 var (
@@ -30,7 +30,8 @@ func GenerateArticleSummary(env *bootstrap.Env, content string) (string, error) 
 	defer client.Close()
 
 	model := client.GenerativeModel("gemini-pro")
-	resp, err := model.GenerateContent(ctx, genai.Text(fmt.Sprintf(summarizePrompt, content)))
+	prompt := genai.Text(fmt.Sprintf(summarizePrompt, content))
+	resp, err := model.GenerateContent(ctx, prompt)
 	if err != nil {
 		slog.Error("[GeminiUtils] GenerateArticleSummary:", "error", err)
 		return "", ErrCannotGenerateSummary

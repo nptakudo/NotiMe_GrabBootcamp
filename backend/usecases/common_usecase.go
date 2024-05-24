@@ -22,7 +22,7 @@ type CommonUsecaseImpl struct {
 func NewCommonUsecase(env *bootstrap.Env, db *store.Queries) controller.CommonUsecase {
 	articleRepository := repository.NewArticleRepository(env, db)
 	publisherRepository := repository.NewPublisherRepository(db)
-	bookmarkListRepository := repository.NewBookmarkListRepository(db)
+	bookmarkListRepository := repository.NewBookmarkListRepository(env, db)
 	subscribeListRepository := repository.NewSubscribeListRepository(db)
 
 	return &CommonUsecaseImpl{
@@ -78,6 +78,16 @@ func (uc *CommonUsecaseImpl) GetBookmarkLists(ctx context.Context, userId int32,
 	}
 
 	return fromDmBookmarkListsToApi(bookmarkListsDm), nil
+}
+
+func (uc *CommonUsecaseImpl) CreateBookmarkList(ctx context.Context, name string, userId int32) (*messages.BookmarkList, error) {
+	bookmarkListDm, err := uc.BookmarkListRepository.Create(ctx, name, userId, false)
+	if err != nil {
+		slog.Error("[HomeUsecase] CreateBookmarkList:", "error", err)
+		return nil, ErrInternal
+	}
+
+	return fromDmBookmarkListToApi(bookmarkListDm), nil
 }
 
 func (uc *CommonUsecaseImpl) GetBookmarkListById(ctx context.Context, id int32, userId int32) (*messages.BookmarkList, error) {
@@ -152,6 +162,27 @@ func (uc *CommonUsecaseImpl) Unbookmark(ctx context.Context, articleId int64, bo
 	return nil
 }
 
+func (uc *CommonUsecaseImpl) DeleteBookmarkList(ctx context.Context, id int32, userId int32) error {
+	bookmarkListDm, err := uc.BookmarkListRepository.GetById(ctx, id)
+	if err != nil {
+		slog.Error("[HomeUsecase] DeleteBookmarkList:", "error", err)
+		return ErrInternal
+	}
+	if bookmarkListDm.OwnerId != userId {
+		return ErrNotAuthorized
+	}
+	if bookmarkListDm.IsSaved {
+		return ErrInternal
+	}
+
+	_, err = uc.BookmarkListRepository.Delete(ctx, id)
+	if err != nil {
+		slog.Error("[HomeUsecase] DeleteBookmarkList:", "error", err)
+		return ErrInternal
+	}
+	return nil
+}
+
 func (uc *CommonUsecaseImpl) Subscribe(ctx context.Context, publisherId int32, userId int32) error {
 	err := uc.SubscribeListRepository.AddToSubscribeList(ctx, publisherId, userId)
 	if err != nil {
@@ -171,7 +202,7 @@ func (uc *CommonUsecaseImpl) Unsubscribe(ctx context.Context, publisherId int32,
 func (uc *CommonUsecaseImpl) SearchPublisher(ctx context.Context, searchQuery string, userId int) ([]*messages.Publisher, error) {
 	publishersDm := make([]*domain.Publisher, 0)
 
-	if strings.HasPrefix(searchQuery, "https://") {
+	if strings.HasPrefix(searchQuery, "http") {
 		if !strings.HasSuffix(searchQuery, "/") {
 			searchQuery += "/"
 		}
@@ -216,14 +247,19 @@ func (uc *CommonUsecaseImpl) GetArticlesByPublisher(ctx context.Context, publish
 	return fromDmArticlesToApi(ctx, articlesDm, userId, uc.BookmarkListRepository)
 }
 
-func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Publisher) (int, error) {
+func (uc *CommonUsecaseImpl) AddNewSource(ctx context.Context, source domain.Publisher, userId int32) (int32, error) {
 	newPublisher, err := uc.PublisherRepository.Create(ctx, source.Name, source.Url, source.AvatarUrl)
 	if err != nil {
 		slog.Error("[HomeUsecase] AddNewSource:", "error", err)
 		return 0, ErrInternal
 	}
-	return int(newPublisher.Id), nil
+	err = uc.Subscribe(ctx, newPublisher.Id, userId)
+	if err != nil {
+		slog.Error("[HomeUsecase] AddNewSource:", "error", err)
+	}
+	return newPublisher.Id, nil
 }
+
 func (uc *CommonUsecaseImpl) AddNewArticle(ctx context.Context, article domain.ArticleMetadata, rawText string) error {
 	_, err := uc.ArticleRepository.Create(ctx, article.Title, article.Date, article.Url, article.Publisher.Id, rawText)
 	if err != nil {

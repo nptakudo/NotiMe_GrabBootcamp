@@ -6,12 +6,13 @@ import (
 )
 
 type ArticleMetadata struct {
-	Id        int64      `json:"id"`
-	Title     string     `json:"title"`
-	Publisher *Publisher `json:"publisher"`
-	Date      time.Time  `json:"date"`
-	Url       string     `json:"url"`
-	ImageUrl  string     `json:"image_url"`
+	Id         int64      `json:"id"`
+	Title      string     `json:"title"`
+	Publisher  *Publisher `json:"publisher"`
+	Date       time.Time  `json:"date"`
+	Url        string     `json:"url"`
+	ImageUrl   string     `json:"image_url"`
+	RawContent string
 }
 
 type ArticleRepository interface {

@@ -127,47 +127,6 @@ func (q *Queries) DeleteBookmarkList(ctx context.Context, id int32) (ReadingList
 	return i, err
 }
 
-const getAllArticles = `-- name: GetAllArticles :many
-SELECT id, title, publish_date, url, raw_text, source_id
-FROM post
-ORDER BY publish_date DESC
-LIMIT $2 OFFSET $1
-`
-
-type GetAllArticlesParams struct {
-	Offset int32 `json:"offset"`
-	Count  int32 `json:"count"`
-}
-
-// params: limit: number, offset: number
-// behavior: sorted by publish_date desc
-func (q *Queries) GetAllArticles(ctx context.Context, arg GetAllArticlesParams) ([]Post, error) {
-	rows, err := q.db.Query(ctx, getAllArticles, arg.Offset, arg.Count)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Post{}
-	for rows.Next() {
-		var i Post
-		if err := rows.Scan(
-			&i.ID,
-			&i.Title,
-			&i.PublishDate,
-			&i.Url,
-			&i.RawText,
-			&i.SourceID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getArticleById = `-- name: GetArticleById :one
 
 
@@ -505,6 +464,47 @@ func (q *Queries) GetPublisherById(ctx context.Context, id int32) (Source, error
 		&i.Avatar,
 	)
 	return i, err
+}
+
+const getRandomArticles = `-- name: GetRandomArticles :many
+SELECT id, title, publish_date, url, raw_text, source_id
+FROM post
+ORDER BY random()
+LIMIT $2 OFFSET $1
+`
+
+type GetRandomArticlesParams struct {
+	Offset int32 `json:"offset"`
+	Count  int32 `json:"count"`
+}
+
+// params: limit: number, offset: number
+// behavior: sorted by publish_date desc
+func (q *Queries) GetRandomArticles(ctx context.Context, arg GetRandomArticlesParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getRandomArticles, arg.Offset, arg.Count)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Post{}
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.PublishDate,
+			&i.Url,
+			&i.RawText,
+			&i.SourceID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getSubscribedPublishersByUserId = `-- name: GetSubscribedPublishersByUserId :many

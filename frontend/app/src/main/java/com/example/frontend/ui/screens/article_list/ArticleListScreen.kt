@@ -43,7 +43,7 @@ import com.example.frontend.ui.component.BottomSheetNewBookmarkContent
 import com.example.frontend.ui.component.SmallArticleCard
 import com.example.frontend.ui.theme.Colors
 import com.example.frontend.ui.theme.UiConfig
-import com.example.frontend.utils.dateToStringExactDateFormat
+import com.example.frontend.utils.dateToStringAgoFormat
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 
@@ -62,6 +62,7 @@ fun ArticleListScreen(
     modifier: Modifier = Modifier,
     articleType: ArticleType,
     uiState: ArticleListUiState,
+    disableBookmark: Boolean,
     onBookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onUnbookmark: (articleId: BigInteger, bookmarkId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
@@ -130,6 +131,7 @@ fun ArticleListScreen(
                             articles = uiState.articles,
                             onArticleClick = onArticleClick,
                             bookmarks = uiState.bookmarks,
+                            disableBookmark = disableBookmark,
                             onBookmark = onBookmark,
                             onUnbookmark = onUnbookmark,
                             onNewBookmark = onNewBookmark
@@ -152,6 +154,7 @@ fun ArticleListScreenContent(
     modifier: Modifier = Modifier,
     articles: List<ArticleMetadata>,
     bookmarks: List<BookmarkList>,
+    disableBookmark: Boolean,
     onBookmark: (articleId: BigInteger, bookmarkListId: BigInteger) -> Unit,
     onUnbookmark: (articleId: BigInteger, bookmarkListId: BigInteger) -> Unit,
     onNewBookmark: (name: String, articleId: BigInteger) -> Unit,
@@ -187,13 +190,13 @@ fun ArticleListScreenContent(
                     articleImageUrl = article.imageUrl,
                     title = article.title,
                     publisher = article.publisher.name,
-                    date = dateToStringExactDateFormat(article.date),
+                    date = dateToStringAgoFormat(article.date),
                     onClick = { onArticleClick(article.id) },
                     onBookmarkClick = {
                         bottomSheetBookmarkArticleId = article.id
                         expandBottomSheet(ArticleListUiConfig.BottomSheetContentType.BOOKMARK)
                     },
-                    disableBookmarkButton = true,
+                    disableBookmarkButton = disableBookmark,
                     isBookmarked = article.isBookmarked
                 )
                 HorizontalDivider()

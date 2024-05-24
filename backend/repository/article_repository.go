@@ -22,7 +22,7 @@ func NewArticleRepository(env *bootstrap.Env, q *store.Queries) domain.ArticleRe
 	return &ArticleRepositoryImpl{
 		q:                   q,
 		env:                 env,
-		UtilitiesRepository: UtilitiesRepository{q: q},
+		UtilitiesRepository: UtilitiesRepository{q: q, env: env},
 	}
 }
 
@@ -63,7 +63,7 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 			defer wg.Done()
 
 			// Check if url is actually of an article
-			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold, time.Duration(r.env.ContextTimeout)*time.Second)
 			if err != nil {
 				slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 				errCh <- err
@@ -90,13 +90,6 @@ func (r *ArticleRepositoryImpl) GetByPublisher(ctx context.Context, publisherId 
 	// Close the channels after all goroutines finish
 	close(errCh)
 	close(resCh)
-
-	// Check if there were any errors
-	for err := range errCh {
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	// Collect all results
 	for dmArticle := range resCh {
@@ -128,7 +121,7 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 			defer wg.Done()
 
 			// Check if url is actually of an article
-			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold)
+			isArticle, err := htmlutils.ValidateUrlAsArticle(dbArticle.Url, r.env.PElementCharCount, r.env.PElementThreshold, time.Duration(r.env.ContextTimeout)*time.Second)
 			if err != nil {
 				slog.Error("[Article Repository] GetByPublisher validate url as article:", "error", err)
 				errCh <- err
@@ -155,13 +148,6 @@ func (r *ArticleRepositoryImpl) Search(ctx context.Context, query string, count 
 	// Close the channels after all goroutines finish
 	close(errCh)
 	close(resCh)
-
-	// Check if there were any errors
-	for err := range errCh {
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	// Collect all results
 	for dmArticle := range resCh {

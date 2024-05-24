@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"log/slog"
+	"notime/bootstrap"
 	"notime/domain"
 	"notime/external/sql/store"
 	"slices"
@@ -16,10 +17,10 @@ type BookmarkListRepositoryImpl struct {
 	UtilitiesRepository
 }
 
-func NewBookmarkListRepository(q *store.Queries) domain.BookmarkListRepository {
+func NewBookmarkListRepository(env *bootstrap.Env, q *store.Queries) domain.BookmarkListRepository {
 	return &BookmarkListRepositoryImpl{
 		q:                   q,
-		UtilitiesRepository: UtilitiesRepository{q: q},
+		UtilitiesRepository: UtilitiesRepository{q: q, env: env},
 	}
 }
 

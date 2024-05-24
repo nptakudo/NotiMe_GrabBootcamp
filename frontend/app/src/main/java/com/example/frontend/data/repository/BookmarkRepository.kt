@@ -8,6 +8,9 @@ class BookmarkRepository @Inject constructor(
     private val remoteBookmarkDataSource: RemoteBookmarkDataSource
 ) {
     suspend fun getBookmarkLists(isShared: Boolean? = null) = remoteBookmarkDataSource.getBookmarkLists(isShared)
+
+    suspend fun createBookmarkList(name: String) = remoteBookmarkDataSource.createBookmarkList(name)
+
     suspend fun getBookmarkListById(bookmarkId: BigInteger) =
         remoteBookmarkDataSource.getBookmarkListById(bookmarkId)
 
@@ -20,9 +23,5 @@ class BookmarkRepository @Inject constructor(
     suspend fun unbookmarkArticle(articleId: BigInteger, bookmarkId: BigInteger) =
         remoteBookmarkDataSource.unbookmarkArticle(articleId, bookmarkId)
 
-    suspend fun createBookmarkList(name: String): BigInteger { /* TODO */ return BigInteger.ZERO
-    }
-
-    suspend fun addToBookmarkList(articleId: BigInteger, bookmarkId: BigInteger) { /* TODO */
-    }
+    suspend fun deleteBookmarkList(bookmarkId: BigInteger) = remoteBookmarkDataSource.deleteBookmarkList(bookmarkId)
 }
