@@ -5,8 +5,6 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-# from webscrape.webscrape.spiders.testdag import hehe
-from hehe import huhu
 
 # A DAG represents a workflow, a collection of tasks
 with DAG(dag_id="daily", start_date=datetime(2024, 5, 7), schedule="0 0 * * *") as dag:
